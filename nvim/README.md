@@ -1,0 +1,3 @@
+Neovim is set up in a very specific way. Two environment variables, `NVIM_APPNAME` (used by Neovim) and `NVIM_FRONTEND` (custom addition) are used to select the configuration (stock Neovim or NvChad) and the frontend (the terminal or Neovide). When selecting the configuration, the assumption is that the `init.lua` for anything not in `./nvim` will properly set up configuration paths. 
+
+Follow the [NvChad installation guide](https://nvchad.com/docs/quickstart/install) to install NvChad (make sure the `NVIM_APPNAME` variable is set to "nvchad"). Note that if on NixOS, Mason will not work out of the box (or at all, given my current configuration). Any configured language servers are provided in the system packages/path. 

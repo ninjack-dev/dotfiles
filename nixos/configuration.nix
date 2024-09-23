@@ -256,6 +256,7 @@
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
     AQ_DRM_DEVICES = "card1"; # Attempt to fix Hyprland 0.43 - failed.
+    STEAM_FORCE_DESKTOPUI_SCALING=1.6;
     # WLR_NO_HARDWARE_CURSORS = "1";
 
     GTK_THEME = "Nordic";

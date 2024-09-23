@@ -130,7 +130,6 @@ nvfsel() {
   select frontend in Neovide Terminal
   do update_nvim_frontend_env_var $frontend; break;
   done;
-  source $ZDOTDIR/.zshenv
   set_nvim_frontend_alias
 }
 
@@ -144,11 +143,13 @@ set_nvim_frontend_alias()
 update_nvim_frontend_env_var(){
   echo "$1 is now selected as default frontend."
   if [[ $1 = "Terminal" ]]; then
-  sed -i "s/NVIM_FRONTEND=[^ ]*/NVIM_FRONTEND=term/" $ZDOTDIR/.zshenv
-  echo "Note that Neovide can still be launched with the alias 'nvid'";
+    sed -i "s/NVIM_FRONTEND=[^ ]*/NVIM_FRONTEND=term/" $ZDOTDIR/.zshenv
+    echo "Note that Neovide can still be launched with the alias 'nvid'";
+    NVIM_FRONTEND=term
   fi
   if [[ $1 = "Neovide" ]]; then 
     sed -i "s/NVIM_FRONTEND=[^ ]*/NVIM_FRONTEND=neovide/" $ZDOTDIR/.zshenv 
+    NVIM_FRONTEND=neovide
   fi
 }
 
@@ -164,5 +165,9 @@ update_nvim_config_env_var()
   sed -i "s/NVIM_APPNAME=[^ ]*/NVIM_APPNAME=${1}/" $ZDOTDIR/.zshenv;
   source $ZDOTDIR/.zshenv;
 }
+
+if [ $TERM = "linux" ]; then
+  NVIM_FRONTEND="term"
+fi
 
 set_nvim_frontend_alias

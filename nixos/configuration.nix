@@ -144,8 +144,8 @@
   documentation.dev.enable = true; # Lets us use man 3
 
   qt.enable = true;
-  qt.platformTheme = "gtk2";
-  qt.style = "gtk2";
+  # qt.platformTheme = "gtk2";
+  # qt.style = "gtk2";
 
   programs.steam = {
     enable = true;
@@ -212,7 +212,11 @@
     firefox
     kitty
     networkmanagerapplet
-    dolphin
+
+    kdePackages.dolphin
+    kdePackages.qtwayland
+    kdePackages.qtsvg
+
     pavucontrol
     gparted
 

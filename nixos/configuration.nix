@@ -195,6 +195,7 @@
     gnome.adwaita-icon-theme
     zoom-us
     overskride
+    thunderbird # When 24.11 launches, update this to use programs.thunderbird
 
     vscodium # Only here for a slightly improved Markdown rendering/editing experience
 

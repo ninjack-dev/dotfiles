@@ -7,3 +7,6 @@ According to the example README:
 > types are symlinked to:
 > `/nix/store/zks2f1jx6jj4d161gmsm10q48dviixwb-ags-1.8.2/share/com.github.Aylur.ags/types`
 I believe this is done during installation.
+
+## To-Do
+- [ ] Fix multi-monitor bar support

@@ -32,6 +32,15 @@
   services.logind.lidSwitch = "suspend";
   services.logind.lidSwitchDocked = "suspend";
 
+
+  # services.printing.enable = true;
+
+# services.avahi = {
+#   enable = true;
+#   nssmdns4 = true;
+#   openFirewall = true;
+# };
+
   services.kanata = {
     enable = true;
   };

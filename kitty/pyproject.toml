@@ -1,0 +1,5 @@
+# This will break after updates when the hash/version number changes. There needs to be a more automatable way to handle this. 
+[tool.pyright]
+extraPaths = [
+"/nix/store/cmkk0l1qs0hph06nlp0ji1arkpxp44xs-kitty-0.34.1/lib/kitty/"
+]

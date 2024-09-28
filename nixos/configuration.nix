@@ -198,7 +198,7 @@
 
   # Desktop Environment Apps
     wl-clipboard
-    wofi
+    rofi-wayland
     libnotify
     glib
     unstable.moonlight-qt
@@ -245,7 +245,7 @@
     
     mongodb-compass # Work
 
-
+    
     # language servers
     lua-language-server
     clang-tools

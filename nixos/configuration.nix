@@ -241,20 +241,22 @@
     python3
     go
     gopls
-
-  # TODO - Figure out how to get these outta here
-    nodePackages.typescript-language-server
-    pkgs.nodePackages.bash-language-server
-    mongodb-compass
-
     smlnj # School
+    
+    mongodb-compass # Work
+
 
     # language servers
     lua-language-server
     clang-tools
     nil
-
+    vscode-langservers-extracted
+    pyright
+  # TODO - Figure out how to get these outta here
+    nodePackages.typescript-language-server
+    pkgs.nodePackages.bash-language-server
     millet # School
+
   ];
 
   

@@ -79,12 +79,16 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
+
   programs.hyprland = {
     enable = true;
     # package = pkgs.unstable.hyprland;
     # portalPackage = pkgs.unstable.xdg-desktop-portal-hyprland;
     # Unstable on 0.43 crashes. Seems like a common issue
   };
+  programs.hyprlock.enable = true;
+  services.hypridle.enable = true;
+
   programs.direnv.enable = true;
   xdg.portal = {
     enable = true;
@@ -100,9 +104,6 @@
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
     rebuild = "sudo nixos-rebuild switch";
   };
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -205,6 +206,7 @@
     zoom-us
     overskride
     thunderbird # When 24.11 launches, update this to use programs.thunderbird
+    hyprpicker
 
     vscodium # Only here for a slightly improved Markdown rendering/editing experience
 

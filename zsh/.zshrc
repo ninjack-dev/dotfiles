@@ -72,6 +72,7 @@ compinit -C
 eval "$(zoxide init zsh --cmd cd)"
 eval "$(fzf --zsh)"
 eval "$(thefuck --alias)" 
+eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then
   eval "$(oh-my-posh init zsh)"
 fi

@@ -25,7 +25,6 @@ from kitty.fast_data_types import (
 from kitty.os_window_size import WindowSizeData, edge_spacing
 from kitty.types import LayerShellConfig
 from kitty.typing import Debug, EdgeLiteral
-from kittens.tui.loop import debug
 
 OPTIONS = r'''
 --lines --columns
@@ -53,6 +52,11 @@ Which wayland layer focus policy to apply to the layer that this panel will be i
 0 - Focus not allowed
 1 - Focus is exclusive
 2 - Focus is on demand
+
+
+--listen-on
+type=string
+A unix pipe to listen on. 
 
 
 --config -c
@@ -188,6 +192,9 @@ def main(sys_args: List[str]) -> None:
     for override in args.override:
         sys.argv.extend(('--override', override))
     sys.argv.append('--override=linux_display_server=auto')
+    # sys.argv.append('--listen-on=unix:@btop')
+    if args.listen_on:
+        sys.argv.extend(('--listen-on', args.listen_on))
     sys.argv.extend(items)
     from kitty.main import main as real_main
     from kitty.main import run_app

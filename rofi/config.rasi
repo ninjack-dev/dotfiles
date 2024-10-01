@@ -1,0 +1,28 @@
+configuration {
+    font: "FiraCode Nerd Font 12";
+    modes: [window,drun,run,ssh,combi];
+    line-margin: 10;
+
+    display-ssh:    "";
+    display-run:    "";
+    display-drun:   "";
+    display-window: "";
+    display-combi:  "";
+    show-icons:     true;
+
+    window-match-fields: "title,class,role,name,desktop";
+    window-format: "{w}, {t}";
+}
+
+// https://discourse.nixos.org/t/rofi-on-wayland-and-plugins/17354/8 
+
+
+@theme "~/.config/rofi/nord.rasi"
+
+listview {
+	lines: 6;
+}
+
+window {
+	width: 50%;
+}

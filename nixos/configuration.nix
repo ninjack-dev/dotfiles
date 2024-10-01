@@ -34,12 +34,12 @@
 
 
   # services.printing.enable = true;
-
-# services.avahi = {
-#   enable = true;
-#   nssmdns4 = true;
-#   openFirewall = true;
-# };
+  #
+  # services.avahi = {
+  #   enable = true;
+  #   nssmdns4 = true;
+  #   openFirewall = true;
+  # };
 
   services.kanata = {
     enable = true;
@@ -86,6 +86,8 @@
     # portalPackage = pkgs.unstable.xdg-desktop-portal-hyprland;
     # Unstable on 0.43 crashes. Seems like a common issue
   };
+
+
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
 
@@ -195,6 +197,7 @@
     xdg-utils
     ffmpeg
     fprintd
+    socat
 
   # Desktop Environment Apps
     wl-clipboard
@@ -226,7 +229,6 @@
     networkmanagerapplet
 
     kdePackages.dolphin
-    kdePackages.qtwayland
     kdePackages.qtsvg
 
     pavucontrol
@@ -242,6 +244,13 @@
     go
     gopls
     smlnj # School
+
+    meson
+    cmake
+    egl-wayland
+    pkg-config
+    wayland-scanner
+    wayland
     
     mongodb-compass # Work
 
@@ -252,10 +261,12 @@
     nil
     vscode-langservers-extracted
     pyright
+    taplo
   # TODO - Figure out how to get these outta here
     nodePackages.typescript-language-server
     pkgs.nodePackages.bash-language-server
     millet # School
+
 
   ];
 
@@ -273,7 +284,6 @@
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    AQ_DRM_DEVICES = "card1"; # Attempt to fix Hyprland 0.43 - failed.
     STEAM_FORCE_DESKTOPUI_SCALING=1.6;
     # WLR_NO_HARDWARE_CURSORS = "1";
   };

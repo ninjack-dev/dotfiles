@@ -15,7 +15,9 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, ags, ... }@inputs:
     let 
       system = "x86_64-linux";
-      overlay-unstable = final: prev: { unstable = nixpkgs-unstable.legacyPackages.${prev.system}; };
+      overlay-unstable = final: prev: { 
+        unstable = nixpkgs-unstable.legacyPackages.${prev.system}; 
+      };
     in
       {
       nixosConfigurations."nixos-laptop" = nixpkgs.lib.nixosSystem {

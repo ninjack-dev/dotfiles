@@ -2,7 +2,8 @@
   description = "A very basic flake to start. https://nixos.wiki/wiki/Flakes#Importing_packages_from_multiple_channels";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    # Need to research this. 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";

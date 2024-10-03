@@ -1,6 +1,6 @@
 configuration {
     font: "FiraCode Nerd Font 12";
-    modes: [window,drun,run,ssh,combi];
+    modes: [drun,run,window,ssh,combi];
     line-margin: 10;
 
     display-ssh:    "";
@@ -10,8 +10,7 @@ configuration {
     display-combi:  "";
     show-icons:     true;
 
-    window-match-fields: "title,class,role,name,desktop";
-    window-format: "{w}, {t}";
+    window-format: "{t}";
 }
 
 // https://discourse.nixos.org/t/rofi-on-wayland-and-plugins/17354/8 

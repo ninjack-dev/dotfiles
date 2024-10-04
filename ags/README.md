@@ -1,12 +1,18 @@
-> [!warning]
-> If installing on NixOS, it is necessary to use the package and/or flake provided on the Aylur/ags repository instead of the one hosted on Nixpkgs, as it is missing several "optional" packages. The current iteration of my `flake.nix` contains this setup (albeit rather uncleanly). 
 
-This configuration is one of the examples from the ags repository, with some minor additions. **Very WIP**. The current config will likely not stick around once I've mastered NixOS package overlays/overrides and can pull some more custom dotfiles.
+# Starter Config
 
-According to the example README:
-> types are symlinked to:
-> `/nix/store/zks2f1jx6jj4d161gmsm10q48dviixwb-ags-1.8.2/share/com.github.Aylur.ags/types`
-I believe this is done during installation.
+if suggestions don't work, first make sure
+you have TypeScript LSP working in your editor
+
+if you do not want typechecking only suggestions
+
+```json
+// tsconfig.json
+"checkJs": false
+```
+
+types are symlinked to:
+/nix/store/rblikaijp26p7kijb4hmd2ma0phjjwyz-ags-1.8.2/share/com.github.Aylur.ags/types
 
 ## To-Do
-- [ ] Fix multi-monitor bar support
+- [ ] Make the tray icons for apps set focus to those apps (e.g. clicking on the Discord icon will switch to Discord)

@@ -10,10 +10,6 @@ const date = Variable("", {
     poll: [1000, 'date "+%H:%M:%S %b %e."'],
 })
 
-// widgets can be only assigned as a child in one container
-// so to make a reuseable widget, make it a function
-// then you can simply instantiate one by calling it
-
 function Workspaces() {
     const activeId = hyprland.active.workspace.bind("id")
     const workspaces = hyprland.bind("workspaces")
@@ -146,7 +142,7 @@ function SysTray() {
     const items = systemtray.bind("items")
         .as(items => items.map(item => Widget.Button({
             child: Widget.Icon({ icon: item.bind("icon") }),
-            on_primary_click: (_, event) => item.activate(event),
+            on_primary_click: (_, event) => { item.activate(event); },
             on_secondary_click: (_, event) => item.openMenu(event),
             tooltip_markup: item.bind("tooltip_markup"),
         })))

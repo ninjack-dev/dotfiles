@@ -71,6 +71,7 @@ compinit -C
 # Shell integrations and prompt
 eval "$(zoxide init zsh --cmd cd)"
 eval "$(fzf --zsh)"
+# https://thevaluable.dev/fzf-shell-integration/
 eval "$(thefuck --alias)" 
 eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then
@@ -102,6 +103,19 @@ ip route get 1 | awk '{print $7;exit}'
  
 ## NEOVIM ##
   
+
+run_neovide_hyprland_socket()
+{
+  neovide --fork
+  nc -U "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" |  while read -r line; do
+    if [[ ${line:0:10} == "openwindow" ]]; then
+      echo "Neovide opened"
+      break
+    fi
+  done
+  kill $!
+}
+
 run_neovide_hyprland()
 {
   # if hyprctl activewindow | grep "fullscreen: 1"; then
@@ -111,29 +125,33 @@ run_neovide_hyprland()
   #     windowState="fullscreen"
   #   fi
   # fi 
-  # hyprctl dispatch exec -- "[${windowState}]" neovide "${pwd}/" -- "${@}" 
+  # hyprctl dispatch exec -- "[fullscreen ${windowState}]" neovide "${pwd}/" -- "${@}" 
   # The problem with this approach is that, as far as I can see, there is no way to pass the working directory to neovide. Otherwise it works ok,
   # sans a small problem with focusing the window after fullscreen
-  if hyprctl activewindow | grep "fullscreen: 1" > /dev/null; then
-    if hyprctl activewindow | grep "fullscreenmode: 1" > /dev/null; then
-      windowState=1
-    else
-      windowState=0
-    fi
-  fi 
-
   
+  # Ok so apparently 99% of this function is entirely pointless now. The state is inherited
+  # when focuswindow is called. What.
+  # if hyprctl activewindow | grep "fullscreen: 1" > /dev/null; then
+  #   if hyprctl activewindow | grep "fullscreenmode: 1" > /dev/null; then
+  #     echo "FULLSCREEN"
+  #     local windowState=1
+  #   else
+  #     echo "MAXIMIZED"
+  #     local windowState=0
+  #   fi
+  # fi 
+  
+  # echo $windowState
   # TODO: Look into using the Hyprland socket instead of grepping from `hyprctl clients` 
   #  https://wiki.hyprland.org/IPC/
   run_neovide_de_agnostic $@ # Only way to set $!
   while ! hyprctl clients | grep $! >/dev/null; do done # Kill me
-  hyprctl dispatch focuswindow pid:$! >/dev/null
-  while ! hyprctl activewindow | grep $! >/dev/null; do done; # Please god kill me
-  hyprctl dispatch fullscreen $windowState >/dev/null
-  [[ -v $windowState ]]; hyprctl dispatch fullscreen $windowState >/dev/null
+  hyprctl dispatch focuswindow pid:$! >/dev/null;
+  # while ! hyprctl activewindow | grep $! >/dev/null; do done # Please god kill me
+  # hyprctl dispatch fullscreen "${windowState}" >/dev/null
   return 0 # Previous command may fail, no need to set the error code
 
-  # TODO: Substitute the following for `dispatch fullscreen` when Hyprland is updated to 0.43
+  # TODO: Substitute the following for `dispatch fullscreenstate` when Hyprland is updated to 0.43
   # hyprctl dispatch fullscreenstate 1
 
 }

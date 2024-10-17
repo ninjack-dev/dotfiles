@@ -12,7 +12,6 @@
 # Official benchmark tool
 # zmodload zsh/zprof
 
-
 # Zinit can be installed with Nix, but since it's entirely shell-driven, we'll just install it to .local
 # Install (if needed) and initialize zinit and its needed environment variables. 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -56,7 +55,7 @@ bindkey '^n' history-search-forward
 zstyle ':completion:*' matcher-list 'm:{A-Za-z}={a-zA-Z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle :compinstall filename '/home/jacksonb/.zshrc' # I don't know what this does. It was put here automagically when I set up ZSH so I'll leave it be. 
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls--color $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
 autoload -Uz compinit
 
@@ -82,6 +81,7 @@ fi
 alias ls='ls -A --color'
 alias cb=$COPY_UTIL
 alias cat='bat'
+alias ff='fzf_with_preview'
 alias reload='exec zsh'
 alias reboot='systemctl shutdown -r now'
 # alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
@@ -93,7 +93,7 @@ alias nvid='run_neovide_hyprland'
 # Nice idea, doesn't work on nix-os. Might be worth looking for a nix-specific solution
 xd()
 {
-cd $(dirname $(whereis ${1} | awk '{ print $2 }'))
+  cd $(dirname $(whereis ${1} | awk '{ print $2 }'))
 }
 
 getip()
@@ -205,6 +205,23 @@ update_nvim_config_env_var()
   echo "$1 is now selected as default config.";
   sed -i "s/NVIM_APPNAME=[^ ]*/NVIM_APPNAME=${1}/" $ZDOTDIR/.zshenv;
   source $ZDOTDIR/.zshenv;
+}
+
+fzf_with_preview()
+{
+  # For reference
+  # https://vitormv.github.io/fzf-themes/
+  # /*(.D) <-- Shows hidden files (zsh exclusive)
+  if [[ -f "${1}" ]]; then
+    local _ITEMS=$(cd $(dirname $1); ls *(.D) --color=none )
+    local ITEMS=$(echo "$(basename "$1")"; echo "$_ITEMS" | grep -v "$(basename "$1")")
+  else
+    local ITEMS=$(ls *(.D) --color=none)
+  fi
+  local ITEM=$(echo $ITEMS | fzf --preview 'bat --color=always {}' --preview-window 'up,75%')
+  if [[ -f ITEM ]]; then 
+    bat $ITEM
+  fi
 }
 
 if [ $TERM = "linux" ]; then

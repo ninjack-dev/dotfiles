@@ -32,6 +32,14 @@
   services.logind.lidSwitch = "suspend";
   services.logind.lidSwitchDocked = "suspend";
 
+  services.flatpak.enable = true;
+  systemd.services.flatpak-repo = {
+    wantedBy = ["multi-user.target"];
+    path = [pkgs.flatpak];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpak-repo
+    '';
+  };
 
   # services.printing.enable = true;
   #
@@ -91,12 +99,12 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
-  # Enable sound.
-  # hardware.pulseaudio.enable = true;
-  # OR
   services.pipewire = {
     enable = true;
     pulse.enable = true;
+    jack.enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
   };
 
   # May be unnecessary if Hyprland is installed
@@ -178,6 +186,7 @@
     ffmpeg
     fprintd
     socat
+    brightnessctl
 
   # Desktop Environment Apps
     wl-clipboard
@@ -191,13 +200,13 @@
     thunderbird # When 24.11 launches, update this to use programs.thunderbird
     hyprpicker
 
-    vscodium # Only here for a slightly improved Markdown rendering/editing experience
+    vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
 
-    grim # https://sr.ht/~emersion/grim/I may want to replace this with Grimblast later
+    grim # https://sr.ht/~emersion/grim/
     slurp # https://github.com/emersion/slurp?tab=readme-ov-file
     wf-recorder # https://github.com/ammen99/wf-recorder
 
-    inputs.ags.packages.${system}.default # This took friggin' ages. I think it could be redundant, as this string is effectively present in ags/flake.nix outputs
+    inputs.ags.packages.${system}.default
     ddcutil # Needed by AGS config for now
     bun
     nordic
@@ -265,11 +274,11 @@
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    STEAM_FORCE_DESKTOPUI_SCALING=1.6;
+    STEAM_FORCE_DESKTOPUI_SCALING = 1.6;
     # WLR_NO_HARDWARE_CURSORS = "1";
   };
 
-
+  environment.localBinInPath = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

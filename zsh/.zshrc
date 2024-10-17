@@ -211,17 +211,35 @@ fzf_with_preview()
 {
   # For reference
   # https://vitormv.github.io/fzf-themes/
-  # /*(.D) <-- Shows hidden files (zsh exclusive)
-  if [[ -f "${1}" ]]; then
-    local _ITEMS=$(cd $(dirname $1); ls *(.D) --color=none )
-    local ITEMS=$(echo "$(basename "$1")"; echo "$_ITEMS" | grep -v "$(basename "$1")")
-  else
-    local ITEMS=$(ls *(.D) --color=none)
-  fi
-  local ITEM=$(echo $ITEMS | fzf --preview 'bat --color=always {}' --preview-window 'up,75%')
-  if [[ -f ITEM ]]; then 
-    bat $ITEM
-  fi
+  # This works well, it just flashes in between fzf/bat. 
+  (
+  while true; do 
+    if [[ ! -f ITEM ]]; then
+      if [[ -f "${1}" ]]; then
+        cd $(dirname $1)
+        ITEM=$(basename "$1")
+        ITEMS=$( ls *(.D) --color=none )
+        ITEMS=$(echo "$ITEM"; echo "$ITEMS" | grep -v "$ITEM")
+      elif [[ -d "${1}" ]]; then
+        cd $1
+        ITEMS=$( ls *(.D) --color=none) 2>/dev/null
+      else
+        ITEMS=$(ls *(.D) --color=none ) 2>/dev/null
+      fi
+    else
+      ITEMS=$(echo "$ITEM"; echo "$ITEMS" | grep -v "$ITEM")
+    fi
+
+    ITEM=$(echo $ITEMS | fzf --preview 'bat --color=always {}' --preview-window 'up,75%')
+
+    if [[ -f $ITEM ]]; then
+      bat "$ITEM" --paging=always 
+    else
+      break
+    fi
+  done
+  ) 
+  return 0
 }
 
 if [ $TERM = "linux" ]; then

@@ -7,6 +7,11 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, inputs, ... }:
+# let
+#   godotMono = inputs.godot.packages.x86_64-linux.godotMono.overrideAttrs (finalAttrs: previousAttrs: {
+#     version = "4.3";
+#   });
+# in 
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -69,6 +74,19 @@
 
   time.timeZone = "America/Los_Angeles";
 
+  programs.nix-ld = {
+    enable = true;
+    # libraries = with pkgs; [
+    #   dotnet-sdk_8
+    #   wayland
+    # ];
+  };
+
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -128,7 +146,7 @@
   
   users.users.jacksonb = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "networkmanager" "sudo" "docker"]; 
+    extraGroups = [ "wheel" "audio" "networkmanager" "sudo" "docker" "dialout"]; 
     shell = pkgs.zsh;
   };
   nixpkgs.config.allowUnfree = true;
@@ -187,6 +205,7 @@
     fprintd
     socat
     brightnessctl
+    qmk
 
   # Desktop Environment Apps
     wl-clipboard
@@ -199,6 +218,8 @@
     overskride
     thunderbird # When 24.11 launches, update this to use programs.thunderbird
     hyprpicker
+    via
+    wev
 
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
 
@@ -257,7 +278,11 @@
     pkgs.nodePackages.bash-language-server
     millet # School
 
+    arduino-cli
+    arduino-language-server
+    arduino-ide
 
+    godot
   ];
 
   

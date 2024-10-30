@@ -28,15 +28,7 @@
           # The overlays module makes "pkgs.unstable" avalable in configuration.nix
           ({config, pkgs, ...}: { nixpkgs.overlays = [ overlay-unstable ]; } )
           ./configuration.nix
-          
           nixos-hardware.nixosModules.framework-13th-gen-intel
-          {
-          nixpkgs.overlays = [
-            (final: prev: {
-              godot = import ./modules/godot.nix { inherit final; };
-            })
-          ];
-          }
         ];
       };
     };

@@ -282,7 +282,7 @@
     arduino-language-server
     arduino-ide
 
-    godot
+    (import ./modules/godot.nix { inherit pkgs; })
   ];
 
   

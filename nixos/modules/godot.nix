@@ -1,6 +1,6 @@
 {
 stdenv,
-# lib,
+lib,
 fetchurl,
 autoPatchelfHook,
 dotnet-sdk_8,

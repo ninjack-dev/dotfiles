@@ -7,11 +7,9 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, inputs, ... }:
-# let
-#   godotMono = inputs.godot.packages.x86_64-linux.godotMono.overrideAttrs (finalAttrs: previousAttrs: {
-#     version = "4.3";
-#   });
-# in 
+let
+  godot = pkgs.callPackage ./modules/godot.nix {};
+in 
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -282,7 +280,7 @@
     arduino-language-server
     arduino-ide
 
-    (import ./modules/godot.nix { inherit pkgs; })
+    godot
   ];
 
   

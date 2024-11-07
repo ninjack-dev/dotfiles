@@ -55,6 +55,11 @@ vim.schedule(function()
   require "mappings"
 end)
 
+vim.cmd([[
+  aunmenu PopUp.How-to\ disable\ mouse
+  aunmenu PopUp.-1-
+]])
+
 if vim.g.neovide then
   dofile(vim.fn.expand('$XDG_CONFIG_HOME/neovide/neovide.lua'))
 end

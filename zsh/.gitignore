@@ -1,2 +1,4 @@
 .histfile
 .zsh_history
+zsh-bench/
+.zcompdump

@@ -52,26 +52,42 @@ bindkey "^k" up-history
 bindkey '^p' history-search-backward 
 bindkey '^n' history-search-forward 
 
+zle -N run_neovide_hyprland
+bindkey '^N' run_neovide_hyprland
+
 zstyle ':completion:*' matcher-list 'm:{A-Za-z}={a-zA-Z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle :compinstall filename '/home/jacksonb/.zshrc' # I don't know what this does. It was put here automagically when I set up ZSH so I'll leave it be. 
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
+# https://gist.github.com/ctechols/ca1035271ad134841284#gistcomment-2308206
 autoload -Uz compinit
+compinit -C;
 
-# Thanks to https://medium.com/@dannysmith/little-thing-2-speeding-up-zsh-f1860390f92
-# Tells compinit to only check once a day. This greatly reduces startup times.
-# https://carlosbecker.com/posts/speeding-up-zsh/?source=post_page-----f1860390f92--------------------------------
-for dump in ~/.zcompdump(N.mh+24); do
-  compinit
-done
-compinit -C
-
-# Shell integrations and prompt
+## Shell integrations and prompt ##
 eval "$(zoxide init zsh --cmd cd)"
+function cd() {
+  local dir=$(find $(dirname $1) -maxdepth 1 -type d,l -wholename "*$(basename $1)*")
+  if [ -n "$dir" ]; then
+    __zoxide_z "./$dir"
+  else
+    __zoxide_z "$@"
+  fi
+}
+
 eval "$(fzf --zsh)"
 # https://thevaluable.dev/fzf-shell-integration/
-eval "$(thefuck --alias)" 
+alias shit='fuck'
+alias godfuckin='fuck'
+alias crap='fuck'
+alias dammit='fuck'
+alias goddamnit='fuck'
+alias fuckinhell='fuck'
+# Offloads evaluation (100ms) until the first invocation, at which point the new alias takes over. 
+fuck(){
+        eval $(thefuck --alias)
+        fuck "$@"
+}
 eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then
   eval "$(oh-my-posh init zsh)"
@@ -79,18 +95,21 @@ fi
 
 # Aliases
 alias ls='ls -A --color'
-alias cb=$COPY_UTIL
+alias copy=$COPY_UTIL
 alias cat='bat'
 alias ff='fzf_with_preview'
 alias reload='exec zsh'
 alias reboot='systemctl shutdown -r now'
+alias git-graph='git log --oneline --decorate --graph'
+alias ags-restart='ags -q && ags &|'
 # alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
+alias prolog='swipl'
 
 alias nvid='run_neovide_hyprland'
 
 # alias logout
 
-# Nice idea, doesn't work on nix-os. Might be worth looking for a nix-specific solution
+# Nice idea, doesn't work on nix-os. Might be worth looking for a nix-specific solution that searches the store
 xd()
 {
   cd $(dirname $(whereis ${1} | awk '{ print $2 }'))
@@ -212,6 +231,17 @@ fzf_with_preview()
   # For reference
   # https://vitormv.github.io/fzf-themes/
   # This works well, it just flashes in between fzf/bat. 
+  # TODO
+  #   Allow this to accept a list of items from STDIN (or as a parameter). 
+
+# See the following to take in a list of items from STDIN
+# if [ -t 0 ]; then
+#     echo "No files provided"
+#   else
+#     mapfile -t files
+#   fi
+# for file in "${files[@]}"; do
+#   done
   (
   while true; do 
     if [[ ! -f ITEM ]]; then
@@ -252,12 +282,3 @@ set_nvim_frontend_alias
 
 
 # Begin end benchmark
-
-# process_zsh_benchmark()
-# {
-#   grep -F .zshrc: ${1} | awk -f ~/.config/awk/process_zsh_benchmark.awk | sort -n -r | head
-# }
-# unsetopt XTRACE
-# exec 2>&3 3>&-
-# End end benchmark
-

@@ -32,6 +32,7 @@ in
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
 
+  boot.tmp.cleanOnBoot = true;
   services.logind.lidSwitch = "suspend";
   services.logind.lidSwitchDocked = "suspend";
 
@@ -58,6 +59,7 @@ in
     
 
   hardware.i2c.enable = true;
+  hardware.keyboard.qmk.enable = true;
 
   boot.supportedFilesystems = [ "ntfs" ];
 
@@ -204,9 +206,11 @@ in
     socat
     brightnessctl
     qmk
+    playerctl
 
   # Desktop Environment Apps
     wl-clipboard
+    clipboard-jh
     rofi-wayland
     libnotify
     glib
@@ -218,6 +222,7 @@ in
     hyprpicker
     via
     wev
+    jq
 
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
 
@@ -253,6 +258,7 @@ in
     go
     gopls
     smlnj # School
+    dotnetCorePackages.dotnet_8.sdk #Not sure why I had to install this for Godot. 
 
     meson
     cmake
@@ -275,6 +281,7 @@ in
     nodePackages.typescript-language-server
     pkgs.nodePackages.bash-language-server
     millet # School
+    swiProlog
 
     arduino-cli
     arduino-language-server

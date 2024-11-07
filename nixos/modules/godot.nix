@@ -3,13 +3,28 @@ stdenv,
 lib,
 fetchurl,
 autoPatchelfHook,
-dotnet-sdk_8,
+dotnetCorePackages,
 wayland,
 unzip,
 makeWrapper,
 udev,
-  alsaLib, libXcursor, libXinerama, libXrandr, libXrender, libX11, libXi,
-  libpulseaudio, libGL,
+alsaLib, 
+libdecor,
+libGL,
+libpulseaudio,
+libX11,
+libXcursor,
+libXext,
+libXfixes,
+libXi,
+libXinerama,
+libxkbcommon,
+libXrandr,
+libXrender,
+fontconfig,
+alsa-lib,
+vulkan-loader,
+    dbus
 }:
 
 stdenv.mkDerivation (finalAttrs: rec {
@@ -28,20 +43,30 @@ stdenv.mkDerivation (finalAttrs: rec {
   ];
 
   buildInputs = [
-    dotnet-sdk_8
+    dotnetCorePackages.dotnet_8.sdk
     wayland
     libX11
     libGL
     udev
     alsaLib 
+    libdecor
+    libGL
+    libpulseaudio
+    libX11
     libXcursor
+    libXext
+    libXfixes
+    libXi
     libXinerama
+    libxkbcommon
     libXrandr
     libXrender
-    libX11
-    libXi
-    libpulseaudio
+    dbus
+    dbus.lib
+    fontconfig
+    alsa-lib
     libGL
+    vulkan-loader
   ];
 
   libraries = lib.makeLibraryPath buildInputs;
@@ -54,6 +79,7 @@ stdenv.mkDerivation (finalAttrs: rec {
     runHook preInstall
     mkdir -p $out/bin
     install -m755 Godot_v${version}-stable_mono_linux.x86_64 $out/bin/godot
+    mv GodotSharp $out/bin
     
     runHook postInstall
   '';

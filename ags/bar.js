@@ -16,6 +16,7 @@ function Workspaces() {
             on_clicked: () => hyprland.messageAsync(`dispatch workspace ${id}`),
             child: Widget.Label(`${id}`),
             class_name: activeId.as(i => `${i === id ? "focused" : ""}`),
+
         })))
 
     return Widget.Box({
@@ -145,7 +146,6 @@ function SysTray() {
             on_secondary_click: (_, event) => item.openMenu(event),
             tooltip_markup: item.bind("tooltip_markup"),
         })))
-
     return Widget.Box({
         children: items,
     })

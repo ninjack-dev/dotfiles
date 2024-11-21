@@ -178,6 +178,7 @@ in
   environment.systemPackages = with pkgs; [
 
   # Shell Apps
+    fish
     zsh
     unstable.oh-my-posh
     fzf
@@ -207,11 +208,15 @@ in
     brightnessctl
     qmk
     playerctl
+    gnuplot
 
   # Desktop Environment Apps
     wl-clipboard
     clipboard-jh
     rofi-wayland
+    (rofi-calc.override {
+      rofi-unwrapped = rofi-wayland-unwrapped;
+    })
     libnotify
     glib
     unstable.moonlight-qt
@@ -223,7 +228,7 @@ in
     via
     wev
     jq
-
+    syncthingtray
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
 
     grim # https://sr.ht/~emersion/grim/
@@ -240,6 +245,7 @@ in
     firefox
     kitty
     networkmanagerapplet
+    nwg-displays
 
     kdePackages.dolphin
     kdePackages.qtsvg
@@ -259,6 +265,8 @@ in
     gopls
     smlnj # School
     dotnetCorePackages.dotnet_8.sdk #Not sure why I had to install this for Godot. 
+
+    wireshark
 
     meson
     cmake
@@ -300,6 +308,10 @@ in
   # We need rec to allow variables to be used in the block, apparently. See https://nix.dev/guides/best-practices#recursive-attribute-set-rec
   environment.sessionVariables = {
     XDG_CONFIG_HOME = "$HOME/.config";
+    XDG_CACHE_HOME  = "$HOME/.cache";
+    XDG_DATA_HOME   = "$HOME/.local/share";
+    XDG_STATE_HOME  = "$HOME/.local/state";
+
     EDITOR = "nvim";
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";

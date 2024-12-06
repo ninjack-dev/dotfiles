@@ -1,0 +1,54 @@
+#:schema  https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/schema.json  
+
+version = 2
+final_space = true
+console_title_template = '{{ .Shell }} in {{ .Folder }}'
+
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+
+  [[blocks.segments]]
+    type = "nix-shell"
+    style = "powerline"
+    foreground = "blue"
+    background = "transparent"
+
+  [[blocks.segments]]
+    type = 'session'
+    style = 'diamond'
+    leading_diamond = ''
+    trailing_diamond = ''
+    template = ' {{ if .SSHSession }} {{ end }}{{ .UserName }} '
+    background = 'p:yellow'
+    foreground = 'p:black'
+
+  [[blocks.segments]]
+    type = 'time'
+    style = 'powerline'
+    powerline_symbol = ''
+    background = 'p:yellow'
+    foreground = 'p:black'
+    template = """\
+    {{ if or (eq .CurrentDate.Hour 1) (eq .CurrentDate.Hour 13)}} 󱑋 \
+    {{else if or (eq .CurrentDate.Hour 2) (eq .CurrentDate.Hour 14)}} 󱑌 \
+    {{else if or (eq .CurrentDate.Hour 3) (eq .CurrentDate.Hour 15)}} 󱑍 \
+    {{else if or (eq .CurrentDate.Hour 4) (eq .CurrentDate.Hour 16)}} 󱑎 \
+    {{else if or (eq .CurrentDate.Hour 5) (eq .CurrentDate.Hour 17)}} 󱑏 \
+    {{else if or (eq .CurrentDate.Hour 6) (eq .CurrentDate.Hour 18)}} 󱑐 \
+    {{else if or (eq .CurrentDate.Hour 7) (eq .CurrentDate.Hour 19)}} 󱑑 \
+    {{else if or (eq .CurrentDate.Hour 8) (eq .CurrentDate.Hour 20)}} 󱑒 \
+    {{else if or (eq .CurrentDate.Hour 9) (eq .CurrentDate.Hour 21)}} 󱑓 \
+    {{else if or (eq .CurrentDate.Hour 10) (eq .CurrentDate.Hour 22)}} 󱑔 \
+    {{else if or (eq .CurrentDate.Hour 11) (eq .CurrentDate.Hour 23)}} 󱑕 \
+    {{else if or (eq .CurrentDate.Hour 12) (eq .CurrentDate.Hour 24)}} 󱑖 \
+    {{ end }}{{ .CurrentDate | date .Format }} \
+    """
+[palette]
+  black = '#262B44'
+  blue = '#4B95E9'
+  green = '#59C9A5'
+  orange = '#F07623'
+  red = '#D81E5B'
+  white = '#E0DEF4'
+  yellow = '#F3AE35'

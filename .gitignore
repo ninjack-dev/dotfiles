@@ -11,3 +11,5 @@ syncthing/
 via-nativia/
 VSCodium/
 BambuStudio/
+
+*.log

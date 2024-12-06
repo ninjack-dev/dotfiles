@@ -112,6 +112,7 @@ in
   programs.zsh.shellAliases = {
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
     rebuild = "sudo nixos-rebuild switch";
+    nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
 
   hardware.bluetooth.enable = true;
@@ -196,6 +197,7 @@ in
     bind
     unstable.neovim
     unstable.neovide
+    p7zip
     valgrind
     bat
     libqalculate
@@ -209,6 +211,8 @@ in
     qmk
     playerctl
     gnuplot
+    yt-dlp
+    usbutils
 
   # Desktop Environment Apps
     wl-clipboard
@@ -217,10 +221,12 @@ in
     (rofi-calc.override {
       rofi-unwrapped = rofi-wayland-unwrapped;
     })
+    unstable.bambu-studio
     libnotify
     glib
     unstable.moonlight-qt
-    gnome.adwaita-icon-theme
+    # gnome.adwaita-icon-theme
+    adwaita-icon-theme
     zoom-us
     overskride
     thunderbird # When 24.11 launches, update this to use programs.thunderbird
@@ -230,6 +236,8 @@ in
     jq
     syncthingtray
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
+    android-file-transfer
+    freecad-wayland
 
     grim # https://sr.ht/~emersion/grim/
     slurp # https://github.com/emersion/slurp?tab=readme-ov-file
@@ -289,7 +297,7 @@ in
     nodePackages.typescript-language-server
     pkgs.nodePackages.bash-language-server
     millet # School
-    swiProlog
+    swi-prolog
 
     arduino-cli
     arduino-language-server
@@ -316,7 +324,7 @@ in
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    STEAM_FORCE_DESKTOPUI_SCALING = 1.6;
+    STEAM_FORCE_DESKTOPUI_SCALING = "1.6";
     # WLR_NO_HARDWARE_CURSORS = "1";
   };
 

@@ -1,16 +1,27 @@
 configuration {
-    font: "FiraCode Nerd Font 12";
-    modes: [drun,run,window,ssh,combi];
-    line-margin: 10;
+font: "JetBrainsMono Nerd Font 12";
 
-    display-ssh:    "";
-    display-run:    "";
-    display-drun:   "";
-    display-window: "";
-    display-combi:  "";
-    show-icons:     true;
 
-    window-format: "{t}";
+modes: [drun,run,window,ssh,combi];
+       hover-select: true;
+       me-select-entry: "";
+       me-accept-entry: [ MousePrimary ];
+       line-margin: 10;
+
+       display-ssh:    "";
+       display-run:    "";
+       display-drun:   "";
+       display-window: "";
+       display-combi:  "";
+       show-icons:     true;
+
+       window-format: "{t}";
+
+
+       plugin {
+         // https://github.com/svenstaro/rofi-calc
+path: "/nix/store/c466a5y8ls5wwk3rh7hm7iimgxz5gj4l-rofi-calc-2.2.1/lib/rofi";
+       }
 }
 
 // https://discourse.nixos.org/t/rofi-on-wayland-and-plugins/17354/8 
@@ -19,9 +30,18 @@ configuration {
 @theme "~/.config/rofi/nord.rasi"
 
 listview {
-	lines: 6;
+lines: 6;
+       border-color: none;
+}
+
+element-icon {
+padding: 5px;
+}
+
+inputbar {
+  border-color: none;
 }
 
 window {
-	width: 50%;
+width: 50%;
 }

@@ -1,15 +1,16 @@
-arduino-ide/
 Arduino IDE/
-aseprite/
+BambuStudio/
 BraveSoftware/
-discord/
 Electron/
-go/
 MongoDB\ Compass/
+Moonlight Game Streaming Project/Moonlight.conf
+VSCodium/
+arduino-ide/
+aseprite/
+discord/
+go/
 obsidian/
 syncthing/
 via-nativia/
-VSCodium/
-BambuStudio/
 
 *.log

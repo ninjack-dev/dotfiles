@@ -7,9 +7,6 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, inputs, ... }:
-let
-  godot = pkgs.callPackage ./modules/godot.nix {};
-in 
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -273,6 +270,7 @@ in
     gopls
     smlnj # School
     dotnetCorePackages.dotnet_8.sdk #Not sure why I had to install this for Godot. 
+    godot_4-mono
 
     wireshark
 
@@ -303,7 +301,6 @@ in
     arduino-language-server
     arduino-ide
 
-    godot
   ];
 
   

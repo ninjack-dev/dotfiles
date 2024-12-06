@@ -8,7 +8,6 @@ wayland,
 unzip,
 makeWrapper,
 udev,
-alsaLib, 
 libdecor,
 libGL,
 libpulseaudio,
@@ -48,7 +47,6 @@ stdenv.mkDerivation (finalAttrs: rec {
     libX11
     libGL
     udev
-    alsaLib 
     libdecor
     libGL
     libpulseaudio

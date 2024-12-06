@@ -60,6 +60,20 @@ vim.cmd([[
   aunmenu PopUp.-1-
 ]])
 
+vim.o.title = true
+
+-- Function to update the title dynamically
+local function update_title()
+    local filename = vim.fn.expand("%:t")       -- Get the current buffer name (file name only)
+    local directory = vim.fn.expand("%:p:h")   -- Get the current buffer directory
+    vim.o.titlestring = string.format("%s in %s", filename, directory)
+end
+
+-- Autocommand to update the title on certain events
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {
+    callback = update_title
+})
+
 if vim.g.neovide then
   dofile(vim.fn.expand('$XDG_CONFIG_HOME/neovide/neovide.lua'))
 end

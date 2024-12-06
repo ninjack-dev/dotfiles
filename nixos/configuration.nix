@@ -291,10 +291,13 @@
     vscode-langservers-extracted
     pyright
     taplo
-  # TODO - Figure out how to get these outta here
+  # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
+  # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can 
+  # tell greatly increases my evaluation time since it's like 20k lines.
     nodePackages.typescript-language-server
     pkgs.nodePackages.bash-language-server
     millet # School
+    csharp-ls
     swi-prolog
 
     arduino-cli

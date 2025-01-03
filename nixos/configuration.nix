@@ -268,9 +268,10 @@
     python3
     go
     gopls
-    smlnj # School
-    dotnetCorePackages.dotnet_8.sdk #Not sure why I had to install this for Godot. 
-    godot_4-mono
+    gjs # AGS stuff
+    dotnet-sdk_9
+    # godot_4-mono # Dotnet 6 is apparently insecure, meaning I can't use this :/
+    flatpak-builder
 
     wireshark
 
@@ -291,14 +292,13 @@
     vscode-langservers-extracted
     pyright
     taplo
+    hyprls
   # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
   # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can 
   # tell greatly increases my evaluation time since it's like 20k lines.
     nodePackages.typescript-language-server
-    pkgs.nodePackages.bash-language-server
-    millet # School
+    nodePackages.bash-language-server
     csharp-ls
-    swi-prolog
 
     arduino-cli
     arduino-language-server
@@ -311,7 +311,7 @@
     (nerdfonts.override {fonts = [ "JetBrainsMono" "FiraCode"]; } )
   ];
 
-  # Neither environment.variables or environment.sessionVariables can set these during a login session post-rebuild
+  # Neither environment.variables or environment.sessionVariables can export these during a login session post-rebuild
   # or at least not that I've found. A relogin is required
   # We need rec to allow variables to be used in the block, apparently. See https://nix.dev/guides/best-practices#recursive-attribute-set-rec
   environment.sessionVariables = {

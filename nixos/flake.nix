@@ -19,14 +19,16 @@
       overlay-unstable = final: prev: { 
         unstable = nixpkgs-unstable.legacyPackages.${prev.system}; 
       };
+      overlay-stable = final: prev: { 
+        stable = nixpkgs.legacyPackages.${prev.system}; 
+      };
     in
       {
       nixosConfigurations."nixos-laptop" = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
-          # The overlays module makes "pkgs.unstable" avalable in configuration.nix
-          ({config, pkgs, ...}: { nixpkgs.overlays = [ overlay-unstable ]; } )
+          ({config, pkgs, ...}: { nixpkgs.overlays = [ overlay-stable overlay-unstable ]; } )
           ./configuration.nix
           nixos-hardware.nixosModules.framework-13th-gen-intel
         ];

@@ -1,15 +1,7 @@
-# Note: the following configuration file is very messy
-# - It contains much of the original initial configuration options/guidance
-# - It's all in one large configuration file
-
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 { config, lib, pkgs, inputs, ... }:
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./hardware-configuration.nix
     ];
   nix.settings.experimental-features =
@@ -53,7 +45,6 @@
   services.kanata = {
     enable = true;
   };
-    
 
   hardware.i2c.enable = true;
   hardware.keyboard.qmk.enable = true;
@@ -67,7 +58,7 @@
   #   Defaults        env_reset,timestamp_timeout=15,fingerprint
   # '';
   
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -84,12 +75,9 @@
     binfmt = true;
   };
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
   programs.hyprland = {
     enable = true;
+    withUWSM = true;
   };
 
   programs.hyprlock.enable = true;
@@ -108,12 +96,17 @@
   programs.zsh.enable = true;
   programs.zsh.shellAliases = {
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
-    rebuild = "sudo nixos-rebuild switch";
+    rebuild = "sudo nixos-rebuild switch --impure";
     nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth.settings = {
+    General = {
+      Enable = "Source,Sink,Media,Socket";
+    };
+  };
 
   services.pipewire = {
     enable = true;
@@ -152,7 +145,7 @@
   services.syncthing = {
     enable = true;
 
-    # TO-DO: Figure out how to prepend my username to these paths
+    # TODO: Figure out how to prepend my system username to these paths
     user = "jacksonb";
     configDir = "/home/jacksonb/.config/syncthing";
   };
@@ -171,12 +164,12 @@
   };
 
   virtualisation.docker.enable = true;
-  # List packages installed in system profile. To search, run:
-  # $ nix search <package name> 
+
   environment.systemPackages = with pkgs; [
 
   # Shell Apps
     fish
+    powershell
     zsh
     unstable.oh-my-posh
     fzf
@@ -213,12 +206,14 @@
 
   # Desktop Environment Apps
     wl-clipboard
-    clipboard-jh
+    nwg-look
+    udiskie # https://wiki.hyprland.org/Useful-Utilities/Other/#automatically-mounting-using-udiskie
+    # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     rofi-wayland
     (rofi-calc.override {
       rofi-unwrapped = rofi-wayland-unwrapped;
     })
-    unstable.bambu-studio
+    # unstable.bambu-studio # This broke my build for some reason?
     libnotify
     glib
     unstable.moonlight-qt
@@ -235,14 +230,20 @@
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
     android-file-transfer
     freecad-wayland
+    xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
     grim # https://sr.ht/~emersion/grim/
     slurp # https://github.com/emersion/slurp?tab=readme-ov-file
     wf-recorder # https://github.com/ammen99/wf-recorder
 
-    inputs.ags.packages.${system}.default
-    ddcutil # Needed by AGS config for now
-    bun
+    # (inputs.ags.packages.${system}.default)
+    # The following is impure since it is not a locked reference, or something, meaning
+    # we need to build with --impure. I'm not sure if it's even possible to get it properly locked
+    # using only getFlake, opting for a flake input instead. For now, --impure is fine, and is included
+    # in the nixos-rebuild custom command.
+    # TODO: Put this in my actual flake so that it can get version locked.
+    (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default
+    d-spy
     nordic
 
   # Graphical Apps
@@ -330,29 +331,7 @@
 
   environment.localBinInPath = true;
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
@@ -374,4 +353,3 @@
   system.stateVersion = "24.05"; # Did you read the comment?
 
 }
-

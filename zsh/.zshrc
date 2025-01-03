@@ -1,3 +1,8 @@
+# I want to see if this can be put elsewhere
+#if uwsm check may-start; then
+    #exec uwsm start hyprland.desktop
+#fi
+#alias Hyprland='exec uwsm start hyprland.desktop'
 # Benchmark logic
 # zmodload zsh/datetime
 # setopt PROMPT_SUBST
@@ -65,9 +70,9 @@ autoload -Uz compinit
 compinit -C;
 
 ## Shell integrations and prompt ##
-eval "$(zoxide init zsh --cmd cd)"
+eval "$(zoxide init zsh)"
 function cd() {
-  if [ $# -gt 1 ]; then
+  if [[ $# -gt 1 || $# -eq 0 ]]; then
     __zoxide_z "$@"
     return
   fi

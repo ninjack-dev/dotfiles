@@ -2,7 +2,17 @@ configuration {
 font: "JetBrainsMono Nerd Font 12";
 
 
-modes: [drun,run,window,ssh,combi];
+  modes: [ drun,
+           run,
+           ssh,
+           combi
+           // "hl-window:~/.config/rofi/scripts/hyprland_window_switcher.sh"
+           // "hl-workspace-rename:~/.config/rofi/scripts/rename_workspace.sh"
+           // Why on earth does this get called in the combi mode??
+           // I'm just moving all of these out of here for now, putting them in -modes
+           // in the call
+         ];
+
        hover-select: true;
        me-select-entry: "";
        me-accept-entry: [ MousePrimary ];
@@ -16,26 +26,30 @@ modes: [drun,run,window,ssh,combi];
        show-icons:     true;
 
        window-format: "{t}";
+       kb-accept-alt: "";
+       kb-custom-1: "Shift+Return";
+
+       /* This mode is not available with the Wayland fork */
+       /* window-command: "hyprctl dispatch fullscreen address:{window}"; */
 
 
+       // https://discourse.nixos.org/t/rofi-on-wayland-and-plugins/17354/8 
        plugin {
          // https://github.com/svenstaro/rofi-calc
-path: "/nix/store/c466a5y8ls5wwk3rh7hm7iimgxz5gj4l-rofi-calc-2.2.1/lib/rofi";
+         // Effectively useless for now, given the dynamic paths. May be worth looking into an override to the script.
+         // path: "/nix/store/c466a5y8ls5wwk3rh7hm7iimgxz5gj4l-rofi-calc-2.2.1/lib/rofi";
        }
 }
-
-// https://discourse.nixos.org/t/rofi-on-wayland-and-plugins/17354/8 
-
 
 @theme "~/.config/rofi/nord.rasi"
 
 listview {
-lines: 6;
-       border-color: none;
+  lines: 6;
+  border-color: none;
 }
 
 element-icon {
-padding: 5px;
+  padding: 5px;
 }
 
 inputbar {
@@ -43,5 +57,5 @@ inputbar {
 }
 
 window {
-width: 50%;
+  width: 50%;
 }

@@ -21,15 +21,18 @@
       packages.${system}.default = 
         pkgs.buildEnv { 
           name = "ags"; 
-          paths = builtins.attrValues (
+          paths = with pkgs; builtins.attrValues (
             # This grabs all Astal packages from the AGS flake. Might be a more efficient way of doing it.
-            builtins.removeAttrs ags.packages.${system} ["default" "ags" "agsFull" "docs" ] 
+            builtins.removeAttrs ags.packages.${system} ["default" "ags" "docs" ] 
           ) ++ [
-              (ags.packages.${system}.agsFull.override {
-                extraPackages = with pkgs; [
+              fzf
+              adwaita-icon-theme
+              # (ags.packages.${system}.agsFull.override {
+              #   extraPackages = with pkgs; [
                   # Extra packages for AGS runtime here
-                ];
-              })];
+                # ];
+              # })
+            ];
         }; 
     };
 }

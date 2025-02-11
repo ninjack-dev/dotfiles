@@ -25,6 +25,9 @@
   services.logind.lidSwitch = "suspend";
   services.logind.lidSwitchDocked = "suspend";
 
+  # services.tlp.enable = true;
+  services.auto-cpufreq.enable = true;
+
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = ["multi-user.target"];
@@ -34,13 +37,14 @@
     '';
   };
 
-  # services.printing.enable = true;
-  #
-  # services.avahi = {
-  #   enable = true;
-  #   nssmdns4 = true;
-  #   openFirewall = true;
-  # };
+  # https://wiki.nixos.org/wiki/Printing
+  services.printing.enable = true;
+
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   services.kanata = {
     enable = true;
@@ -64,16 +68,18 @@
 
   programs.nix-ld = {
     enable = true;
-    # libraries = with pkgs; [
-    #   dotnet-sdk_8
-    #   wayland
-    # ];
+    libraries = with pkgs; [
+      dotnet-sdk_8
+      wayland
+    ];
   };
 
-  programs.appimage = {
+ programs.appimage = {
     enable = true;
     binfmt = true;
   };
+
+  programs.kdeconnect.enable = true;
 
   programs.hyprland = {
     enable = true;
@@ -96,7 +102,7 @@
   programs.zsh.enable = true;
   programs.zsh.shellAliases = {
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
-    rebuild = "sudo nixos-rebuild switch --impure";
+    rebuild = "sudo nixos-rebuild switch --impure && notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild complete.' || notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild failed!'";
     nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
 
@@ -168,9 +174,14 @@
   environment.systemPackages = with pkgs; [
 
   # Shell Apps
+    steghide
+    xxd
     fish
-    powershell
+    nushell
+    file
+    unstable.powershell
     zsh
+    traceroute
     unstable.oh-my-posh
     fzf
     wget
@@ -190,10 +201,12 @@
     p7zip
     valgrind
     bat
-    libqalculate
+    unstable.libqalculate
+    unstable.qalculate-gtk
     man-pages
     man-pages-posix
     xdg-utils
+    mimeo # Attempt to register new handler
     ffmpeg
     fprintd
     socat
@@ -203,11 +216,21 @@
     gnuplot
     yt-dlp
     usbutils
+    gtk3 # Needed for gtk-launch
+    libsForQt5.qt5.qtwayland # Test fix for broken Freecad display
+    tlrc
+    ripgrep
 
   # Desktop Environment Apps
+    zathura
+    (texliveMedium.withPackages (texlive-packages: with texlive-packages; [ 
+      enumitem
+      multirow
+    ]))
     wl-clipboard
     nwg-look
     udiskie # https://wiki.hyprland.org/Useful-Utilities/Other/#automatically-mounting-using-udiskie
+    calibre
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     rofi-wayland
     (rofi-calc.override {
@@ -230,6 +253,8 @@
     vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
     android-file-transfer
     freecad-wayland
+    openscad-unstable
+    openscad-lsp
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
     grim # https://sr.ht/~emersion/grim/
@@ -247,8 +272,10 @@
     nordic
 
   # Graphical Apps
+    rustdesk
     brave
     firefox
+    vlc
     kitty
     networkmanagerapplet
     nwg-displays
@@ -266,7 +293,11 @@
 
   # Development
     nodejs
-    python3
+    (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
+      # select Python packages here
+      pandas
+      requests
+    ]))
     go
     gopls
     gjs # AGS stuff
@@ -283,9 +314,8 @@
     wayland-scanner
     wayland
     
-    mongodb-compass # Work
+    unstable.mongodb-compass # Work
 
-    
     # language servers
     lua-language-server
     clang-tools
@@ -325,7 +355,7 @@
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    STEAM_FORCE_DESKTOPUI_SCALING = "1.6";
+    STEAM_FORCE_DESKTOPUI_SCALING = "1.6"; # Unfortunately, this also applies to monitors that don't need it. 
     # WLR_NO_HARDWARE_CURSORS = "1";
   };
 

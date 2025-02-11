@@ -5,13 +5,7 @@ let requestPath
 let shortcutRegRequestPath
 
 
-const handlerId = Gio.DBus.session.signal_subscribe( // https://gjs-docs.gnome.org/gio20~2.0/gio.dbusconnection#method-signal_subscribe 
-  null, // I've had issues finding the right interface/object to connect to
-  null,
-  'Response',
-  null,
-  null,
-  Gio.DBusSignalFlags.NONE, // no flags
+const callback = 
   (connection, sender, path, iface, signal, params) => {
     console.log(connection, sender, path, iface, signal,)
     for (let i in params.recursiveUnpack()) { i.toString() }
@@ -77,6 +71,15 @@ const handlerId = Gio.DBus.session.signal_subscribe( // https://gjs-docs.gnome.o
       )
     }
   }
+
+const handlerId = Gio.DBus.session.signal_subscribe( // https://gjs-docs.gnome.org/gio20~2.0/gio.dbusconnection#method-signal_subscribe 
+  null, // I've had issues finding the right interface/object to connect to
+  null,
+  'Response',
+  null,
+  null,
+  Gio.DBusSignalFlags.NONE, // no flags
+  callback
 );
 
 const sessionValues = new GLib.Variant('(a{sv})', [{
@@ -98,3 +101,4 @@ requestPath = Gio.DBus.session.call_sync(
 
 let loop = GLib.MainLoop.new(null, false);
 loop.run();
+console.error("DARN");

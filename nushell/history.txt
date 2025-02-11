@@ -1,0 +1,39 @@
+zoxide init
+zoxide init nushell
+cd .config
+ls
+cd ./nushell/
+ls
+nvim ./env.nu
+oh-my-posh init --print
+oh-my-posh init nu --print
+ls
+ls -A
+ls -a
+exit
+hyprctl clients -j
+object = hyprctl clients -j
+object = ^hyprctl clients -j
+object = ^(hyprctl clients -j)
+$object = ^(hyprctl clients -j)
+hyprctl clients -j | from json 
+mut object = ^(hyprctl clients -j)
+mut object = hyprctl clients -j
+object
+echo $object
+$object.
+mut object = hyprctl clients -j | from json 
+$object.xwayland
+bpython
+mut object = hyprctl clients -j | from json 
+$object | where $object.xwayland = true
+$object | where $object.xwayland == true
+$object | where xwayland == true
+hyprctl clients -j
+hyprctl clients 
+$object | where xwayland == true
+kitty --help
+nvim ./config.nu
+exit
+"\B" | ls
+"\xB" | ls

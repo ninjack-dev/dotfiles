@@ -1,5 +1,5 @@
 import { App } from "astal/gtk3"
-import { Variable, GLib, bind, readFile } from "astal";
+import { Variable, GLib, bind } from "astal"
 import { Astal, Gtk, Gdk } from "astal/gtk3"
 import Hyprland from "gi://AstalHyprland"
 import Mpris from "gi://AstalMpris"
@@ -7,42 +7,47 @@ import Battery from "gi://AstalBattery"
 import Wp from "gi://AstalWp"
 import Network from "gi://AstalNetwork"
 import Tray from "gi://AstalTray"
-import Gio from "gi://Gio"
+
+// TODO
+// Make this a menu with multiple options for editing, rebuilding, etc.
+function NixEdit() {
+  return <box className="NixEdit">
+    <icon
+      icon="nix-snowflake"
+    />
+  </box>
+}
 
 function SysTray() {
   const tray = Tray.get_default()
 
-  return <box>
-    {bind(tray, "items").as(items => items.map(item => {
-      if (item.iconThemePath) {
-        App.add_icons(item.iconThemePath)
-        console.log(item.iconThemePath)
-      }
-      //else
-      //  console.log("Could not find icon for ", item.get_title())
-
-      const menu = item.create_menu()
-
-      return <button
+  return <box className="SysTray">
+    {bind(tray, "items").as(items => items.map(item => (
+      <menubutton
         tooltipMarkup={bind(item, "tooltipMarkup")}
-        onDestroy={() => menu?.destroy()}
-        onClickRelease={self => {
-          menu?.popup_at_widget(self, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH, null)
-        }}>
-        <icon gIcon={bind(item, "gicon")} />
-      </button>
-    }))}
+        usePopover={false}
+        actionGroup={bind(item, "actionGroup").as(ag => ["dbusmenu", ag])}
+        menuModel={bind(item, "menuModel")}>
+        <icon gicon={bind(item, "gicon")} />
+      </menubutton>
+    )))}
   </box>
 }
 
 function Wifi() {
-  const { wifi } = Network.get_default()
+  const network = Network.get_default()
+  const wifi = bind(network, "wifi")
 
-  return <icon
-    tooltipText={bind(wifi, "ssid").as(String)}
-    className="Wifi"
-    icon={bind(wifi, "iconName")}
-  />
+  return <box visible={wifi.as(Boolean)}>
+    {wifi.as(wifi => wifi && (
+      <icon
+        tooltipText={bind(wifi, "ssid").as(String)}
+        className="Wifi"
+        icon={bind(wifi, "iconName")}
+      />
+    ))}
+  </box>
+
 }
 
 function AudioSlider() {
@@ -84,21 +89,26 @@ function Media() {
           )}
         />
         <label
-          label={bind(ps[0], "title").as(() =>
+          label={bind(ps[0], "metadata").as(() =>
             `${ps[0].title} - ${ps[0].artist}`
           )}
         />
       </box>
     ) : (
-      "Nothing Playing"
+      <label label="Nothing Playing" />
     ))}
   </box>
 }
 
+// Changes
+// - Lists workspace name as well. The hope is that when the globalshortcut wrapper is complete (perhaps in the year 2057), then 
+//   it can hook into that so the index shows when Super/Leader is held.
 function Workspaces() {
   const hypr = Hyprland.get_default()
+
   return <box className="Workspaces">
     {bind(hypr, "workspaces").as(wss => wss
+      .filter(ws => !(ws.id >= -99 && ws.id <= -2)) // filter out special workspaces
       .sort((a, b) => a.id - b.id)
       .map(ws => (
         <button
@@ -140,8 +150,6 @@ function Time({ format = "%H:%M - %A %e." }) {
 export default function Bar(monitor: Gdk.Monitor) {
   const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
-  //connectToShortcutsPortal()
-
   return <window
     className="Bar"
     gdkmonitor={monitor}
@@ -149,10 +157,12 @@ export default function Bar(monitor: Gdk.Monitor) {
     anchor={TOP | LEFT | RIGHT}>
     <centerbox>
       <box hexpand halign={Gtk.Align.START}>
+        <NixEdit />
         <Workspaces />
         <FocusedClient />
       </box>
       <box>
+        <Media />
       </box>
       <box hexpand halign={Gtk.Align.END} >
         <SysTray />

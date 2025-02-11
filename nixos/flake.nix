@@ -7,17 +7,16 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-
-    ags.url = "github:Aylur/ags/v1"; # CHANGE THIS
-    ags.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, ... }@inputs:
     let 
       system = "x86_64-linux";
       overlay-unstable = final: prev: { 
-        unstable = nixpkgs-unstable.legacyPackages.${prev.system}; 
+        # unstable = nixpkgs-unstable.legacyPackages.${prev.system}; 
+        # https://discourse.nixos.org/t/allow-unfree-in-flakes/29904/2
+        # TODO: Figure out how to get the prev.system in here
+        unstable = import nixpkgs-unstable { system = "x86_64-linux"; config.allowUnfree = true; }; 
       };
       overlay-stable = final: prev: { 
         stable = nixpkgs.legacyPackages.${prev.system}; 

@@ -27,7 +27,7 @@ if [ "$ROFI_RETV" -eq $INITIAL_CALL ]; then
   sort -t$'\t' -k4n | { # I hope windows can't have a tab in the title
   while IFS=$'\t' read -r window_id class title focus_index; do
     if [ "$focus_index" -eq 0 ]; then
-      # Don't show include the currently focused window
+      # Don't include the currently focused window
       continue
     fi
     # Encode the window address in the `info` category, referenced by ROFI_INFO

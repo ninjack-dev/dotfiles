@@ -1,0 +1,42 @@
+# Before some new Hyprland version, I had to watch for a specific window and set its fullscreen state manually.
+# This was fixed with `new_window_takes_over_fullscreen = 1`, which made these 3 functions (nearly) obsolete
+
+run_neovide_hyprland_socket()
+{
+  neovide --fork
+  nc -U "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" |  while read -r line; do
+    if [[ ${line:0:10} == "openwindow" ]]; then
+      echo "Neovide opened"
+      break
+    fi
+  done
+  kill $!
+}
+
+run_neovide_hyprland()
+{
+  # Cover edgecase for --help crashing neovide
+  for arg in "$@"; do
+    if [[ "$arg" == "--help" ]]; then
+      /usr/bin/env nvim --help
+      return 0
+    fi
+  done
+  run_neovide_de_agnostic $@ # Only way to set $!
+  while ! hyprctl clients | grep $! >/dev/null; do done # Kill me
+  hyprctl dispatch focuswindow pid:$! >/dev/null;
+  return 0 # Previous command may fail, no need to set the error code
+
+  # TODO: Substitute the following for `dispatch fullscreenstate` when Hyprland is updated to 0.43
+  # hyprctl dispatch fullscreenstate 1
+}
+
+run_neovide_de_agnostic()
+{
+  neovide -- "$@" </dev/null >/dev/null 2>&1 &|
+  # We redirect stdin to null so that the terminal doesn't hang when running exit.
+    # TODO: It may be prudent to see if I can redirect STD out to the shell that launched it.
+  # OR
+  #  neovide --fork
+  # This does not set $!, unlike the one above. 
+}

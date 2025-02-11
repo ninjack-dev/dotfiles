@@ -3,6 +3,8 @@
     #exec uwsm start hyprland.desktop
 #fi
 #alias Hyprland='exec uwsm start hyprland.desktop'
+# It's also very broken.
+
 # Benchmark logic
 # zmodload zsh/datetime
 # setopt PROMPT_SUBST
@@ -57,8 +59,8 @@ bindkey "^k" up-history
 bindkey '^p' history-search-backward 
 bindkey '^n' history-search-forward 
 
-zle -N run_neovide_hyprland
-bindkey '^N' run_neovide_hyprland
+zle -N nvim_neovide_handler
+bindkey '^N' nvim_neovide_handler
 
 zstyle ':completion:*' matcher-list 'm:{A-Za-z}={a-zA-Z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
@@ -120,7 +122,7 @@ alias ags-restart='ags -q && ags &|'
 # alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias prolog='swipl'
 
-alias nvid='run_neovide_hyprland'
+alias nvid='neovide'
 
 # alias logout
 
@@ -134,50 +136,13 @@ getip()
 {
 ip route get 1 | awk '{print $7;exit}'
 }
+
+# I want to update this later so I can specify filetypes 
+loc() {
+  find $( [[ -z "$1" ]] && echo "$1" || echo ".") -type f | xargs wc -l
+}
  
 ## NEOVIM ##
-  
-
-run_neovide_hyprland_socket()
-{
-  neovide --fork
-  nc -U "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" |  while read -r line; do
-    if [[ ${line:0:10} == "openwindow" ]]; then
-      echo "Neovide opened"
-      break
-    fi
-  done
-  kill $!
-}
-
-# Is this even necessary...?
-run_neovide_hyprland()
-{
-  # Cover edgecase for --help crashing neovide
-  for arg in "$@"; do
-    if [[ "$arg" == "--help" ]]; then
-      /usr/bin/env nvim --help
-      return 0
-    fi
-  done
-  run_neovide_de_agnostic $@ # Only way to set $!
-  while ! hyprctl clients | grep $! >/dev/null; do done # Kill me
-  hyprctl dispatch focuswindow pid:$! >/dev/null;
-  return 0 # Previous command may fail, no need to set the error code
-
-  # TODO: Substitute the following for `dispatch fullscreenstate` when Hyprland is updated to 0.43
-  # hyprctl dispatch fullscreenstate 1
-}
-
-run_neovide_de_agnostic()
-{
-  neovide -- "$@" </dev/null >/dev/null 2>&1 &|
-  # We redirect stdin to null so that the terminal doesn't hang when running exit.
-    # TODO: It may be prudent to see if I can redirect STD out to the shell that launched it.
-  # OR
-  #  neovide --fork
-  # This does not set $!, unlike the one above. 
-}
 
 # NeoVim Frontend SELector
 nvfsel() {
@@ -190,8 +155,8 @@ nvfsel() {
 set_nvim_frontend_alias()
 {
   [[ $NVIM_FRONTEND = "term" ]] && unalias nvim &>/dev/null 
-  [[ $NVIM_FRONTEND = "neovide" ]] && alias nvim='run_neovide_hyprland'
-  return 0 # Nothing went wrong, I promise <3
+  [[ $NVIM_FRONTEND = "neovide" ]] && alias nvim='nvim_neovide_handler'
+  return 0
 }
 
 update_nvim_frontend_env_var(){
@@ -218,6 +183,19 @@ update_nvim_config_env_var()
   echo "$1 is now selected as default config.";
   sed -i "s/NVIM_APPNAME=[^ ]*/NVIM_APPNAME=${1}/" $ZDOTDIR/.zshenv;
   source $ZDOTDIR/.zshenv;
+}
+
+# Built for handling args designed for Neovim, but not for Neovide (to run Neovide with typical args, run `neovide/nvid <args>`)
+nvim_neovide_handler()
+{
+  for arg in "$@"; do
+    if [[ "$arg" == "--help" ]]; then
+      /usr/bin/env nvim --help
+      return 0
+    fi
+  done
+
+  neovide --fork -- "$@"
 }
 
 fzf_with_preview()
@@ -277,5 +255,5 @@ set_nvim_frontend_alias
 
 # zprof
 
-
-# Begin end benchmark
+HYPRLAND_INFO="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+HYPRLAND_CONTROL="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock"

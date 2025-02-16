@@ -898,6 +898,8 @@ $env.config = {
     ]
 }
 
-source ~/.config/nushell/.zoxide.nu
-source ~/.config/nushell/.oh-my-posh.nu
+$env.config.show_banner = false
+
+source ~/.config/nushell/modules/.zoxide.nu
+source ~/.config/nushell/modules/.oh-my-posh.nu
 #oh-my-posh init nu --print | source $in

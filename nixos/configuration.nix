@@ -89,6 +89,8 @@
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
 
+  services.udisks2.enable = true;
+
   programs.direnv.enable = true;
   xdg.portal = {
     enable = true;
@@ -229,7 +231,6 @@
     ]))
     wl-clipboard
     nwg-look
-    udiskie # https://wiki.hyprland.org/Useful-Utilities/Other/#automatically-mounting-using-udiskie
     calibre
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     rofi-wayland
@@ -286,6 +287,7 @@
 
     pavucontrol
     gparted
+    udiskie
 
     # Electron
     obsidian

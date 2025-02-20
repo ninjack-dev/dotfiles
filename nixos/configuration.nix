@@ -224,6 +224,7 @@
     ripgrep
 
   # Desktop Environment Apps
+    unstable.input-leap
     zathura
     (texliveMedium.withPackages (texlive-packages: with texlive-packages; [ 
       enumitem
@@ -232,6 +233,7 @@
     wl-clipboard
     nwg-look
     calibre
+    libreoffice-fresh
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     rofi-wayland
     (rofi-calc.override {

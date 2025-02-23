@@ -94,7 +94,12 @@ function cd() {
 
 eval "$(fzf --zsh)"
 # https://thevaluable.dev/fzf-shell-integration/
-alias shit='fuck'
+for i in $(seq 1 10); do
+  alias $(echo -n 'sh'$(for j in $(seq 1 $i); do echo -n 'i'; done)'t')='fuck'
+done
+for i in $(seq 2 10); do
+  alias $(echo -n 'f'$(for j in $(seq 1 $i); do echo -n 'u'; done)'ck')='fuck'
+done
 alias godfuckin='fuck'
 alias crap='fuck'
 alias dammit='fuck'

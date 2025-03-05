@@ -86,6 +86,7 @@
       wayland
     ];
   };
+  programs.thunderbird.enable = true;
 
  programs.appimage = {
     enable = true;
@@ -260,7 +261,6 @@
     adwaita-icon-theme
     zoom-us
     overskride
-    thunderbird # When 24.11 launches, update this to use programs.thunderbird
     hyprpicker
     via
     wev

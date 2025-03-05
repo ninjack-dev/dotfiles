@@ -22,6 +22,7 @@
     ];
   };
 
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_zen;
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = true;

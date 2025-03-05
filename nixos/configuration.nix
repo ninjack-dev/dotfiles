@@ -29,6 +29,7 @@
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
+  boot.loader.grub.configurationLimit = 30;
 
   boot.tmp.cleanOnBoot = true;
   services.logind.lidSwitch = "suspend";

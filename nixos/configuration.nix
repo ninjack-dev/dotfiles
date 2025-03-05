@@ -1,14 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
 {
-  imports =
-    [
-      ./hardware-configuration.nix
-    ];
-  nix.settings.experimental-features =
-    [
-      "nix-command"
-      "flakes"
-    ];
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [
+    ./hardware-configuration.nix
+  ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -43,8 +47,8 @@
 
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
-    wantedBy = ["multi-user.target"];
-    path = [pkgs.flatpak];
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpak-repo
     '';
@@ -74,7 +78,7 @@
   # security.sudo.extraConfig = ''
   #   Defaults        env_reset,timestamp_timeout=15,fingerprint
   # '';
-  
+
   networking.networkmanager.enable = true;
 
   time.timeZone = "America/Los_Angeles";
@@ -88,7 +92,7 @@
   };
   programs.thunderbird.enable = true;
 
- programs.appimage = {
+  programs.appimage = {
     enable = true;
     binfmt = true;
   };
@@ -105,13 +109,19 @@
 
   services.udisks2.enable = true;
 
-  programs.direnv.enable = true;
+  programs.direnv = {
+    enable = true;
+    loadInNixShell = true;
+    nix-direnv = {
+      enable = true;
+    };
+  };
+
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; 
-      [
-        xdg-desktop-portal-gtk
-      ];
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
     xdgOpenUsePortal = true;
   };
 
@@ -156,10 +166,17 @@
   };
 
   services.upower.enable = true;
-  
+
   users.users.jacksonb = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "networkmanager" "sudo" "docker" "dialout"]; 
+    extraGroups = [
+      "wheel"
+      "audio"
+      "networkmanager"
+      "sudo"
+      "docker"
+      "dialout"
+    ];
     shell = pkgs.zsh;
   };
   nixpkgs.config.allowUnfree = true;
@@ -183,14 +200,15 @@
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+    gamescopeSession.enable = true;
   };
 
   virtualisation.docker.enable = true;
 
   environment.systemPackages = with pkgs; [
 
-  # Shell Apps
-    steghide
+    # Shell Apps
+    linuxKernel.packages.linux_zen.cpupower
     xxd
     fish
     nushell
@@ -236,28 +254,41 @@
     libsForQt5.qt5.qtwayland # Test fix for broken Freecad display
     tlrc
     ripgrep
+    inkscape
 
-  # Desktop Environment Apps
+    # Desktop Environment Apps
     unstable.input-leap
+    gucharmap
     zathura
-    (texliveMedium.withPackages (texlive-packages: with texlive-packages; [ 
-      enumitem
-      multirow
-    ]))
+    (texliveMedium.withPackages (
+      texlive-packages: with texlive-packages; [
+        biblatex
+        enumitem
+        multirow
+        titling
+      ]
+    ))
     wl-clipboard
     nwg-look
     calibre
     libreoffice-fresh
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
-    rofi-wayland
-    (rofi-calc.override {
-      rofi-unwrapped = rofi-wayland-unwrapped;
+    (unstable.rofi-wayland.override {
+      plugins = [
+        # I wonder if the version override happens automatically. Probably not.
+        (unstable.rofi-calc.override {
+          rofi-unwrapped = unstable.rofi-wayland-unwrapped;
+        })
+      ];
     })
-    # unstable.bambu-studio # This broke my build for some reason?
+
+    # (godot_4-mono.override {
+    #   dotnet-sdk_6 = dotnet-sdk_8;
+    # })
+    unstable.bambu-studio
     libnotify
     glib
     unstable.moonlight-qt
-    # gnome.adwaita-icon-theme
     adwaita-icon-theme
     zoom-us
     overskride
@@ -266,11 +297,11 @@
     wev
     jq
     syncthingtray
-    vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git. 
+    vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git.
     android-file-transfer
     freecad-wayland
-    openscad-unstable
-    openscad-lsp
+    unstable.openscad-unstable
+    unstable.openscad-lsp
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
     grim # https://sr.ht/~emersion/grim/
@@ -287,7 +318,7 @@
     d-spy
     nordic
 
-  # Graphical Apps
+    # Graphical Apps
     rustdesk
     brave
     firefox
@@ -308,16 +339,18 @@
     obsidian
     discord
 
-  # Development
+    # Development
     nodejs
-    (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
-      # select Python packages here
-      pandas
-      requests
-    ]))
+    (pkgs.python3.withPackages (
+      python-pkgs: with python-pkgs; [
+        # select Python packages here
+        pandas
+        requests
+      ]
+    ))
     go
     gopls
-    gjs # AGS stuff
+    gjs
     dotnet-sdk_9
     # godot_4-mono # Dotnet 6 is apparently insecure, meaning I can't use this :/
     flatpak-builder
@@ -330,8 +363,9 @@
     pkg-config
     wayland-scanner
     wayland
-    
+
     unstable.mongodb-compass # Work
+    unstable.mongosh
 
     # language servers
     lua-language-server
@@ -341,9 +375,9 @@
     pyright
     taplo
     hyprls
-  # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
-  # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can 
-  # tell greatly increases my evaluation time since it's like 20k lines.
+    # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
+    # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can
+    # tell greatly increases my evaluation time since it's like 20k lines.
     nodePackages.typescript-language-server
     nodePackages.bash-language-server
     csharp-ls
@@ -354,9 +388,13 @@
 
   ];
 
-  
   fonts.packages = with pkgs; [
-    (nerdfonts.override {fonts = [ "JetBrainsMono" "FiraCode"]; } )
+    (nerdfonts.override {
+      fonts = [
+        "JetBrainsMono"
+        "FiraCode"
+      ];
+    })
   ];
 
   # Neither environment.variables or environment.sessionVariables can export these during a login session post-rebuild
@@ -364,21 +402,27 @@
   # We need rec to allow variables to be used in the block, apparently. See https://nix.dev/guides/best-practices#recursive-attribute-set-rec
   environment.sessionVariables = {
     XDG_CONFIG_HOME = "$HOME/.config";
-    XDG_CACHE_HOME  = "$HOME/.cache";
-    XDG_DATA_HOME   = "$HOME/.local/share";
-    XDG_STATE_HOME  = "$HOME/.local/state";
+    XDG_CACHE_HOME = "$HOME/.cache";
+    XDG_DATA_HOME = "$HOME/.local/share";
+    XDG_STATE_HOME = "$HOME/.local/state";
 
     EDITOR = "nvim";
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    STEAM_FORCE_DESKTOPUI_SCALING = "1.6"; # Unfortunately, this also applies to monitors that don't need it. 
+    STEAM_FORCE_DESKTOPUI_SCALING = "1.2"; # Unfortunately, this also applies to monitors that don't need it.
     # WLR_NO_HARDWARE_CURSORS = "1";
+    LIBVA_DRIVER_NAME = "iHD";
   };
 
   environment.localBinInPath = true;
 
   services.openssh.enable = true;
+
+  services.ollama = {
+    enable = true;
+    acceleration = "cuda";
+  };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

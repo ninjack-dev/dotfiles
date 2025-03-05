@@ -35,6 +35,9 @@
   services.logind.lidSwitch = "suspend";
   services.logind.lidSwitchDocked = "suspend";
 
+  services.chrony.enable = true;
+
+
   # services.tlp.enable = true;
   services.auto-cpufreq.enable = true;
 

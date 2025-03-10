@@ -93,6 +93,27 @@ function cd() {
 }
 
 eval "$(fzf --zsh)"
+
+# Custom FZF cd widget to use zoxide
+fzf-cd-widget() {
+  setopt localoptions pipefail no_aliases 2> /dev/null
+  local dir="$(
+    FZF_DEFAULT_COMMAND=${FZF_ALT_C_COMMAND:-} \
+    FZF_DEFAULT_OPTS=$(__fzf_defaults "--reverse --walker=dir,follow,hidden --scheme=path" "${FZF_ALT_C_OPTS-} +m") \
+    FZF_DEFAULT_OPTS_FILE='' $(__fzfcmd) < /dev/tty)"
+  if [[ -z "$dir" ]]; then
+    zle redisplay
+    return 0
+  fi
+  zle push-line # Clear buffer. Auto-restored on next prompt.
+  BUFFER="cd -- ${(q)dir:a}"
+  zle accept-line
+  local ret=$?
+  unset dir # ensure this doesn't end up appearing in prompt expansion
+  zle reset-prompt
+  return $ret
+}
+
 # https://thevaluable.dev/fzf-shell-integration/
 for i in $(seq 1 10); do
   alias $(echo -n 'sh'$(for j in $(seq 1 $i); do echo -n 'i'; done)'t')='fuck'

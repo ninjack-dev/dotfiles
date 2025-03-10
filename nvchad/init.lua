@@ -69,6 +69,8 @@ local function update_title()
     vim.o.titlestring = string.format("%s in %s", filename, directory)
 end
 
+vim.o.linebreak = true
+
 -- Autocommand to update the title on certain events
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {
     callback = update_title

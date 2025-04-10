@@ -36,7 +36,7 @@ try {
 } catch (e) { print(e) }
 
 // https://gjs-docs.gnome.org/gio20~2.0/gio.dbusconnection#method-signal_subscribe 
-const handlerId = Gio.DBus.session.signal_subscribe(
+const requestSignal = Gio.DBus.session.signal_subscribe(
   null, // Owner (":1.8" on my system for now. Do I need to handle this?)
   'org.freedesktop.portal.Request',
   'Response',
@@ -67,6 +67,7 @@ const handlerId = Gio.DBus.session.signal_subscribe(
         {
           handle_token: GLib.Variant.new_string('Astal1'),
         });
+      Gio.DBus.session.signal_unsubscribe(requestSignal);
     } catch (e) { print(e); }
   }
 );

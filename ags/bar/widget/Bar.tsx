@@ -7,6 +7,17 @@ import Battery from "gi://AstalBattery"
 import Wp from "gi://AstalWp"
 import Network from "gi://AstalNetwork"
 import Tray from "gi://AstalTray"
+import GlobalShortcuts from "../services/GlobalShortcuts"
+
+// TODO
+// Make this a menu with multiple options for editing, rebuilding, etc.
+function NixEdit() {
+  return <box className="NixEdit">
+    <icon
+      icon="nix-snowflake"
+    />
+  </box>
+}
 
 function SysTray() {
   const tray = Tray.get_default()
@@ -92,23 +103,33 @@ function Media() {
 
 function Workspaces() {
   const hypr = Hyprland.get_default()
-
-
+  const shortcutManager = GlobalShortcuts.get_session();
+  const super_key = shortcutManager.getShortcut('Super');
 
   return <box className="Workspaces">
     {bind(hypr, "workspaces").as(wss => wss
       .filter(ws => !(ws.id >= -99 && ws.id <= -2)) // filter out special workspaces
       .sort((a, b) => a.id - b.id)
-      .map(ws => (
-        <button
-          className={bind(hypr, "focusedWorkspace").as(fw =>
-            ws === fw ? "focused" : "")}
-          onClicked={() => ws.focus()}>
-          {bind(ws, "name").as(wsname =>
-            wsname !== '' && wsname !== ws.id.toString() ? `${ws.id} ${wsname}` : ws.id)}
-        </button>
-      ))
+      .map(ws => {
+        const label: Variable<string> = Variable.derive(
+          [bind(ws, "name"), bind(super_key, 'activated')],
+          (wsname: string, super_held: boolean) => {
+            if (super_held || wsname == '') 
+              return `${ws.id}`
+            return `${wsname}`
+          }
+        );
+        return (
+          <button
+            className={bind(hypr, "focusedWorkspace").as(fw =>
+              ws === fw ? "focused" : "")}
+            onClicked={() => ws.focus()}>
+            {bind(label).as(v => v)}
+          </button>
+        )
+      })
     )}
+
   </box>
 }
 
@@ -146,6 +167,7 @@ export default function Bar(monitor: Gdk.Monitor) {
     anchor={TOP | LEFT | RIGHT}>
     <centerbox>
       <box hexpand halign={Gtk.Align.START}>
+        <NixEdit />
         <Workspaces />
         <FocusedClient />
       </box>

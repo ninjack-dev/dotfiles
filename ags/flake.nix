@@ -29,8 +29,8 @@
               adwaita-icon-theme
               # (ags.packages.${system}.agsFull.override {
               #   extraPackages = with pkgs; [
-                  # Extra packages for AGS runtime here
-                # ];
+              #     Extra packages for AGS runtime here
+              #   ];
               # })
             ];
         }; 

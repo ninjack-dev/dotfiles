@@ -3,31 +3,12 @@ import { readFile } from "astal/file"
 import Gio from "gi://Gio"
 import GLib from "gi://GLib?version=2.0"
 
-// The GlobalShortcuts interface XML can be found at https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.portal.GlobalShortcuts.xml
+// GlobalShortcuts Documentation: https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.GlobalShortcuts.html
+// Interface XML: https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.portal.GlobalShortcuts.xml
+// TODO 
+// - Truncate the XML file and pull it in as an inline string.
 const SHORTCUT_INTERFACE_XML = readFile('./services/org.freedesktop.portal.GlobalShortcuts.xml');
 const globalShortcutProxyWrapper = Gio.DBusProxy.makeProxyWrapper(SHORTCUT_INTERFACE_XML);
-
-// interface GlobalShortcut {
-//   id: string,
-//   description?: string, // Make sure to wrap this in a GLib.Variant.new_string
-//   preferred_trigger?: string, // Make sure to wrap this in a GLib.Variant.new_string
-// }
-
-function packShortcuts(shortcuts: GlobalShortcut[]): [string, Record<string, GLib.Variant>][] {
-  return shortcuts.map(shortcut => {
-    const packed: Record<string, GLib.Variant> = {};
-
-    if (shortcut.description) {
-      packed.description = GLib.Variant.new_string(shortcut.description);
-    }
-
-    if (shortcut.preferred_trigger) {
-      packed.preferred_trigger = GLib.Variant.new_string(shortcut.preferred_trigger);
-    }
-
-    return [shortcut.id, packed];
-  });
-}
 
 @register({ GTypeName: "Shortcut" })
 export class GlobalShortcut extends GObject.Object {
@@ -42,24 +23,21 @@ export class GlobalShortcut extends GObject.Object {
     return this.#activated;
   }
 
+  /* TODO
+   * - Limit accesss to the setter to the GlobalShortcuts singleton.
+   */
   set activated(value) {
     this.#activated = value;
     this.notify("activated");
   }
 
-  // constructor(shortcut: GlobalShortcut) {
-  //   super()
-  //
-  //   this.id = shortcut.id;
-  //   this.description = shortcut.description;
-  //   this.preferred_trigger = shortcut.preferred_trigger;
-  // }
   constructor(id: string, description?: string, preferred_trigger?: string) {
     super()
     this.id = id;
     this.description = description;
     this.preferred_trigger = preferred_trigger;
   }
+
 }
 
 export default class GlobalShortcuts {
@@ -72,12 +50,30 @@ export default class GlobalShortcuts {
   #sessionHandle: Promise<string>
   #sessionName: string
 
+  /**
+   * Bind one or more shortcuts asynchronously.
+   * Note that for now, `await` should be used so that the shortcuts are pushed and bound before being accessed. 
+   * Otherwise, `getShortcut()` will return `undefined`.
+   *
+   * @param shortcuts - One or more `GlobalShortcut`s
+   */
   async bindShortcuts(...shortcuts: GlobalShortcut[]) {
     this.#shortcuts.push(...shortcuts);
-    this.#shortcutProxy.BindShortcutsSync(
+
+    /* See https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Request.html#org-freedesktop-portal-request
+     * In essence, to guarantee that the bind happened, we'll want to subscribe to the Request::Response signal and include tie the promise resolution to that. For now, it works perfectly, so I will ignore for now.
+     */
+    const requestHandle = this.#shortcutProxy.BindShortcutsSync(
       await this.#sessionHandle,
       [ // Top level array packer needed for DBus/GJS communication
-        ...packShortcuts(shortcuts)
+        ...shortcuts.map(shortcut => {
+          const options: Record<string, GLib.Variant> = {};
+          if (shortcut.description)
+            options.description = GLib.Variant.new_string(shortcut.description);
+          if (shortcut.preferred_trigger)
+            options.preferred_trigger = GLib.Variant.new_string(shortcut.preferred_trigger);
+          return [shortcut.id, options];
+        })
       ],
       '', // Hyprland doesn't have a shortcut registration popup for us to take advantage of, so we pass no window handle
       {
@@ -85,17 +81,23 @@ export default class GlobalShortcuts {
       });
   }
 
+  /**
+   *
+   * @returns The GlobalShortcut or undefined if it hasn't been bound; make sure to call `bindShortcuts()` with `await`.
+   * (See `bindShortcuts` implementation to see caveat)
+   */
   getShortcut(shortcut: string | GlobalShortcut): GlobalShortcut | undefined {
     const keyToMatch = typeof shortcut === "string" ? shortcut : shortcut.id;
     return this.#shortcuts.find(s => s.id === keyToMatch);
   }
 
-  #createSession(sessionName?: string): Promise<string> {
-    return new Promise((resolve, _) => {
+  #createSession(): Promise<string> {
+    return new Promise((resolve, _) => { // Not using reject() for now since it hasn't failed before. I'm such a good programmer.
       this.#shortcutProxy = globalShortcutProxyWrapper(
         Gio.DBus.session,
         'org.freedesktop.portal.Desktop',
-        '/org/freedesktop/portal/desktop');
+        '/org/freedesktop/portal/desktop'
+      );
 
       let requestPath: string
 
@@ -123,7 +125,7 @@ export default class GlobalShortcuts {
     });
   }
 
-  async init() {
+  async #init() {
     try {
       this.#sessionHandle = this.#createSession();
     }
@@ -159,12 +161,22 @@ export default class GlobalShortcuts {
     });
   }
 
+  /**
+   * Returns the singleton instance of the `GlobalShortcuts` session.
+   *
+   * If the singleton instance does not already exist, the first invocation of this method initializes it.
+   * The optional `sessionName` parameter is used as the D-Bus session name for the new instance.
+   * If no name is provided, `'astal'` is used as the default.
+   *
+   * @param sessionName - Optional string to specify the session name used for D-Bus registration.
+   * @returns The instance of `GlobalShortcuts`.
+   */
   static get_session(sessionName?: string) {
     if (!this.instance) {
       this.instance = new GlobalShortcuts();
       this.instance.#sessionName = sessionName ?? 'astal';
       try {
-        this.instance.init();
+        this.instance.#init();
       }
       catch (e) { print(e) };
     }

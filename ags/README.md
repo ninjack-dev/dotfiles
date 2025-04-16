@@ -1,3 +1,3 @@
 ## To-Do
-- [ ] Finish global shortcut handler utility
-    - Consider switching over to Vala to include as an Astal library
+- [x] Finish global shortcut handler utility
+    - [ ] Convert handler to Vala library

@@ -1,5 +1,5 @@
 {
-  description = "A very basic flake to start. https://nixos.wiki/wiki/Flakes#Importing_packages_from_multiple_channels";
+  description = "System flake.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
@@ -30,7 +30,11 @@
       };
     in
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
+      # As nice as using `nix fmt` would be, for now, it doesn't make much sense to use, as it's really a flake only feature. 
+      # If I have any generic .nix file anywhere in my system, I can either `nix fmt <relative path>` while in `.config/nixos`,
+      # or I can run `nix run <path to flake dir>#formatter.x86_64-linux <file>`, which is immensely tedious. 
+      # Best to just use nixfmt via nixpkgs.
+      # formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
       nixosConfigurations."nixos-laptop" = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs; };
@@ -38,6 +42,13 @@
           (
             { config, pkgs, ... }:
             {
+              nix = {
+                registry = {
+                  nixpkgs.flake = nixpkgs;
+                  nixos-hardware.flake = nixos-hardware;
+                };
+              };
+
               nixpkgs.overlays = [
                 overlay-stable
                 overlay-unstable

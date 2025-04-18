@@ -19,6 +19,47 @@
     options = "--delete-older-than 2w";
   };
 
+  # The following are for programs that I have yet to wrap for myself.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      # Used for audio-share
+      pipewire
+      glibc
+
+      # Needed for Godot
+      (
+        with pkgs.dotnetCorePackages;
+        combinePackages [
+          sdk_8_0
+        ]
+      )
+      alsa-lib
+      libGL
+      vulkan-loader
+      xorg.libX11
+      xorg.libXcursor
+      xorg.libXext
+      xorg.libXfixes
+      xorg.libXi
+      xorg.libXinerama
+      libxkbcommon
+      xorg.libXrandr
+      xorg.libXrender
+      libdecor
+      wayland
+      dbus
+      dbus.lib
+      fontconfig
+      fontconfig.lib
+      libpulseaudio
+      speechd-minimal
+      udev
+    ];
+  };
+  # programs.nix-index.enable = true;
+  programs.command-not-found.enable = true;
+
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
@@ -41,6 +82,7 @@
 
   services.chrony.enable = true;
 
+  services.envfs.enable = true;
 
   # services.tlp.enable = true;
   services.auto-cpufreq.enable = true;
@@ -50,8 +92,22 @@
     wantedBy = [ "multi-user.target" ];
     path = [ pkgs.flatpak ];
     script = ''
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpak-repo
+      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
     '';
+  };
+
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [
+      80
+      443
+      8080
+      65530 # audio-share https://github.com/mkckr0/audio-share
+    ];
+    allowedUDPPorts = [
+      65530 # audio-share https://github.com/mkckr0/audio-share
+    ];
   };
 
   # https://wiki.nixos.org/wiki/Printing
@@ -73,6 +129,39 @@
   boot.supportedFilesystems = [ "ntfs" ];
 
   networking.hostName = "nixos-laptop"; # Define your hostname.
+  security.polkit.enable = true;
+  security.polkit.extraConfig = ''
+    /* Don't require sudo for reboot/power-off */
+    polkit.addRule(function (action, subject) {
+      if (
+        subject.isInGroup("users") &&
+        [
+          "org.freedesktop.login1.reboot",
+          "org.freedesktop.login1.reboot-multiple-sessions",
+          "org.freedesktop.login1.power-off",
+          "org.freedesktop.login1.power-off-multiple-sessions",
+        ].indexOf(action.id) !== -1
+      ) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
+
+  # This service works only when using UWSM, which sets graphical-session.target
+  # systemd.user.services.polkit-gnome-authentication-agent-1 = {
+  #   description = "polkit-gnome-authentication-agent-1";
+  #   wantedBy = ["graphical-session.target"];
+  #   wants = ["graphical-session.target"];
+  #   after = ["graphical-session.target"];
+  #
+  #   serviceConfig = {
+  #     Type = "simple";
+  #     ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+  #     Restart = "on-failure";
+  #     RestartSec = 1;
+  #     TimeoutStopSec = 10;
+  #   };
+  # };
 
   # See if I can replace this with security.sudo.extraRules later
   # security.sudo.extraConfig = ''
@@ -83,13 +172,6 @@
 
   time.timeZone = "America/Los_Angeles";
 
-  programs.nix-ld = {
-    enable = true;
-    libraries = with pkgs; [
-      dotnet-sdk_8
-      wayland
-    ];
-  };
   programs.thunderbird.enable = true;
 
   programs.appimage = {
@@ -122,7 +204,7 @@
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
-    xdgOpenUsePortal = true;
+    # xdgOpenUsePortal = true; # This breaks a LOT when using Mimeo. Must research later.
   };
 
   programs.zsh.enable = true;
@@ -167,6 +249,14 @@
 
   services.upower.enable = true;
 
+  system.userActivationScripts = {
+    # When the Brave/Chromium hash changes, all PWA desktop files break. This at the very least ensures that when rebuilding the system, any PWAs installed between the last rebuild and now get updated with
+    # TODO: Put this in its own module alongside brave.
+    updateBravePWAs.text = ''
+      find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec sed -i 's|^Exec=.*/brave-browser|Exec=${pkgs.brave}/opt/brave.com/brave/brave-browser|' {} \;
+    '';
+  };
+
   users.users.jacksonb = {
     isNormalUser = true;
     extraGroups = [
@@ -191,16 +281,22 @@
 
   documentation.dev.enable = true; # Lets us use man 3
 
-  qt.enable = true;
-  # qt.platformTheme = "gtk2";
-  # qt.style = "gtk2";
+  qt = {
+    enable = true;
+    platformTheme = lib.mkForce "gtk2";
+    style = lib.mkForce "gtk2";
+  };
 
   programs.steam = {
     enable = true;
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
     gamescopeSession.enable = true;
+    extraPackages = with pkgs; [
+      # Needed for Gamescope session?
+      coreutils
+    ];
   };
 
   virtualisation.docker.enable = true;
@@ -222,7 +318,7 @@
     tmux
     zoxide
     btop
-    thefuck
+    pay-respects
     git
     gh
     unzip
@@ -239,7 +335,6 @@
     unstable.qalculate-gtk
     man-pages
     man-pages-posix
-    xdg-utils
     mimeo # Attempt to register new handler
     ffmpeg
     fprintd
@@ -247,16 +342,21 @@
     brightnessctl
     qmk
     playerctl
+    libinput
+    libportal # Test for Gtk
     gnuplot
     yt-dlp
     usbutils
     gtk3 # Needed for gtk-launch
     libsForQt5.qt5.qtwayland # Test fix for broken Freecad display
+    libsForQt5.qtstyleplugins
     tlrc
     ripgrep
+    nixfmt-rfc-style
     inkscape
 
     # Desktop Environment Apps
+    eog # Image Viewer
     unstable.input-leap
     gucharmap
     zathura
@@ -265,6 +365,7 @@
         biblatex
         enumitem
         multirow
+        pgfplots
         titling
       ]
     ))
@@ -281,6 +382,9 @@
         })
       ];
     })
+    gnome-software
+
+    openssl # school
 
     # (godot_4-mono.override {
     #   dotnet-sdk_6 = dotnet-sdk_8;
@@ -288,11 +392,14 @@
     unstable.bambu-studio
     libnotify
     glib
+    vala
     unstable.moonlight-qt
     adwaita-icon-theme
     zoom-us
     overskride
     hyprpicker
+    hyprpolkitagent
+    polkit_gnome
     via
     wev
     jq
@@ -321,15 +428,16 @@
     # Graphical Apps
     rustdesk
     brave
-    firefox
     vlc
     kitty
     networkmanagerapplet
     nwg-displays
 
-    kdePackages.dolphin
     kdePackages.qtsvg
     kdePackages.qtwayland
+
+    kdePackages.dolphin
+    kdePackages.filelight
 
     pavucontrol
     gparted
@@ -343,16 +451,16 @@
     nodejs
     (pkgs.python3.withPackages (
       python-pkgs: with python-pkgs; [
-        # select Python packages here
         pandas
         requests
+        tkinter
       ]
     ))
     go
     gopls
     gjs
-    dotnet-sdk_9
-    # godot_4-mono # Dotnet 6 is apparently insecure, meaning I can't use this :/
+    # dotnet-sdk_9
+    # dotnet-sdk_8 # Debugging csharp-ls
     flatpak-builder
 
     wireshark
@@ -375,12 +483,13 @@
     pyright
     taplo
     hyprls
+    vala-language-server
     # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
     # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can
     # tell greatly increases my evaluation time since it's like 20k lines.
     nodePackages.typescript-language-server
     nodePackages.bash-language-server
-    csharp-ls
+    unstable.csharp-ls # Needs to be unstable until fix is pulled into 24.11
 
     arduino-cli
     arduino-language-server
@@ -396,6 +505,7 @@
       ];
     })
   ];
+  fonts.enableDefaultPackages = true;
 
   # Neither environment.variables or environment.sessionVariables can export these during a login session post-rebuild
   # or at least not that I've found. A relogin is required

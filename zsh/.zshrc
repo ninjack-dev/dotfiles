@@ -1,9 +1,8 @@
 # I want to see if this can be put elsewhere
 #if uwsm check may-start; then
-    #exec uwsm start hyprland.desktop
+    #exec uwsm start hyprland-uwsm.desktop
 #fi
-#alias Hyprland='exec uwsm start hyprland.desktop'
-# It's also very broken.
+# alias Hyprland='exec uwsm start hyprland-uwsm.desktop'
 
 # Benchmark logic
 # zmodload zsh/datetime
@@ -115,6 +114,8 @@ fzf-cd-widget() {
 }
 
 # https://thevaluable.dev/fzf-shell-integration/
+
+eval $(pay-respects zsh --alias fuck)
 for i in $(seq 1 10); do
   alias $(echo -n 'sh'$(for j in $(seq 1 $i); do echo -n 'i'; done)'t')='fuck'
 done
@@ -126,11 +127,7 @@ alias crap='fuck'
 alias dammit='fuck'
 alias goddamnit='fuck'
 alias fuckinhell='fuck'
-# Offloads evaluation (100ms) until the first invocation, at which point the new alias takes over. 
-fuck(){
-        eval $(thefuck --alias)
-        fuck "$@"
-}
+
 eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then
   eval "$(oh-my-posh init zsh)"

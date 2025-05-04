@@ -125,6 +125,8 @@ export default class GlobalShortcuts {
     });
   }
 
+  // TODO
+  // - Bring the activation signal logic into the CreateSession callback in an attempt to reduce the necessity for await.
   async #init() {
     try {
       this.#sessionHandle = this.#createSession();

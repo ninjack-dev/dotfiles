@@ -1,31 +1,11 @@
-local on_attach = require("nvchad.configs.lspconfig").on_attach
-local on_init = require("nvchad.configs.lspconfig").on_init
-local capabilities = require("nvchad.configs.lspconfig").capabilities
+require("nvchad.configs.lspconfig").defaults()
 
-local lspconfig = require "lspconfig"
-local servers = { "html", "cssls", "clangd", "ts_ls", "bashls", "gopls", "pyright", "taplo",
-  "arduino_language_server", "csharp_ls", "openscad_lsp", }
+local servers = { "html", "cssls", "clangd", "ts_ls", "bashls", "gopls", "pyright",
+  "arduino_language_server", "csharp_ls", "openscad_lsp", 'nil', 'vala_ls' }
 
--- lsps with default config
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    on_init = on_init,
-    capabilities = capabilities,
-  }
-end
+vim.lsp.enable(servers)
 
-lspconfig.millet.setup {
-  on_attach = on_attach,
-  on_init = on_init,
-  capabilities = capabilities,
-  cmd = { 'millet-ls' },
-}
-
-lspconfig.nil_ls.setup {
-  on_attach = on_attach,
-  on_init = on_init,
-  capabilities = capabilities,
+vim.lsp.config('nil', {
   settings = {
     ['nil'] = {
       formatting = {
@@ -33,11 +13,14 @@ lspconfig.nil_ls.setup {
       },
     },
   },
-}
+})
 
-lspconfig.vala_ls.setup {
-  on_attach = on_attach,
-  on_init = on_init,
-  capabilities = capabilities,
+vim.lsp.config('vala_ls', {
   single_file_support = true,
-}
+})
+
+
+vim.lsp.enable('taplo')
+vim.lsp.config('taplo', {
+  root_markers = { "taplo.toml", ".taplo.toml", ".git" }, -- Waiting for https://github.com/neovim/nvim-lspconfig/pull/3145
+})

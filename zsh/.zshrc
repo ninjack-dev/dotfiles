@@ -274,6 +274,10 @@ if [ $TERM = "linux" ]; then
   NVIM_FRONTEND="term"
 fi
 
+nix-which() {
+  readlink $('which' $1)
+}
+
 set_nvim_frontend_alias
 
 # zprof

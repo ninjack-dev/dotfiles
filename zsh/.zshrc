@@ -147,17 +147,9 @@ alias prolog='swipl'
 
 alias nvid='neovide'
 
-# alias logout
-
-# Nice idea, doesn't work on nix-os. Might be worth looking for a nix-specific solution that searches the store
-xd()
-{
-  cd $(dirname $(whereis ${1} | awk '{ print $2 }'))
-}
-
 getip()
 {
-ip route get 1 | awk '{print $7;exit}'
+  ip route get 1 | awk '{print $7;exit}'
 }
 
 # I want to update this later so I can specify filetypes 

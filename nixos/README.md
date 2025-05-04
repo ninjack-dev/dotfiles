@@ -1,4 +1,6 @@
 ## To-Do
+- [ ] Fully modularize Nix configuration
+- [ ] Replace hardcoded instances of username with proper Nix variable
 - [ ] Organize `environment.systemPackages`
     - I'd like to write a tiny wrapper of some kind which can provide a sort of "rationale" string attribute to a package, ideally with a minimal interface to make it easy to set. 
         - The simplest solution would be to just rip a comment next to a given package name.
@@ -9,8 +11,8 @@
     - [ ] Integrate proper terminal (not Konsole)
     - [ ] Fix scaling issue for panels
 - [ ] Set up new Nix LS
-- [ ] Write Godot module 
-    - Pulls binaries/desktop file/icon and wraps them instead of building from source. Allows trivial/multiple version selection.
+- [ ] Write Godot package
+    - Pulls binaries/desktop file/icon and wraps them instead of building from source. Allows trivial version selection, or for multiple version installation with an override.
 ### Config-Specific
 - PAM
     - [ ] Potentially add [pam-any](https://github.com/ChocolateLoverRaj/pam-any)

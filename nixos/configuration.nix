@@ -1,8 +1,6 @@
 {
-  config,
   lib,
   pkgs,
-  inputs,
   ...
 }:
 {
@@ -18,47 +16,6 @@
     dates = "weekly";
     options = "--delete-older-than 2w";
   };
-
-  # The following are for programs that I have yet to wrap for myself.
-  programs.nix-ld = {
-    enable = true;
-    libraries = with pkgs; [
-      # Used for audio-share
-      pipewire
-      glibc
-
-      # Needed for Godot
-      (
-        with pkgs.dotnetCorePackages;
-        combinePackages [
-          sdk_8_0
-        ]
-      )
-      alsa-lib
-      libGL
-      vulkan-loader
-      xorg.libX11
-      xorg.libXcursor
-      xorg.libXext
-      xorg.libXfixes
-      xorg.libXi
-      xorg.libXinerama
-      libxkbcommon
-      xorg.libXrandr
-      xorg.libXrender
-      libdecor
-      wayland
-      dbus
-      dbus.lib
-      fontconfig
-      fontconfig.lib
-      libpulseaudio
-      speechd-minimal
-      udev
-    ];
-  };
-  # programs.nix-index.enable = true;
-  programs.command-not-found.enable = true;
 
   hardware.graphics = {
     enable = true;
@@ -93,7 +50,6 @@
     path = [ pkgs.flatpak ];
     script = ''
       flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
     '';
   };
 
@@ -210,7 +166,6 @@
   programs.zsh.enable = true;
   programs.zsh.shellAliases = {
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
-    rebuild = "sudo nixos-rebuild switch --impure && notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild complete.' || notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild failed!'";
     nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
 
@@ -252,9 +207,11 @@
   system.userActivationScripts = {
     # When the Brave/Chromium hash changes, all PWA desktop files break. This at the very least ensures that when rebuilding the system, any PWAs installed between the last rebuild and now get updated with
     # TODO: Put this in its own module alongside brave.
-    updateBravePWAs.text = ''
-      find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec sed -i 's|^Exec=.*/brave-browser|Exec=${pkgs.brave}/opt/brave.com/brave/brave-browser|' {} \;
-    '';
+    updateBravePWAs = {
+      text = ''
+        find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${pkgs.brave}/opt/brave.com/brave/brave-browser|' {} \;
+      '';
+    };
   };
 
   users.users.jacksonb = {
@@ -300,19 +257,53 @@
   };
 
   virtualisation.docker.enable = true;
+  virtualisation.docker.package = pkgs.docker_28;
 
   environment.systemPackages = with pkgs; [
 
     # Shell Apps
+    stow
     linuxKernel.packages.linux_zen.cpupower
-    xxd
+    iptables
     fish
     nushell
     file
     unstable.powershell
     zsh
     traceroute
-    unstable.oh-my-posh
+
+    # Waiting for https://github.com/NixOS/nixpkgs/issues/404020
+    # Using ~/.local/bin/oh-my-posh for now
+    # (
+    #   (unstable.oh-my-posh.override {
+    #     buildGoModule = buildGoModule.override { go = go_1_24; };
+    #   }).overrideAttrs
+    #   rec {
+    #     version = "25.21.0";
+    #     src = fetchFromGitHub {
+    #       owner = "JanDeDobbeleer";
+    #       repo = "oh-my-posh";
+    #       rev = "v${version}";
+    #       hash = "sha256-0TLAAJIdvO/CnGAG4TN3C54T/RTpjGqNx/oLEsuvWzg=";
+    #     };
+    #     vendorHash = "sha256-8vc+PfXX+A4+4almazrRIMHd169IQqE8rCaa2aCmB2A=";
+    #     postPatch = ''
+    #       # these tests requires internet access
+    #       rm image/image_test.go \
+    #       config/migrate_glyphs_test.go \
+    #       upgrade/notice_test.go \
+    #       segments/upgrade_test.go # Added this; I'm assuming it was added after the most recent build
+    #     '';
+    #     # Remove completion installation; https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v25.0.0
+    #     postInstall = ''
+    #       mv $out/bin/{src,oh-my-posh}
+    #       mkdir -p $out/share/oh-my-posh
+    #       cp -r $src/themes $out/share/oh-my-posh/
+    #     '';
+    #   }
+    # )
+
+    nurl
     fzf
     wget
     tmux
@@ -357,7 +348,7 @@
 
     # Desktop Environment Apps
     eog # Image Viewer
-    unstable.input-leap
+    # unstable.input-leap
     gucharmap
     zathura
     (texliveMedium.withPackages (
@@ -376,7 +367,6 @@
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     (unstable.rofi-wayland.override {
       plugins = [
-        # I wonder if the version override happens automatically. Probably not.
         (unstable.rofi-calc.override {
           rofi-unwrapped = unstable.rofi-wayland-unwrapped;
         })
@@ -386,9 +376,6 @@
 
     openssl # school
 
-    # (godot_4-mono.override {
-    #   dotnet-sdk_6 = dotnet-sdk_8;
-    # })
     unstable.bambu-studio
     libnotify
     glib
@@ -397,6 +384,7 @@
     adwaita-icon-theme
     zoom-us
     overskride
+    unstable.ddcutil
     hyprpicker
     hyprpolkitagent
     polkit_gnome
@@ -427,7 +415,7 @@
 
     # Graphical Apps
     rustdesk
-    brave
+    (brave.override { commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation"; })
     vlc
     kitty
     networkmanagerapplet
@@ -456,7 +444,12 @@
         tkinter
       ]
     ))
-    go
+    (perl.withPackages (
+      perl-pkgs: with perl-pkgs; [
+        NetDBus
+      ]
+    ))
+    unstable.go
     gopls
     gjs
     # dotnet-sdk_9
@@ -552,5 +545,4 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.05"; # Did you read the comment?
-
 }

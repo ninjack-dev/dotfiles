@@ -1,6 +1,4 @@
-#:schema  https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/schema.json  
-
-version = 2
+version = 3
 final_space = true
 console_title_template = '{{ .Shell }} in {{ .Folder }}'
 
@@ -9,17 +7,11 @@ console_title_template = '{{ .Shell }} in {{ .Folder }}'
   alignment = 'left'
 
   [[blocks.segments]]
-    type = "nix-shell"
-    style = "powerline"
-    foreground = "blue"
-    background = "transparent"
-
-  [[blocks.segments]]
     type = 'session'
     style = 'diamond'
     leading_diamond = ''
     trailing_diamond = ''
-    template = ' {{ if .SSHSession }} {{ end }}{{ .UserName }} '
+    template = '{{ if .Env.IN_NIX_SHELL }} {{end}}{{ if .SSHSession }} {{ end }}{{ .UserName }} '
     background = 'p:yellow'
     foreground = 'p:black'
 

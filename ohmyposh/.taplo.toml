@@ -1,0 +1,10 @@
+# waiting for https://github.com/tamasfe/taplo/issues/782
+[[rule]]
+  exclude = [".taplo.toml"]
+
+  [rule.schema]
+    path = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/schema.json"
+
+[formatting]
+  indent_tables = true
+  indent_entries = true

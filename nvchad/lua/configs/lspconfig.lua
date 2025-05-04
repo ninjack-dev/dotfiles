@@ -4,7 +4,7 @@ local capabilities = require("nvchad.configs.lspconfig").capabilities
 
 local lspconfig = require "lspconfig"
 local servers = { "html", "cssls", "clangd", "ts_ls", "bashls", "gopls", "pyright", "taplo",
-  "arduino_language_server", "csharp_ls", "openscad_lsp", "vala_ls",}
+  "arduino_language_server", "csharp_ls", "openscad_lsp", }
 
 -- lsps with default config
 for _, lsp in ipairs(servers) do
@@ -33,4 +33,11 @@ lspconfig.nil_ls.setup {
       },
     },
   },
+}
+
+lspconfig.vala_ls.setup {
+  on_attach = on_attach,
+  on_init = on_init,
+  capabilities = capabilities,
+  single_file_support = true,
 }

@@ -71,7 +71,7 @@ autoload -Uz compinit
 compinit -C;
 
 ## Shell integrations and prompt ##
-eval "$(zoxide init zsh)"
+eval "$(zoxide init zsh --cmd cd)"
 function cd() {
   if [[ $# -gt 1 || $# -eq 0 ]]; then
     __zoxide_z "$@"

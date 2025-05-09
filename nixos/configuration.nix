@@ -96,7 +96,8 @@
 
   boot.supportedFilesystems = [ "ntfs" ];
 
-  networking.hostName = "nixos-laptop"; # Define your hostname.
+  networking.hostName = "nixos-laptop";
+  # TODO - Debug why this rule isn't working.
   security.polkit.enable = true;
   security.polkit.extraConfig = ''
     /* Don't require sudo for reboot/power-off */
@@ -114,27 +115,6 @@
       }
     });
   '';
-
-  # This service works only when using UWSM, which sets graphical-session.target
-  # systemd.user.services.polkit-gnome-authentication-agent-1 = {
-  #   description = "polkit-gnome-authentication-agent-1";
-  #   wantedBy = ["graphical-session.target"];
-  #   wants = ["graphical-session.target"];
-  #   after = ["graphical-session.target"];
-  #
-  #   serviceConfig = {
-  #     Type = "simple";
-  #     ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-  #     Restart = "on-failure";
-  #     RestartSec = 1;
-  #     TimeoutStopSec = 10;
-  #   };
-  # };
-
-  # See if I can replace this with security.sudo.extraRules later
-  # security.sudo.extraConfig = ''
-  #   Defaults        env_reset,timestamp_timeout=15,fingerprint
-  # '';
 
   networking.networkmanager.enable = true;
 

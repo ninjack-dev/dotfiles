@@ -69,6 +69,9 @@ local function update_title()
     vim.o.titlestring = string.format("%s in %s", filename, directory)
 end
 
+vim.o.exrc = true
+vim.o.secure = true
+
 vim.o.linebreak = true
 
 -- Autocommand to update the title on certain events

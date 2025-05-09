@@ -79,6 +79,16 @@
 
   services.kanata = {
     enable = true;
+    package = pkgs.unstable.kanata-with-cmd;
+    keyboards.thinkpad.configFile = "/home/jacksonb/.config/kanata/thinkpad.kbd";
+  };
+
+  # Waiting for https://github.com/NixOS/nixpkgs/issues/404687
+  # https://discourse.nixos.org/t/overriding-options-in-systemd-units-generated-by-nixos/13755/2
+  systemd.services.kanata-thinkpad.serviceConfig = {
+    ProtectHome = lib.mkForce "read-only";
+    DynamicUser = lib.mkForce false;
+    User = lib.mkForce "jacksonb";
   };
 
   hardware.i2c.enable = true;

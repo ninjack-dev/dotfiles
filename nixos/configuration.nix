@@ -263,7 +263,7 @@
     unstable.powershell
     zsh
     traceroute
-
+    pkgs.unstable.kanata-with-cmd
     # Waiting for https://github.com/NixOS/nixpkgs/issues/404020
     # Using ~/.local/bin/oh-my-posh for now
     # (
@@ -301,7 +301,7 @@
     tmux
     zoxide
     btop
-    pay-respects
+    unstable.pay-respects
     git
     gh
     unzip
@@ -318,7 +318,7 @@
     unstable.qalculate-gtk
     man-pages
     man-pages-posix
-    mimeo # Attempt to register new handler
+    mimeo
     ffmpeg
     fprintd
     socat
@@ -326,12 +326,12 @@
     qmk
     playerctl
     libinput
-    libportal # Test for Gtk
+    libportal
     gnuplot
     yt-dlp
     usbutils
-    gtk3 # Needed for gtk-launch
-    libsForQt5.qt5.qtwayland # Test fix for broken Freecad display
+    gtk3
+    libsForQt5.qt5.qtwayland
     libsForQt5.qtstyleplugins
     tlrc
     ripgrep
@@ -340,7 +340,6 @@
 
     # Desktop Environment Apps
     eog # Image Viewer
-    # unstable.input-leap
     gucharmap
     zathura
     (texliveMedium.withPackages (
@@ -366,8 +365,6 @@
     })
     gnome-software
 
-    openssl # school
-
     unstable.bambu-studio
     libnotify
     glib
@@ -384,7 +381,7 @@
     wev
     jq
     syncthingtray
-    vscodium # Only here for a slightly improved Markdown rendering/editing experience. And Git.
+    vscodium
     android-file-transfer
     freecad-wayland
     unstable.openscad-unstable
@@ -395,21 +392,20 @@
     slurp # https://github.com/emersion/slurp?tab=readme-ov-file
     wf-recorder # https://github.com/ammen99/wf-recorder
 
-    # (inputs.ags.packages.${system}.default)
     # The following is impure since it is not a locked reference, or something, meaning
     # we need to build with --impure. I'm not sure if it's even possible to get it properly locked
     # using only getFlake, opting for a flake input instead. For now, --impure is fine, and is included
     # in the nixos-rebuild custom command.
-    # TODO: Put this in my actual flake so that it can get version locked.
+    # TODO: Put this in my actual flake so that it can get version locked, or somehow make it follow my system flake
     (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default
     d-spy
     nordic
 
     # Graphical Apps
-    rustdesk
+    rustdesk # Consider replacing this with portable binary; updates take 17 years to build
     (brave.override { commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation"; })
     vlc
-    kitty
+    unstable.kitty
     networkmanagerapplet
     nwg-displays
 
@@ -444,8 +440,6 @@
     unstable.go
     gopls
     gjs
-    # dotnet-sdk_9
-    # dotnet-sdk_8 # Debugging csharp-ls
     flatpak-builder
 
     wireshark
@@ -457,7 +451,7 @@
     wayland-scanner
     wayland
 
-    unstable.mongodb-compass # Work
+    unstable.mongodb-compass
     unstable.mongosh
 
     # language servers
@@ -469,17 +463,14 @@
     taplo
     hyprls
     vala-language-server
-    # TODO - Figure out how to get these outta here. Since I can't use NPM to install globally,
-    # these packages have to get pulled from that one gigantic Nixpkgs module, which as far as I can
-    # tell greatly increases my evaluation time since it's like 20k lines.
+    # I believe the nodePackages attribute set causes my evaluation type to spike.
     nodePackages.typescript-language-server
     nodePackages.bash-language-server
-    unstable.csharp-ls # Needs to be unstable until fix is pulled into 24.11
+    unstable.csharp-ls
 
     arduino-cli
     arduino-language-server
     arduino-ide
-
   ];
 
   fonts.packages = with pkgs; [

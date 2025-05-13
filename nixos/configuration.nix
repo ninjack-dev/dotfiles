@@ -508,7 +508,6 @@
 
   services.ollama = {
     enable = true;
-    acceleration = "cuda";
   };
 
   # DO NOT CHANGE THIS. For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion

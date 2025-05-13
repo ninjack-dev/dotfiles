@@ -338,6 +338,9 @@
     nixfmt-rfc-style
     inkscape
 
+    # unstable.godot-mono # Unusuable until Dotnet is able to access libicu; this is addressed in my module
+    (unstable.callPackage ./modules/godot/godot-mono.nix {})
+
     # Desktop Environment Apps
     eog # Image Viewer
     gucharmap

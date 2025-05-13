@@ -1,8 +1,8 @@
 ## To-Do
 - [ ] Debug [Godot package](./modules/godot/godot-mono.nix)
     - [The Godot package has now been updated to not use Dotnet 6](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/tools/godot/common.nix). Regardless, the speed at which this package was updated was somewhat agonizing, so going with the prebuilt binary seems nice. There are still bugs to fix, though.
-    - Pulls binaries/desktop file/icon and wraps them instead of building from source. Allows trivial version selection, or for multiple version installation with an override. 
-    - Currently, the application runs and works as expected. However, I cannot access the Godot C# SDK with my language server. The language server is wrapped, so its `DOTNET_ROOT` variable changes, but this is likely not the reason. I must research how the language server is able to find the SDK on Windows where the location can change; is it in the `.godot` folder, somewhere?
+    - Currently, it must be built with the EXACT same Dotnet version as the language server, otherwise `csharp-ls` cannot load the .sln; as such, it gets built with `unstable.callPackage` 
+    - There's a problem with `libicu` and DOTNET; I temporarily disabled the usage of it. See [the relevant Dotnet documentaiton](https://learn.microsoft.com/en-us/dotnet/core/extensions/globalization-icu).
 - [ ] Fully modularize Nix configuration
 - [ ] Replace hardcoded instances of username with proper Nix variable
 - [ ] Organize `environment.systemPackages`

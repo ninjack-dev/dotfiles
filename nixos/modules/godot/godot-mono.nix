@@ -1,5 +1,6 @@
-# Example of patched binary
-# https://github.com/NixOS/nixpkgs/blob/nixos-24.11/pkgs/by-name/ob/obsidian/package.nix#L19
+# Example of patched binary - https://github.com/NixOS/nixpkgs/blob/nixos-24.11/pkgs/by-name/ob/obsidian/package.nix#L19
+# Godot_4-mono - https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/tools/godot/common.nix
+# MUST BE BUILT WITH UNSTABLE FOR NOW
 {
   stdenv,
   lib,
@@ -13,16 +14,8 @@
   libdecor,
   libGL,
   libpulseaudio,
-  libX11,
-  libXcursor,
-  libXext,
-  libXfixes,
-  libXi,
-  libXinerama,
   libxkbcommon,
-  libXrandr,
   xorg,
-  libXrender,
   speechd-minimal,
   fontconfig,
   alsa-lib,
@@ -42,13 +35,15 @@ stdenv.mkDerivation (finalAttrs: rec {
   };
 
   icon = fetchurl {
+    name = "godot-icon";
     url = "https://raw.githubusercontent.com/godotengine/godot/refs/heads/master/icon.svg";
     hash = "sha256-FEOul0hCuBdl1bUOanKeu/Qeui6eUVqwkZ8upci49HU=";
   };
 
   desktopItem = fetchurl {
+    name = "godot-desktop-file"; # The filename is invalid for the nix store, apparently; when this is not set, it downloads the raw HTML of the webpage...
     url = "https://raw.githubusercontent.com/godotengine/godot/refs/heads/master/misc/dist/linux/org.godotengine.Godot.desktop";
-    hash = "sha256-ujzuI5ghekPy2aNvCMPrBo9Dc9gXS4XdEuTb+B8SM/8=";
+    hash = "sha256-hcXULJTSv5RtcYYIMWIJcXSAuBGcODSUXnYSckyT8fk=";
   };
 
   nativeBuildInputs = [
@@ -89,7 +84,10 @@ stdenv.mkDerivation (finalAttrs: rec {
     mkdir -p $out/share/{applications,icons/hicolor/scalable/apps}
     install -m755 Godot_v${version}_mono_linux.x86_64 $out/bin/godot
     mv GodotSharp $out/bin
-    install -m 444 ${desktopItem} $out/share/applications/godot-${version}.desktop
+
+    cp ${desktopItem} $out/share/applications/godot.desktop
+
+    cp ${icon} $out/share/icons/scalable
 
       for size in 16 24 32 48 64 128 256 512; do
         mkdir -p $out/share/icons/hicolor/"$size"x"$size"/apps
@@ -101,11 +99,14 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   libraries = lib.makeLibraryPath buildInputs;
 
+  # DOTNET_SYSTEM_GLOBALIZATION_INVARIANT is a temporary fix while waiting for libicu fix
   postInstall = ''
     wrapProgram $out/bin/godot \
+      --set "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT" 1 \
       --set LD_LIBRARY_PATH ${libraries} \
       --set DOTNET_ROOT "${dotnetCorePackages.sdk_9_0_1xx}" \
-      --prefix PATH : ${lib.makeBinPath [ dotnetCorePackages.sdk_9_0_1xx ]}
+      --prefix PATH : ${lib.makeBinPath [ dotnetCorePackages.sdk_9_0_1xx ]} \
+      --add-flags "--display-driver wayland"
   '';
 
   meta = {

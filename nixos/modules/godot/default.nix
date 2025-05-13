@@ -1,4 +1,4 @@
 let
-  pkgs = import <nixpkgs> { };
+  pkgs = import <unstable> { };
 in
 pkgs.callPackage ./godot-mono.nix { }

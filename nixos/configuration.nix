@@ -21,11 +21,13 @@
 
   hardware.graphics = {
     enable = true;
-    # Unstable needed for Hyprland
-    package = pkgs.unstable.mesa.drivers;
-    package32 = pkgs.unstable.pkgsi686Linux.mesa;
+    # package = pkgs.unstable.mesa.drivers;
+    # package32 = pkgs.unstable.pkgsi686Linux.mesa;
     extraPackages = with pkgs; [
       intel-media-driver # For Broadwell (2014) or newer processors. LIBVA_DRIVER_NAME=iHD
+      # intel-ocl
+      # unstable.intel-media-driver # For Broadwell (2014) or newer processors. LIBVA_DRIVER_NAME=iHD
+      # unstable.intel-ocl
     ];
   };
 
@@ -135,7 +137,7 @@
   programs.hyprland = {
     enable = true;
     withUWSM = true;
-    package = pkgs.unstable.hyprland;
+    # package = pkgs.unstable.hyprland;
   };
 
   programs.hyprlock.enable = true;
@@ -383,8 +385,10 @@
     zoom-us
     overskride
     unstable.ddcutil
-    unstable.hyprpicker
-    unstable.hyprpolkitagent
+    hyprpicker
+    hyprpolkitagent
+    # unstable.hyprpicker
+    # unstable.hyprpolkitagent
     polkit_gnome
     via
     wev
@@ -470,7 +474,7 @@
     vscode-langservers-extracted
     pyright
     taplo
-    unstable.hyprls
+    hyprls
     vala-language-server
     # I believe the nodePackages attribute set causes my evaluation type to spike.
     nodePackages.typescript-language-server

@@ -2,7 +2,7 @@
   description = "System flake.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
@@ -56,8 +56,7 @@
             }
           )
           ./configuration.nix
-          # nixos-hardware.nixosModules.framework-13th-gen-intel
-          # nixos-hardware.nixosModules.lenovo-thinkpad-e14-intel
+          nixos-hardware.nixosModules.lenovo-thinkpad-e14-intel-gen6
         ];
       };
     };

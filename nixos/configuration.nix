@@ -3,6 +3,11 @@
   pkgs,
   ...
 }:
+let
+  brave = pkgs.brave.override {
+    commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
+  };
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -17,7 +22,9 @@
     options = "--delete-older-than 2w";
   };
 
-  programs.nix-ld.enable = true;
+  programs.nix-ld = {
+    enable = true;
+  };
 
   hardware.graphics = {
     enable = true;
@@ -207,7 +214,7 @@
     # TODO: Put this in its own module alongside brave.
     updateBravePWAs = {
       text = ''
-        find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${pkgs.brave}/opt/brave.com/brave/brave-browser|' {} \;
+        find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${brave}/opt/brave.com/brave/brave-browser|' {} \;
       '';
     };
   };
@@ -309,7 +316,7 @@
     btop
     unstable.pay-respects
     git
-    gh
+    unstable.gh
     unzip
     gtypist
     gcc
@@ -326,12 +333,14 @@
     man-pages
     man-pages-posix
     mimeo
+    handlr-regex # Updated, Rust-based mimeo alternative
     ffmpeg
     gtypist
     fprintd
     socat
     brightnessctl
-    qmk
+    unstable.qmk
+    unstable.qmk-udev-rules
     playerctl
     libinput
     libportal
@@ -344,10 +353,14 @@
     tlrc
     ripgrep
     nixfmt-rfc-style
+
     inkscape
+    librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
+
+    brave
 
     # unstable.godot-mono # Unusuable until Dotnet is able to access libicu; this is addressed in my module
-    (unstable.callPackage ./modules/godot/godot-mono.nix {})
+    (unstable.callPackage ./modules/godot/godot-mono.nix { })
 
     # Desktop Environment Apps
     eog # Image Viewer
@@ -376,7 +389,7 @@
     })
     gnome-software
 
-    unstable.bambu-studio
+    # unstable.bambu-studio # Not launching; using Flatpak for now
     libnotify
     glib
     vala
@@ -393,11 +406,12 @@
     via
     wev
     jq
+    yq
     syncthingtray
     vscodium
     android-file-transfer
     freecad-wayland
-    unstable.openscad-unstable
+    # unstable.openscad-unstable
     unstable.openscad-lsp
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
@@ -416,7 +430,6 @@
 
     # Graphical Apps
     rustdesk # Consider replacing this with portable binary; updates take 17 years to build
-    (brave.override { commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation"; })
     vlc
     unstable.kitty
     networkmanagerapplet
@@ -451,6 +464,7 @@
       ]
     ))
     unstable.go
+    lua
     gopls
     gjs
     flatpak-builder
@@ -487,12 +501,8 @@
   ];
 
   fonts.packages = with pkgs; [
-    (nerdfonts.override {
-      fonts = [
-        "JetBrainsMono"
-        "FiraCode"
-      ];
-    })
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
   ];
   fonts.enableDefaultPackages = true;
 

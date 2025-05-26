@@ -1,0 +1,117 @@
+GIMP Palette
+Name: pnw_palettes
+Columns: 7
+#
+# Starfish
+36 73 46	Starfish_#24492e
+1 91 88	Starfish_#015b58
+44 97 132	Starfish_#2c6184
+89 98 155	Starfish_#59629b
+137 104 157	Starfish_#89689d
+186 121 153	Starfish_#ba7999
+230 155 153	Starfish_#e69b99
+#
+# Shuksan
+51 39 30	Shuksan_#33271e
+116 103 126	Shuksan_#74677e
+172 142 171	Shuksan_#ac8eab
+215 177 197	Shuksan_#d7b1c5
+235 189 200	Shuksan_#ebbdc8
+242 206 199	Shuksan_#f2cec7
+248 227 209	Shuksan_#f8e3d1
+254 251 233	Shuksan_#fefbe9
+#
+# Bay
+0 73 111	Bay_#00496f
+15 133 160	Bay_#0f85a0
+237 215 70	Bay_#edd746
+237 139 0	Bay_#ed8b00
+221 65 36	Bay_#dd4124
+#
+# Winter
+45 41 38	Winter_#2d2926
+51 69 78	Winter_#33454e
+83 115 128	Winter_#537380
+129 169 173	Winter_#81a9ad
+236 236 236	Winter_#ececec
+#
+# Lake
+54 41 4	Lake_#362904
+84 69 15	Lake_#54450f
+69 104 30	Lake_#45681e
+74 145 82	Lake_#4a9152
+100 168 168	Lake_#64a8a8
+133 182 206	Lake_#85b6ce
+205 229 249	Lake_#cde5f9
+238 243 255	Lake_#eef3ff
+#
+# Sunset
+65 71 107	Sunset_#41476b
+103 84 120	Sunset_#675478
+158 99 116	Sunset_#9e6374
+198 123 111	Sunset_#c67b6f
+222 155 113	Sunset_#de9b71
+239 188 130	Sunset_#efbc82
+251 223 162	Sunset_#fbdfa2
+#
+# Shuksan2
+93 116 165	Shuksan2_#5d74a5
+176 203 231	Shuksan2_#b0cbe7
+254 247 199	Shuksan2_#fef7c7
+235 160 126	Shuksan2_#eba07e
+168 85 78	Shuksan2_#a8554e
+#
+# Cascades
+45 64 48	Cascades_#2d4030
+81 104 35	Cascades_#516823
+222 192 0	Cascades_#dec000
+226 226 96	Cascades_#e2e260
+103 126 142	Cascades_#677e8e
+136 162 185	Cascades_#88a2b9
+#
+# Sailboat
+110 124 185	Sailboat_#6e7cb9
+123 188 213	Sailboat_#7bbcd5
+208 226 175	Sailboat_#d0e2af
+245 219 153	Sailboat_#f5db99
+232 156 129	Sailboat_#e89c81
+210 132 141	Sailboat_#d2848d
+#
+# Moth
+74 58 59	Moth_#4a3a3b
+152 65 54	Moth_#984136
+194 106 122	Moth_#c26a7a
+236 192 161	Moth_#ecc0a1
+240 240 228	Moth_#f0f0e4
+#
+# Spring
+216 174 221	Spring_#d8aedd
+191 155 221	Spring_#bf9bdd
+203 116 173	Spring_#cb74ad
+230 158 156	Spring_#e69e9c
+255 195 163	Spring_#ffc3a3
+251 228 198	Spring_#fbe4c6
+#
+# Mushroom
+79 65 43	Mushroom_#4f412b
+134 90 60	Mushroom_#865a3c
+186 120 62	Mushroom_#ba783e
+230 156 76	Mushroom_#e69c4c
+251 204 116	Mushroom_#fbcc74
+255 251 218	Mushroom_#fffbda
+#
+# Sunset2
+29 69 127	Sunset2_#1d457f
+97 89 157	Sunset2_#61599d
+195 99 119	Sunset2_#c36377
+235 127 84	Sunset2_#eb7f54
+242 175 74	Sunset2_#f2af4a
+#
+# Anemone
+0 148 116	Anemone_#009474
+17 194 181	Anemone_#11c2b5
+114 225 225	Anemone_#72e1e1
+241 244 238	Anemone_#f1f4ee
+239 221 207	Anemone_#efddcf
+220 190 155	Anemone_#dcbe9b
+176 152 108	Anemone_#b0986c

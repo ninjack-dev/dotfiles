@@ -69,6 +69,14 @@ in
 
   networking.firewall = {
     enable = true;
+    allowedTCPPortRanges = [
+      {
+        from = 3000;
+        to = 3005;
+      }
+    ];
+    allowedUDPPortRanges = [
+    ];
     allowedTCPPorts = [
       80
       443
@@ -137,6 +145,12 @@ in
   programs.appimage = {
     enable = true;
     binfmt = true;
+    package = pkgs.appimage-run.override {
+      extraPkgs =
+        pkgs: with pkgs; [
+          libthai
+        ];
+    };
   };
 
   programs.kdeconnect.enable = true;
@@ -409,6 +423,7 @@ in
     yq
     syncthingtray
     vscodium
+    code-cursor
     android-file-transfer
     freecad-wayland
     # unstable.openscad-unstable

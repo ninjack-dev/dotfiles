@@ -14,14 +14,12 @@ function M.domain(line_1, line_2, action)
 
     local curr = vim.api.nvim_win_get_cursor(0)
     local curr_buf_lines = vim.api.nvim_buf_line_count(0)
-    if curr[1] == prev[1]
-        and curr_buf_lines >= prev_buf_lines then
-      vim.api.nvim_echo(
-      { { "Infinite loop detected: action " .. action .. " does not move the cursor or shrink the buffer past this point." } }, true,
-        { err = true })
+    if curr[1] == prev[1] and curr_buf_lines >= prev_buf_lines then
+      -- vim.api.nvim_echo(
+      -- { { "Infinite loop detected: action " .. action .. " does not move the cursor or shrink the buffer past this point." } }, true,
+      --   { err = true })
       break
     end
-    if curr[1] == line_2 then break end
     if curr[1] > line_2 then break end
   end
 end

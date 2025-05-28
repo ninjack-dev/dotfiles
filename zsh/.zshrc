@@ -158,6 +158,78 @@ fzf-cd-widget() {
   return $ret
 }
 
+# Custom FZF file widget to expand paths currently being edited.
+# TODO: 
+# - Update Regex to allow for escaped spaces
+# - Allow for path in quotes (need to pull path out of quotes)
+fzf-file-widget() {
+  #WIP
+  # Extract token under cursor, handling escaped spaces
+  # local left="$LBUFFER"
+  # local right="$RBUFFER"
+  # local token_left token_right token
+  #
+  # if [[ $left =~ '(([^[:space:]\\]|\\.)*)$' ]]; then
+  #   token_left="${match[1]}"
+  # else
+  #   token_left=""
+  # fi
+  # if [[ $right =~ '^(([^[:space:]\\]|\\.)*)' ]]; then
+  #   token_right="${match[1]}"
+  # else
+  #   token_right=""
+  # fi
+  # token="${token_left}${token_right}"
+
+  # Regex match on left-of-cursor buffer; captures preceeding non-whitespace.
+  local token="${LBUFFER##*[[:space:]]}"
+  # Regex match on right-of-cursor buffer; captures leading non-whitespace.
+  [[ "$RBUFFER" =~ '^([^[:space:]]*)' ]] && token+="${match[1]}"
+  # [[ "$RBUFFER" =~ '^(([^[:space:]\\]|\\.)*)' ]] && token+="${match[1]}"
+
+
+  # token="${words[$CURRENT]}" 
+
+  local original_token=$token
+  local expanded_token=${~token} # Expands ~ and variables
+
+  local parent base
+
+  # If token is empty, fallback to default behavior
+  if [[ -z "$expanded_token" ]]; then
+    LBUFFER="${LBUFFER}$(__fzf_select)"
+    zle reset-prompt
+    return $?
+  fi
+
+  parent=${expanded_token:h} # Head of path in token, e.g. /foo/bar -> /foo/
+  base=${expanded_token:t} # Tail of path in token, e.g. /foo/bar -> bar
+
+  if [[ -d "$expanded_token" ]]; then
+    # If token is a directory, start search there
+    new_path=$(__fzf_select --walker-root "$expanded_token")
+    if [[ -n "$new_path" ]]; then
+      LBUFFER="${LBUFFER/$original_token/$new_path}"
+    fi
+  elif [[ -f "$expanded_token" ]]; then
+    # If it's a valid file, do nothing
+    :
+  elif [[ -d "$parent" ]]; then
+    # If parent is a directory, set walker-root and pre-query base
+    new_path=$(__fzf_select --walker-root "$parent" --query "$base")
+    if [[ -n "$new_path" ]]; then 
+      LBUFFER="${LBUFFER[1,-${#token}-1]}$new_path" # Replace current token with the new, expanded path
+    fi
+  else
+    # Fallback to normal fzf
+    LBUFFER="${LBUFFER}$(__fzf_select)"
+  fi
+
+  local ret=$?
+  zle reset-prompt
+  return $ret
+}
+
 # https://thevaluable.dev/fzf-shell-integration/
 
 eval $(pay-respects zsh --alias fuck)

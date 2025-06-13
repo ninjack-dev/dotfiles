@@ -389,6 +389,10 @@ nix-which() {
 
 set_nvim_frontend_alias
 
+if [[ "$TERM" == "xterm-kitty" ]]; then
+  ssh() { kitten ssh "$@" }
+fi
+
 # zprof
 
 HYPRLAND_INFO="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"

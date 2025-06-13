@@ -234,18 +234,21 @@ fzf-file-widget() {
 
 # https://thevaluable.dev/fzf-shell-integration/
 
-eval $(pay-respects zsh --alias fuck)
+# https://github.com/iffse/pay-respects
+# Escaped hexadecimal: `echo -n "a_family_friendly_alias" | od -A n -t x1 | sed 's/ /\\0x/g' | tr -d '\n' | awk "{ printf \"\$(echo -n '\"\$1 \"')\"}" | wl-copy`
+local respects_alias=$(echo '\0x66\0x75\0x63\0x6b')
+eval "$(pay-respects zsh --alias $respects_alias)"
 for i in $(seq 1 10); do
-  alias $(echo -n 'sh'$(for j in $(seq 1 $i); do echo -n 'i'; done)'t')='fuck'
+  alias $(echo -n '\0x73\0x68' $(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias
 done
 for i in $(seq 2 10); do
-  alias $(echo -n 'f'$(for j in $(seq 1 $i); do echo -n 'u'; done)'ck')='fuck'
+  alias $(echo -n '\0x66'$(for j in $(seq 1 $i); do echo -n '\0x75'; done)'\0x63\0x6b')=$respects_alias
 done
-alias godfuckin='fuck'
-alias crap='fuck'
-alias dammit='fuck'
-alias goddamnit='fuck'
-alias fuckinhell='fuck'
+alias $(echo -n '\0x67\0x6f\0x64\0x66\0x75\0x63\0x6b\0x69\0x6e')=$respects_alias
+alias $(echo -n '\0x63\0x72\0x61\0x70')=$respects_alias
+alias $(echo -n '\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
+alias $(echo -n '\0x67\0x6f\0x64\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
+alias $(echo -n '\0x66\0x75\0x63\0x6b\0x69\0x6e\0x68\0x65\0x6c\0x6c')=$respects_alias
 
 eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then

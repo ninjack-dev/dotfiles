@@ -1,6 +1,6 @@
 # I want to see if this can be put elsewhere
 #if uwsm check may-start; then
-    #exec uwsm start hyprland-uwsm.desktop
+#exec uwsm start hyprland-uwsm.desktop
 #fi
 # alias Hyprland='exec uwsm start hyprland-uwsm.desktop'
 
@@ -18,7 +18,7 @@
 # Official benchmark tool
 # zmodload zsh/zprof
 
-# Zinit can be installed with Nix, but since it's entirely shell-driven, we'll just install it to .local
+# Zinit can be installed with Nix, but since it's entirely shell-driven, we'll just install it to .local for usage with other operating systems.
 # Install (if needed) and initialize zinit and its needed environment variables. 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)" # If ZINIT_HOME folder isn't present, make it.
@@ -187,7 +187,6 @@ fzf-file-widget() {
   [[ "$RBUFFER" =~ '^([^[:space:]]*)' ]] && token+="${match[1]}"
   # [[ "$RBUFFER" =~ '^(([^[:space:]\\]|\\.)*)' ]] && token+="${match[1]}"
 
-
   # token="${words[$CURRENT]}" 
 
   local original_token=$token
@@ -273,7 +272,7 @@ getip()
 loc() {
   find $( [[ -z "$1" ]] && echo "$1" || echo ".") -type f | xargs wc -l
 }
- 
+
 ## NEOVIM ##
 
 # NeoVim Frontend SELector
@@ -338,15 +337,15 @@ fzf_with_preview()
   # TODO
   #   Allow this to accept a list of items from STDIN (or as a parameter). 
 
-# See the following to take in a list of items from STDIN
-# if [ -t 0 ]; then
-#     echo "No files provided"
-#   else
-#     mapfile -t files
-#   fi
-# for file in "${files[@]}"; do
-#   done
-  
+  # See the following to take in a list of items from STDIN
+  # if [ -t 0 ]; then
+  #     echo "No files provided"
+  #   else
+  #     mapfile -t files
+  #   fi
+  # for file in "${files[@]}"; do
+  #   done
+
   while true; do 
     if [[ ! -f ITEM ]]; then
       if [[ -f "${1}" ]]; then
@@ -375,7 +374,7 @@ fzf_with_preview()
       break
     fi
   done
-   
+
   return 0
 }
 

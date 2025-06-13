@@ -278,6 +278,15 @@ in
   virtualisation.docker.enable = true;
   virtualisation.docker.package = pkgs.docker_28;
 
+  fileSystems."/home/jacksonb/OneDrive" = {
+    device = "OneDrive:";
+    fsType = "rclone";
+    options = [
+      "vfs-cache-mode=writes"
+      "config=/etc/rclone-mnt.conf"
+    ];
+  };
+
   environment.systemPackages = with pkgs; [
 
     # Shell Apps
@@ -355,6 +364,7 @@ in
     brightnessctl
     unstable.qmk
     unstable.qmk-udev-rules
+    rclone
     playerctl
     libinput
     libportal

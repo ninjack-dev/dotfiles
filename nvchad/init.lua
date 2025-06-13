@@ -6,20 +6,20 @@ vim.opt.packpath:append(vim.fn.expand('~/.local/share/nvchad'))
 
 local old_stdpath = vim.fn.stdpath
 vim.fn.stdpath = function(value)
-	if value == "data" then
-		return vim.fn.expand("~/.local/share/nvchad")
-	end
-	return old_stdpath(value)
+  if value == "data" then
+    return vim.fn.expand("~/.local/share/nvchad")
+  else
+    return old_stdpath(value)
+  end
 end
 
 
--- vim.g.base46_cache = vim.fn.stdpath "data" .. "/nvchad/base46/"
-vim.g.base46_cache = vim.fn.expand('~/.local/share/nvchad/base46/')
+vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
+
 vim.g.mapleader = " "
 
 -- bootstrap lazy and all plugins
--- local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-local lazypath = vim.fn.expand('~/.local/share/nvchad/lazy/lazy.nvim')
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
 if not vim.loop.fs_stat(lazypath) then
   local repo = "https://github.com/folke/lazy.nvim.git"
@@ -64,9 +64,9 @@ vim.o.title = true
 
 -- Function to update the title dynamically
 local function update_title()
-    local filename = vim.fn.expand("%:t")       -- Get the current buffer name (file name only)
-    local directory = vim.fn.expand("%:p:h")   -- Get the current buffer directory
-    vim.o.titlestring = string.format("%s in %s", filename, directory)
+  local filename = vim.fn.expand("%:t")      -- Get the current buffer name (file name only)
+  local directory = vim.fn.expand("%:p:h")   -- Get the current buffer directory
+  vim.o.titlestring = string.format("%s in %s", filename, directory)
 end
 
 vim.o.exrc = true
@@ -76,9 +76,12 @@ vim.o.linebreak = true
 
 -- Autocommand to update the title on certain events
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {
-    callback = update_title
+  callback = update_title
 })
 
 if vim.g.neovide then
   dofile(vim.fn.expand('$XDG_CONFIG_HOME/neovide/neovide.lua'))
 end
+
+vim.opt.runtimepath:append("~/Development/neovim/domain.nvim")
+require("domain").setup({})

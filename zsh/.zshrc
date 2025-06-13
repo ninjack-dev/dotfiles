@@ -49,8 +49,8 @@ unsetopt beep
 bindkey -e
 bindkey '^H' backward-kill-word # Bind <C> + <BS> to delete word
 
-bindkey ";5D" backward-word # Bind <C> + Left/Right to move 1 word
-bindkey ";5C" forward-word
+bindkey "^[[1;5D" backward-word # Bind <C> + Left/Right to move 1 word
+bindkey "^[[1;5C" forward-word
 
 bindkey "^j" down-history # Bind <C> + j/k to scroll up/down through command history
 bindkey "^k" up-history

@@ -1,8 +1,8 @@
-vim.opt.runtimepath:remove(vim.fn.expand('~/.config/nvim'))
-vim.opt.packpath:remove(vim.fn.expand('~/.local/share/nvim'))
+vim.opt.runtimepath:remove(vim.fn.expand("~/.config/nvim"))
+vim.opt.packpath:remove(vim.fn.expand("~/.local/share/nvim"))
 
-vim.opt.runtimepath:append(vim.fn.expand('~/.config/nvchad'))
-vim.opt.packpath:append(vim.fn.expand('~/.local/share/nvchad'))
+vim.opt.runtimepath:append(vim.fn.expand("~/.config/nvchad"))
+vim.opt.packpath:append(vim.fn.expand("~/.local/share/nvchad"))
 
 local old_stdpath = vim.fn.stdpath
 vim.fn.stdpath = function(value)
@@ -62,13 +62,6 @@ vim.cmd([[
 
 vim.o.title = true
 
--- Function to update the title dynamically
-local function update_title()
-  local filename = vim.fn.expand("%:t")      -- Get the current buffer name (file name only)
-  local directory = vim.fn.expand("%:p:h")   -- Get the current buffer directory
-  vim.o.titlestring = string.format("%s in %s", filename, directory)
-end
-
 vim.o.exrc = true
 vim.o.secure = true
 
@@ -76,11 +69,22 @@ vim.o.linebreak = true
 
 -- Autocommand to update the title on certain events
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {
-  callback = update_title
+  callback = function()
+    local filename = vim.fn.expand("%:t")
+    local directory = vim.fn.expand("%:p:h")
+    vim.o.titlestring = string.format("%s in %s", filename, directory)
+  end
+})
+
+-- Autocommand to create parent directories of a file if needed
+vim.api.nvim_create_autocmd("BufWritePre", {
+  callback = function()
+    return vim.fn.mkdir(vim.fn.expand("<afile>:p:h"), 'p') == true
+  end
 })
 
 if vim.g.neovide then
-  dofile(vim.fn.expand('$XDG_CONFIG_HOME/neovide/neovide.lua'))
+  dofile(vim.fn.expand("$XDG_CONFIG_HOME/neovide/neovide.lua"))
 end
 
 vim.opt.runtimepath:append("~/Development/neovim/domain.nvim")

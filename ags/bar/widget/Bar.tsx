@@ -35,21 +35,21 @@ function SysTray() {
   </box>
 }
 
-function Wifi() {
-  const network = Network.get_default()
-  const wifi = bind(network, "wifi")
-
-  return <box visible={wifi.as(Boolean)}>
-    {wifi.as(wifi => wifi && (
-      <icon
-        tooltipText={bind(wifi, "ssid").as(String)}
-        className="Wifi"
-        icon={bind(wifi, "iconName")}
-      />
-    ))}
-  </box>
-
-}
+// function Wifi() {
+//   const network = Network.get_default()
+//   const wifi = bind(network, "wifi")
+//
+//   return <box visible={wifi.as(Boolean)}>
+//     {wifi.as(wifi => wifi && (
+//       <icon
+//         tooltipText={bind(wifi, "ssid").as(String)}
+//         className="Wifi"
+//         icon={bind(wifi, "iconName")}
+//       />
+//     ))}
+//   </box>
+//
+// }
 
 function AudioSlider() {
   const speaker = Wp.get_default()?.audio.defaultSpeaker!
@@ -76,32 +76,32 @@ function BatteryLevel() {
   </box>
 }
 
-function Media() {
-  const mpris = Mpris.get_default()
+// function Media() {
+//   const mpris = Mpris.get_default()
+//
+//   return <box className="Media">
+//     {bind(mpris, "players").as(ps => ps[0] ? (
+//       <box>
+//         <box
+//           className="Cover"
+//           valign={Gtk.Align.CENTER}
+//           css={bind(ps[0], "coverArt").as(cover =>
+//             `background-image: url('${cover}');`
+//           )}
+//         />
+//         <label
+//           label={bind(ps[0], "metadata").as(() =>
+//             `${ps[0].title} - ${ps[0].artist}`
+//           )}
+//         />
+//       </box>
+//     ) : (
+//       <label label="Nothing Playing" />
+//     ))}
+//   </box>
+// }
 
-  return <box className="Media">
-    {bind(mpris, "players").as(ps => ps[0] ? (
-      <box>
-        <box
-          className="Cover"
-          valign={Gtk.Align.CENTER}
-          css={bind(ps[0], "coverArt").as(cover =>
-            `background-image: url('${cover}');`
-          )}
-        />
-        <label
-          label={bind(ps[0], "metadata").as(() =>
-            `${ps[0].title} - ${ps[0].artist}`
-          )}
-        />
-      </box>
-    ) : (
-      <label label="Nothing Playing" />
-    ))}
-  </box>
-}
-
-function Workspaces() {
+function Workspaces(monitor: { monitor: Gdk.Monitor }) {
   const hypr = Hyprland.get_default()
   const shortcutManager = GlobalShortcuts.get_session();
   const super_key = shortcutManager.getShortcut('Super');
@@ -112,17 +112,30 @@ function Workspaces() {
       .sort((a, b) => a.id - b.id)
       .map(ws => {
         const label: Variable<string> = Variable.derive(
-          [bind(ws, "name"), bind(super_key, 'activated')],
+          [bind(ws, "name"), bind(super_key!, 'activated')],
           (wsname: string, super_held: boolean) => {
-            if (super_held || wsname == '') 
+            if (super_held || wsname == '')
               return `${ws.id}`
             return `${wsname}`
           }
         );
+
+        // The following uses the hacky name comparison which will be fixed in Gtk4
+        const workspaceClass: Variable<string> = Variable.derive(
+          [bind(hypr, "focusedWorkspace"), bind(ws, "monitor")],
+          (focusedWorkspace, thisWorkspaceMonitor) => {
+            print(thisWorkspaceMonitor.get_model(), monitor.monitor.get_model()) 
+            if (ws === focusedWorkspace)
+              return "focused"
+            else if (thisWorkspaceMonitor.get_model() === monitor.monitor.get_model() && thisWorkspaceMonitor.active_workspace === ws)
+              return "visible"
+            else return ""
+          }
+        )
+
         return (
           <button
-            className={bind(hypr, "focusedWorkspace").as(fw =>
-              ws === fw ? "focused" : "")}
+            className={bind(workspaceClass).as((a) => a)}
             onClicked={() => ws.focus()}>
             {bind(label).as(v => v)}
           </button>
@@ -168,15 +181,13 @@ export default function Bar(monitor: Gdk.Monitor) {
     <centerbox>
       <box hexpand halign={Gtk.Align.START}>
         <NixEdit />
-        <Workspaces />
+        <Workspaces monitor={monitor} />
         <FocusedClient />
       </box>
       <box>
-        <Media />
       </box>
       <box hexpand halign={Gtk.Align.END} >
         <SysTray />
-        <Wifi />
         <AudioSlider />
         <BatteryLevel />
         <Time />

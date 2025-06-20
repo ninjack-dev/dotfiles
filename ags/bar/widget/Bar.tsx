@@ -101,7 +101,7 @@ function BatteryLevel() {
 //   </box>
 // }
 
-function Workspaces(monitor: { monitor: Gdk.Monitor }) {
+function Workspaces({monitor}: { monitor: Gdk.Monitor }) {
   const hypr = Hyprland.get_default()
   const shortcutManager = GlobalShortcuts.get_session();
   const super_key = shortcutManager.getShortcut('Super');
@@ -124,10 +124,9 @@ function Workspaces(monitor: { monitor: Gdk.Monitor }) {
         const workspaceClass: Variable<string> = Variable.derive(
           [bind(hypr, "focusedWorkspace"), bind(ws, "monitor")],
           (focusedWorkspace, thisWorkspaceMonitor) => {
-            print(thisWorkspaceMonitor.get_model(), monitor.monitor.get_model()) 
             if (ws === focusedWorkspace)
               return "focused"
-            else if (thisWorkspaceMonitor.get_model() === monitor.monitor.get_model() && thisWorkspaceMonitor.active_workspace === ws)
+            else if (thisWorkspaceMonitor.get_model() === monitor.get_model() && thisWorkspaceMonitor.active_workspace === ws)
               return "visible"
             else return ""
           }

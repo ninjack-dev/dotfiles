@@ -247,6 +247,9 @@ in
   };
   nixpkgs.config.allowUnfree = true;
 
+  # Disable default `l`, `ll` aliases
+  environment.shellAliases = lib.mkForce { };
+
   services.syncthing = {
     enable = true;
 
@@ -278,14 +281,15 @@ in
   virtualisation.docker.enable = true;
   virtualisation.docker.package = pkgs.docker_28;
 
-  fileSystems."/home/jacksonb/OneDrive" = {
-    device = "OneDrive:";
-    fsType = "rclone";
-    options = [
-      "vfs-cache-mode=writes"
-      "config=/etc/rclone-mnt.conf"
-    ];
-  };
+  # This caused my system to be unbootable.
+  #  fileSystems."/home/jacksonb/OneDrive" = {
+  #    device = "OneDrive:";
+  #    fsType = "rclone";
+  #    options = [
+  #      "vfs-cache-mode=writes"
+  #      "config=/etc/rclone-mnt.conf"
+  #    ];
+  #  };
 
   environment.systemPackages = with pkgs; [
 
@@ -299,38 +303,7 @@ in
     unstable.powershell
     zsh
     traceroute
-    pkgs.unstable.kanata-with-cmd
-    # Waiting for https://github.com/NixOS/nixpkgs/issues/404020
-    # Using ~/.local/bin/oh-my-posh for now
-    # (
-    #   (unstable.oh-my-posh.override {
-    #     buildGoModule = buildGoModule.override { go = go_1_24; };
-    #   }).overrideAttrs
-    #   rec {
-    #     version = "25.21.0";
-    #     src = fetchFromGitHub {
-    #       owner = "JanDeDobbeleer";
-    #       repo = "oh-my-posh";
-    #       rev = "v${version}";
-    #       hash = "sha256-0TLAAJIdvO/CnGAG4TN3C54T/RTpjGqNx/oLEsuvWzg=";
-    #     };
-    #     vendorHash = "sha256-8vc+PfXX+A4+4almazrRIMHd169IQqE8rCaa2aCmB2A=";
-    #     postPatch = ''
-    #       # these tests requires internet access
-    #       rm image/image_test.go \
-    #       config/migrate_glyphs_test.go \
-    #       upgrade/notice_test.go \
-    #       segments/upgrade_test.go # Added this; I'm assuming it was added after the most recent build
-    #     '';
-    #     # Remove completion installation; https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v25.0.0
-    #     postInstall = ''
-    #       mv $out/bin/{src,oh-my-posh}
-    #       mkdir -p $out/share/oh-my-posh
-    #       cp -r $src/themes $out/share/oh-my-posh/
-    #     '';
-    #   }
-    # )
-
+    unstable.kanata-with-cmd
     nurl
     fzf
     wget
@@ -430,7 +403,7 @@ in
     via
     wev
     jq
-    yq
+    yq-go
     syncthingtray
     vscodium
     code-cursor
@@ -509,8 +482,9 @@ in
     # language servers
     lua-language-server
     clang-tools
-    nil
+    nixd
     vscode-langservers-extracted
+    yaml-language-server
     pyright
     taplo
     hyprls

@@ -1,16 +1,24 @@
 require("nvchad.configs.lspconfig").defaults()
 
 local servers = { "html", "cssls", "clangd", "ts_ls", "bashls", "gopls", "pyright",
-  "arduino_language_server", "csharp_ls", "openscad_lsp", "nil_ls", "vala_ls", "tombi", "gdscript", "yamlls" }
+  "arduino_language_server", "csharp_ls", "openscad_lsp", "nixd", "vala_ls", "tombi", "gdscript", "yamlls" }
 
-vim.lsp.config("nil_ls", {
+vim.lsp.config("nixd", {
   settings = {
-    ["nil"] = {
-      formatting = {
-        command = { "nixfmt" },
+    nixd = {
+      nixpkgs = {
+        expr = "import <nixpkgs> { }"
       },
-    },
-  },
+      formatting = {
+        command = { "nixfmt" }
+      },
+      options = {
+        nixos = {
+          expr = '(builtins.getFlake "./.").nixosConfigurations."nixos-laptop".options'
+        }
+      }
+    }
+  }
 })
 
 vim.lsp.config("yamlls", {

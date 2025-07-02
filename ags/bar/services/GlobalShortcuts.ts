@@ -1,5 +1,6 @@
-import GObject, { register, property } from "astal/gobject"
-import { readFile } from "astal/file"
+import GObject, { register } from "ags/gobject"
+import { getter } from "ags/gobject"
+import { readFile } from "ags/file"
 import Gio from "gi://Gio"
 import GLib from "gi://GLib?version=2.0"
 
@@ -16,9 +17,9 @@ export class GlobalShortcut extends GObject.Object {
   description?: string
   preferred_trigger?: string
 
-  #activated: boolean;
+  #activated: boolean = false;
 
-  @property(Boolean)
+  @getter(Boolean)
   get activated() {
     return this.#activated;
   }
@@ -44,11 +45,12 @@ export default class GlobalShortcuts {
   static instance: GlobalShortcuts;
 
   #shortcuts: GlobalShortcut[] = []
-  #shortcutProxy: Gio.DBusProxy & {
+  #shortcutProxy!: Gio.DBusProxy & {
     connectSignal: (x: unknown, y: unknown, ...other: unknown[]) => void
-  }
-  #sessionHandle: Promise<string>
-  #sessionName: string
+  };
+  // #shortcutProxy!: Gio.DBusProxy;
+  #sessionHandle!: Promise<string>;
+  #sessionName!: string;
 
   /**
    * Bind one or more shortcuts asynchronously.
@@ -63,7 +65,7 @@ export default class GlobalShortcuts {
     /* See https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Request.html#org-freedesktop-portal-request
      * In essence, to guarantee that the bind happened, we'll want to subscribe to the Request::Response signal and include tie the promise resolution to that. For now, it works perfectly, so I will ignore for now.
      */
-    const requestHandle = this.#shortcutProxy.BindShortcutsSync(
+    this.#shortcutProxy.BindShortcutsSync(
       await this.#sessionHandle,
       [ // Top level array packer needed for DBus/GJS communication
         ...shortcuts.map(shortcut => {
@@ -97,7 +99,9 @@ export default class GlobalShortcuts {
         Gio.DBus.session,
         'org.freedesktop.portal.Desktop',
         '/org/freedesktop/portal/desktop'
-      );
+      ) as Gio.DBusProxy & {
+        connectSignal: (x: unknown, y: unknown, ...other: unknown[]) => void
+      };
 
       let requestPath: string
 
@@ -116,7 +120,7 @@ export default class GlobalShortcuts {
               resolve(response.session_handle);
             } catch (e) { print(e); }
           }
-        })
+        });
 
       requestPath = this.#shortcutProxy.CreateSessionSync({
         'handle_token': GLib.Variant.new_string(this.#sessionName),
@@ -137,7 +141,7 @@ export default class GlobalShortcuts {
 
     let sessionHandle = await this.#sessionHandle
 
-    this.#shortcutProxy.connectSignal('Activated', (_proxy, _nameOwner, args) => {
+    this.#shortcutProxy.connectSignal(this.#shortcutProxy, 'Activated', (_proxy: any, _nameOwner: any, args: any) => {
       const keyEvent = {
         session_handle: args[0],
         shortcut_id: args[1],
@@ -145,11 +149,11 @@ export default class GlobalShortcuts {
         options: args[3],
       }
       if (keyEvent.session_handle == sessionHandle) {
-        this.#shortcuts.find((shortcut) => shortcut.id == keyEvent.shortcut_id).activated = true;
+        this.#shortcuts.find((shortcut) => shortcut.id == keyEvent.shortcut_id)!.activated = true;
       }
     });
 
-    this.#shortcutProxy.connectSignal('Deactivated', (_proxy, _nameOwner, args) => {
+    this.#shortcutProxy.connectSignal('Deactivated', (_proxy: any, _nameOwner: any, args: any) => {
       const keyEvent = {
         session_handle: args[0],
         shortcut_id: args[1],
@@ -158,7 +162,7 @@ export default class GlobalShortcuts {
       }
 
       if (keyEvent.session_handle == sessionHandle) {
-        this.#shortcuts.find((shortcut) => shortcut.id == keyEvent.shortcut_id).activated = false;
+        this.#shortcuts.find((shortcut) => shortcut.id == keyEvent.shortcut_id)!.activated = false;
       }
     });
   }

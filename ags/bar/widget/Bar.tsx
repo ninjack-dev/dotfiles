@@ -1,5 +1,5 @@
-import { App } from "astal/gtk3"
 import { Variable, GLib, bind } from "astal"
+import { createBinding, createState } from "ags"
 import { Astal, Gtk, Gdk } from "astal/gtk3"
 import Hyprland from "gi://AstalHyprland"
 import Mpris from "gi://AstalMpris"
@@ -105,6 +105,7 @@ function Workspaces({monitor}: { monitor: Gdk.Monitor }) {
   const hypr = Hyprland.get_default()
   const shortcutManager = GlobalShortcuts.get_session();
   const super_key = shortcutManager.getShortcut('Super');
+
 
   return <box className="Workspaces">
     {bind(hypr, "workspaces").as(wss => wss

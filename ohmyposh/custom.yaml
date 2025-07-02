@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+version: 3
+final_space: true
+
+upgrade:
+  source: cdn
+  interval: 168h
+  auto: false
+  notice: false
+
+console_title_template: "{{ .Shell }} in {{ .Folder }}"
+
+var:
+  bash: "  "
+  zsh: " % "
+  pwsh: "  "
+  fish: "  "
+  nu: "  "
+
+palette:
+  black: "#262B44"
+  trueblack: "#000000"
+  blue: "#4B95E9"
+  green: "#59C9A5"
+  orange: "#F07623"
+  red: "#D81E5B"
+  white: "#E0DEF4"
+  yellow: "#F3AE35"
+
+  bash: "#45B052"
+  zsh: "#F15A1F" # Color pulled from https://en.wikipedia.org/wiki/Z_shell#/media/File:Z_Shell_Logo_Color_Vertical.svg
+  pwsh: "#0078D4" # Color pulled from https://learn.microsoft.com/en-us/powershell/
+  fish: "#4A9CC9"
+  nu: "#3DD68C"
+
+transient_prompt:
+  template: "{{ .Folder }}> "
+  foreground: p:blue
+  background: transparent
+secondary_prompt:
+  background: transparent
+  foreground: "p:white"
+  template: " "
+blocks:
+  - type: prompt
+    alignment: left
+    segments:
+      - type: text
+        style: powerline
+        template: "{{ if .Env.CONTAINER_ID }} {{ .Env.CONTAINER_ID }} {{ end }}"
+        background: p:blue
+        foreground: p:black
+
+      - type: session
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: " {{ if .SSHSession }} ⇒ {{ end }}{{ if .Env.IN_NIX_SHELL }} {{end}}{{ .UserName }}@{{ .HostName }} "
+        foreground: p:black
+        background: p:blue
+      - type: time
+        style: powerline
+        properties:
+          time_format: "04:05"
+        template: 
+          "{{ if or (eq .CurrentDate.Hour 1) (eq .CurrentDate.Hour 13)}} 󱑋 \
+          {{else if or (eq .CurrentDate.Hour 2) (eq .CurrentDate.Hour 14)}} 󱑌 \
+          {{else if or (eq .CurrentDate.Hour 3) (eq .CurrentDate.Hour 15)}} 󱑍 \
+          {{else if or (eq .CurrentDate.Hour 4) (eq .CurrentDate.Hour 16)}} 󱑎 \
+          {{else if or (eq .CurrentDate.Hour 5) (eq .CurrentDate.Hour 17)}} 󱑏 \
+          {{else if or (eq .CurrentDate.Hour 6) (eq .CurrentDate.Hour 18)}} 󱑐 \
+          {{else if or (eq .CurrentDate.Hour 7) (eq .CurrentDate.Hour 19)}} 󱑑 \
+          {{else if or (eq .CurrentDate.Hour 8) (eq .CurrentDate.Hour 20)}} 󱑒 \
+          {{else if or (eq .CurrentDate.Hour 9) (eq .CurrentDate.Hour 21)}} 󱑓 \
+          {{else if or (eq .CurrentDate.Hour 10) (eq .CurrentDate.Hour 22)}} 󱑔 \
+          {{else if or (eq .CurrentDate.Hour 11) (eq .CurrentDate.Hour 23)}} 󱑕 \
+          {{else if or (eq .CurrentDate.Hour 12) (eq .CurrentDate.Hour 24)}} 󱑖 \
+          {{ end }}{{ .CurrentDate | date .Format }} "
+        foreground: p:black
+        background: p:yellow
+        powerline_symbol: 
+      # - type: docker
+      #   style: powerline
+      #   powerline_symbol: 
+      #   foreground: "#0B59E7"
+      #   background: p:red
+      #   template: "  {{ .Context }}"
+      #   properties:
+      #     display_mode: files
+      #
+      - type: command
+        style: diamond
+        trailing_diamond: "\u200B" # Ugh
+        properties:
+          script: "~/.config/ohmyposh/shelllist.sh"
+        template: 
+          "\
+          {{ $Var := .Var }}\
+          {{ $First := first (splitList \" \" .Output) }}\
+          {{ index $Var $First }}\
+          <p:{{ $First }}>\
+          {{ $Prev := $First }}\
+          {{ range rest (splitList \" \" .Output) }}\
+          <,p:{{.}}><b>{{ if (eq $Prev .) }}<p:trueblack></>{{ else }}{{ end }}</b></></>\
+          <p:black,p:{{.}}>{{ index $Var . }}</>\
+          {{ $Prev = . }}\
+          <p:{{.}}>\
+          {{ end }}<,transparent></></>"
+        background_templates:
+          - "p:{{ first (splitList \" \" .Output) }}"
+        foreground: p:black
+        cache:
+          strategy: session
+      - type: text
+        style: powerline
+        powerline_symbol: ""
+        template: "Powerline Test"
+        background: p:blue
+        foreground: p:black
+
+  - type: prompt
+    alignment: left
+    newline: true
+    segments:
+      - type: text
+        style: plain
+        template: " "
+        background: transparent
+        foreground: "p:white"

@@ -1,11 +1,9 @@
-import { Variable, GLib, bind } from "astal"
 import { createBinding, createState } from "ags"
-import { Astal, Gtk, Gdk } from "astal/gtk3"
+import { Gtk } from "gi://Gtk?version=3.0"
+import Gdk from "gi://Gdk?version=3.0"
 import Hyprland from "gi://AstalHyprland"
-import Mpris from "gi://AstalMpris"
 import Battery from "gi://AstalBattery"
 import Wp from "gi://AstalWp"
-import Network from "gi://AstalNetwork"
 import Tray from "gi://AstalTray"
 import GlobalShortcuts from "../services/GlobalShortcuts"
 

@@ -11,6 +11,11 @@ import GLib from "gi://GLib?version=2.0"
 const SHORTCUT_INTERFACE_XML = readFile('./services/org.freedesktop.portal.GlobalShortcuts.xml');
 const globalShortcutProxyWrapper = Gio.DBusProxy.makeProxyWrapper(SHORTCUT_INTERFACE_XML);
 
+// We need this because the `connectSignal` type resolves to the following: https://gitlab.gnome.org/GNOME/gjs/-/blob/master/modules/core/_signals.js
+type DBusProxyPatched = Gio.DBusProxy & {
+  connectSignal: (x: unknown, y: unknown, ...other: unknown[]) => void
+};
+
 @register({ GTypeName: "Shortcut" })
 export class GlobalShortcut extends GObject.Object {
   id: string
@@ -45,9 +50,7 @@ export default class GlobalShortcuts {
   static instance: GlobalShortcuts;
 
   #shortcuts: GlobalShortcut[] = []
-  #shortcutProxy!: Gio.DBusProxy & {
-    connectSignal: (x: unknown, y: unknown, ...other: unknown[]) => void
-  };
+  #shortcutProxy!: DBusProxyPatched;
   // #shortcutProxy!: Gio.DBusProxy;
   #sessionHandle!: Promise<string>;
   #sessionName!: string;
@@ -99,9 +102,7 @@ export default class GlobalShortcuts {
         Gio.DBus.session,
         'org.freedesktop.portal.Desktop',
         '/org/freedesktop/portal/desktop'
-      ) as Gio.DBusProxy & {
-        connectSignal: (x: unknown, y: unknown, ...other: unknown[]) => void
-      };
+      ) as DBusProxyPatched;
 
       let requestPath: string
 
@@ -141,7 +142,7 @@ export default class GlobalShortcuts {
 
     let sessionHandle = await this.#sessionHandle
 
-    this.#shortcutProxy.connectSignal(this.#shortcutProxy, 'Activated', (_proxy: any, _nameOwner: any, args: any) => {
+    this.#shortcutProxy.connectSignal('Activated', (_proxy: any, _nameOwner: any, args: any) => {
       const keyEvent = {
         session_handle: args[0],
         shortcut_id: args[1],

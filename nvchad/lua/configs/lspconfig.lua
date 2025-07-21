@@ -1,7 +1,22 @@
 require("nvchad.configs.lspconfig").defaults()
 
-local servers = { "html", "cssls", "clangd", "ts_ls", "bashls", "gopls", "pyright",
-  "arduino_language_server", "csharp_ls", "openscad_lsp", "nixd", "vala_ls", "tombi", "gdscript", "yamlls" }
+local servers = {
+  "arduino_language_server",
+  "bashls",
+  "clangd",
+  "csharp_ls",
+  "cssls",
+  "gdscript",
+  "gopls", "pyright",
+  "html",
+  "nixd",
+  "nushell",
+  "openscad_lsp",
+  "tombi",
+  "ts_ls",
+  "vala_ls",
+  "yamlls",
+}
 
 vim.lsp.config("nixd", {
   settings = {

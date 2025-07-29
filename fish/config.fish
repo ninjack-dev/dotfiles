@@ -3,4 +3,5 @@ if status is-interactive
 end
 
 direnv hook fish | source
-zoxide init fish | source
+zoxide init fish --cmd cd | source
+oh-my-posh init fish | source

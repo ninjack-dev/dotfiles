@@ -26,6 +26,11 @@ in
     enable = true;
   };
 
+  programs.command-not-found.enable = false;
+  programs.nix-index = {
+    enable = true;
+  };
+
   hardware.graphics = {
     enable = true;
     # package = pkgs.unstable.mesa.drivers;
@@ -58,12 +63,14 @@ in
   # services.tlp.enable = true;
   services.auto-cpufreq.enable = true;
 
+  services.tailscale.enable = true;
+
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
     path = [ pkgs.flatpak ];
     script = ''
-      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
   };
 
@@ -187,6 +194,7 @@ in
     nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
     nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
+  programs.fish.enable = true;
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -297,8 +305,8 @@ in
     stow
     linuxKernel.packages.linux_zen.cpupower
     iptables
-    fish
     nushell
+    blesh
     file
     unstable.powershell
     zsh
@@ -313,10 +321,12 @@ in
     unstable.pay-respects
     git
     unstable.gh
+    psmisc # fuser, pstree
     unzip
     gtypist
     gcc
     gnumake
+    bc
     gdb
     bind
     unstable.neovim
@@ -335,8 +345,8 @@ in
     fprintd
     socat
     brightnessctl
-    unstable.qmk
-    unstable.qmk-udev-rules
+    qmk
+    qmk-udev-rules
     rclone
     playerctl
     libinput
@@ -349,7 +359,11 @@ in
     libsForQt5.qtstyleplugins
     tlrc
     ripgrep
+    fd
     nixfmt-rfc-style
+    kdePackages.krdc
+    distrobox
+    hugo
 
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
@@ -406,14 +420,13 @@ in
     yq-go
     syncthingtray
     vscodium
-    code-cursor
     android-file-transfer
     freecad-wayland
     # unstable.openscad-unstable
     unstable.openscad-lsp
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
-    grim # https://sr.ht/~emersion/grim/
+    grim # https://sr.ht/~emersion/grim/ TODO: Replace with https://github.com/eriedaberrie/grim-hyprland
     slurp # https://github.com/emersion/slurp?tab=readme-ov-file
     wf-recorder # https://github.com/ammen99/wf-recorder
 
@@ -427,11 +440,11 @@ in
     nordic
 
     # Graphical Apps
-    rustdesk # Consider replacing this with portable binary; updates take 17 years to build
     vlc
     unstable.kitty
     networkmanagerapplet
     nwg-displays
+    tailscale
 
     kdePackages.qtsvg
     kdePackages.qtwayland
@@ -485,6 +498,7 @@ in
     nixd
     vscode-langservers-extracted
     yaml-language-server
+    awk-language-server
     pyright
     taplo
     hyprls
@@ -519,6 +533,8 @@ in
     NIXOS_OZONE_WL = "1";
     STEAM_FORCE_DESKTOPUI_SCALING = "1.2"; # Unfortunately, this also applies to monitors that don't need it.
     LIBVA_DRIVER_NAME = "iHD";
+
+    POWERSHELL_UPDATECHECK = "Off"; # Disable PowerShell's update notification; is this worth making a PR for?
   };
 
   environment.localBinInPath = true;

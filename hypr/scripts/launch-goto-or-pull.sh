@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if hyprctl clients | grep 'class: obsidian'; then
-  if [ "$1" = 'pull' ]; then
-hyprctl dispatch movetoworkspace e+0, 'class:obsidian'
+if hyprctl clients | grep 'class: '"$1"; then
+  if [ "$2" = 'pull' ]; then
+hyprctl dispatch movetoworkspace e+0, 'class:'"$1"
   fi
-    hyprctl dispatch focuswindow 'class:obsidian'
+    hyprctl dispatch focuswindow 'class:'"$1"
 else 
-  obsidian
+  $1
 fi

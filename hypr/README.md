@@ -1,8 +1,11 @@
 ## To-Do
 - Kitty `panel`s
-    - [ ] Update Kitty `panel` invocations to use a headless, already-running instance, if possible
+    - [ ] Update Kitty `panel` invocations to use a headless, already-running instance, if possible, to decrease startup time.
     - [x] Add layer/animation rules to see if the "lag" with moving windows/the Astal panel, if possible
-- Write scripts
+- Write scripts for:
     - [ ] screenshots
     - [ ] screen recording
-- [ ] Set up Hyprlock
+        - It may be nice to bundle these two into a widget a la HyprPanel's
+- [ ] Set up Hyprlock (and perhaps Greetd, or something similar)
+- [ ] Add descriptions to all `bindd`s
+- [ ] Determine mod mask for keybind searcher later

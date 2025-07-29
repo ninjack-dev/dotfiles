@@ -81,18 +81,15 @@ local function yank_to_md_clipboard(opts)
   table.insert(md_lines, "```")
   local text = table.concat(md_lines, "\n")
   vim.fn.setreg("+", text)
-  print("Yanked as markdown code block" ..
-    (opts.filename_comment and filename and (" (with filename comment: " .. filename .. ")") or "") ..
-    " for '" .. ft .. "' to clipboard.")
+  print("Yanked as markdown code block to clipboard.")
 end
 
--- Keymap: Normal mode (yank current line, then process)
+-- TODO: Figure out more appropriate mappings.
 vim.keymap.set("n", "<leader>my", function()
   vim.cmd("normal! yy")
   yank_to_md_clipboard({ filename_comment = true })
 end, { silent = true })
 
--- Keymap: Visual mode
 vim.keymap.set("v", "<leader>my", function()
   vim.cmd("normal! y")
   yank_to_md_clipboard({ filename_comment = true })

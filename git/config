@@ -1,0 +1,17 @@
+[user]
+	email = 84806918+ninjack-dev@users.noreply.github.com
+	name = Jackson Breit
+[credential "https://github.com"]
+	llhelper = 
+	helper = 
+	helper = !/run/current-system/sw/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	llhelper = 
+	helper = 
+	helper = !/run/current-system/sw/bin/gh auth git-credential
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
+[alias]
+	stat = status --short

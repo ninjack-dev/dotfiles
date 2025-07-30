@@ -67,6 +67,8 @@ vim.o.secure = true
 
 vim.o.linebreak = true
 
+vim.env.PATH = vim.fn.stdpath("config") .. "/lua/scripts:" .. vim.env.PATH
+
 -- Autocommand to update the title on certain events
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {
   callback = function()

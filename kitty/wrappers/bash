@@ -1,0 +1,2 @@
+#!/bin/sh
+exec kitten run-shell --shell="$(whereis bash | awk '{print $NF}') $(printf ' %q' "$@")"

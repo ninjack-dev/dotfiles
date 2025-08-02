@@ -28,6 +28,8 @@ source "${ZINIT_HOME}/zinit.zsh"
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
+# zinit ice depth=1
+# zinit light jeffreytse/zsh-vi-mode
 
 # ZSH auto-completion parameters
 
@@ -54,9 +56,6 @@ bindkey "^[[1;5C" forward-word
 
 bindkey "^j" down-history # Bind <C> + j/k to scroll up/down through command history
 bindkey "^k" up-history
-
-bindkey '^p' history-search-backward 
-bindkey '^n' history-search-forward 
 
 zle -N nvim_neovide_handler
 bindkey '^N' nvim_neovide_handler
@@ -161,8 +160,10 @@ fzf-cd-widget() {
   return $ret
 }
 
+# FZF_CTRL_T_COMMAND="fd -H --full-path" # TODO: Debug this, 
 # Custom FZF file widget to expand paths currently being edited.
 # TODO: 
+# - Debug FZF_CTRL_T_COMMAND
 # - Update Regex to allow for escaped spaces
 # - Allow for path in quotes (need to pull path out of quotes)
 fzf-file-widget() {
@@ -200,29 +201,34 @@ fzf-file-widget() {
   # If token is empty, fallback to default behavior
   if [[ -z "$expanded_token" ]]; then
     LBUFFER="${LBUFFER}$(__fzf_select)"
+    local ret=$?
     zle reset-prompt
-    return $?
+    return $ret
   fi
 
   parent=${expanded_token:h} # Head of path in token, e.g. /foo/bar -> /foo/
   base=${expanded_token:t} # Tail of path in token, e.g. /foo/bar -> bar
 
   if [[ -d "$expanded_token" ]]; then
+    printf "GOT HERE 1 %s" $expanded_token
     # If token is a directory, start search there
     new_path=$(__fzf_select --walker-root "$expanded_token")
     if [[ -n "$new_path" ]]; then
       LBUFFER="${LBUFFER/$original_token/$new_path}"
     fi
   elif [[ -f "$expanded_token" ]]; then
+    printf "GOT HERE 2"
     # If it's a valid file, do nothing
     :
   elif [[ -d "$parent" ]]; then
+    printf "GOT HERE 3"
     # If parent is a directory, set walker-root and pre-query base
     new_path=$(__fzf_select --walker-root "$parent" --query "$base")
     if [[ -n "$new_path" ]]; then 
       LBUFFER="${LBUFFER[1,-${#token}-1]}$new_path" # Replace current token with the new, expanded path
     fi
   else
+    printf "GOT HERE 4"
     # Fallback to normal fzf
     LBUFFER="${LBUFFER}$(__fzf_select)"
   fi
@@ -239,7 +245,7 @@ fzf-file-widget() {
 local respects_alias=$(echo '\0x66\0x75\0x63\0x6b')
 eval "$(pay-respects zsh --alias $respects_alias)"
 for i in $(seq 1 10); do
-  alias $(echo -n '\0x73\0x68' $(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias
+  alias $(echo -n '\0x73\0x68'$(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias
 done
 for i in $(seq 2 10); do
   alias $(echo -n '\0x66'$(for j in $(seq 1 $i); do echo -n '\0x75'; done)'\0x63\0x6b')=$respects_alias
@@ -263,10 +269,7 @@ alias ff='fzf_with_preview'
 alias reload='exec zsh'
 alias reboot='systemctl shutdown -r now'
 alias git-graph='git log --oneline --decorate --graph'
-alias ags-restart='ags -q && ags &|'
 # alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
-alias prolog='swipl'
-
 alias nvid='neovide'
 
 getip()
@@ -395,12 +398,14 @@ nix-which() {
 set_nvim_frontend_alias
 
 if [[ "$TERM" == "xterm-kitty" ]]; then
-  ssh() { kitten ssh "$@" }
+
 fi
 
 # zprof
 
 HYPRLAND_INFO="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 HYPRLAND_CONTROL="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock"
+
+FZF_ALT_C_COMMAND="fd -H --type directory"
 
 complete -C 'aws_completer' aws

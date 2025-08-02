@@ -1,2 +1,2 @@
 #!/bin/sh
-exec kitten run-shell --shell="$(whereis fish | awk '{print $NF}') $(printf ' %q' "$@")"
+exec kitten run-shell --shell="$(whereis fish | awk '{print $NF}') $(env printf ' %q' "$@")"

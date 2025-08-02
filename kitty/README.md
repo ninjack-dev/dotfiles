@@ -4,4 +4,3 @@ Kitty offers several conveniences for shell integration, such as foor over SSH. 
 ```sh
 env PATH=${XDG_CONFIG_HOME}/kitty/wrappers/:${PATH}
 ```
-**Note**: It's very brittle right now. The assumption is that `/bin/sh` points to a shell which supports `printf '%q'`; I cannot point at Bash directly, otherwise it will run itself and hang. A more comprehensive approach to splitting the shell launch parameters is needed.

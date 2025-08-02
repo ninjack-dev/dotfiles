@@ -1,2 +1,2 @@
 #!/bin/sh
-exec kitten run-shell --shell="$(whereis zsh | awk '{print $NF}') $(printf ' %q' "$@")"
+exec kitten run-shell --shell="$(whereis zsh | awk '{print $NF}') $(env printf ' %q' "$@")"

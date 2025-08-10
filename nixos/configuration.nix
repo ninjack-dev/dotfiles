@@ -308,6 +308,7 @@ in
     pinentry
     stow
     linuxKernel.packages.linux_zen.cpupower
+    gum
     iptables
     nushell
     blesh
@@ -335,6 +336,7 @@ in
     bind
     unstable.neovim
     unstable.neovide
+    unstable.evil-helix
     p7zip
     valgrind
     bat

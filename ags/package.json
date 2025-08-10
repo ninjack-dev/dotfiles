@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "astal": "/nix/store/8cl58ip2nasg6rdyj59cwg2f0qbixs28-astal-gjs/share/astal/gjs"
+        "astal": "/nix/store/9q1xf9vscgjdvvlllbrgqa3gycm0f8l6-astal-gjs/share/astal/gjs"
     },
     "name": "astal-shell"
 }

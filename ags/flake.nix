@@ -3,18 +3,23 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    astal = {
+      url = "github:aylur/astal";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     ags = {
       url = "github:aylur/ags";
+      inputs.astal.follows = "astal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs =
     {
-      self,
       nixpkgs,
       ags,
+      ...
     }:
     let
       system = "x86_64-linux";

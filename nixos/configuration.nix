@@ -43,6 +43,8 @@ in
     ];
   };
 
+  programs.gnupg.agent.enable = true;
+
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_zen;
 
   boot.loader.efi.canTouchEfiVariables = true;
@@ -302,6 +304,8 @@ in
   environment.systemPackages = with pkgs; [
 
     # Shell Apps
+    gnupg
+    pinentry
     stow
     linuxKernel.packages.linux_zen.cpupower
     iptables

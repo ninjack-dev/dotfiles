@@ -183,6 +183,24 @@ in
     };
   };
 
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+      };
+    };
+  };
+
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    jack.enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+  };
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -197,22 +215,6 @@ in
     nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
   };
   programs.fish.enable = true;
-
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-  hardware.bluetooth.settings = {
-    General = {
-      Enable = "Source,Sink,Media,Socket";
-    };
-  };
-
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-    jack.enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-  };
 
   # May be unnecessary if Hyprland is installed
   services.libinput.enable = true;

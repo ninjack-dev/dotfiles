@@ -87,7 +87,42 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 if vim.g.neovide then
   dofile(vim.fn.expand("$XDG_CONFIG_HOME/neovide/neovide.lua"))
+elseif vim.env.TERM:match("kitty") then
+  vim.api.nvim_create_autocmd("VimEnter", {
+    command = ":silent !kitty @ set-spacing padding=0 margin=0",
+  })
+
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    command = ":silent !kitty @ set-spacing padding=default margin=default",
+  })
+
+  -- Borrowed from bg.nvim https://github.com/typicode/bg.nvim/blob/main/plugin/bg.lua
+  local handle = io.popen("tty")
+  local tty = handle and handle:read("*a")
+  if handle then handle:close() end
+
+  local update_count = 0
+
+  vim.api.nvim_create_autocmd({ "ColorScheme", "UIEnter", "VimEnter" }, {
+    callback = function()
+      local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+      os.execute('printf "\\033]30001\\007" > ' .. tty)
+      local bghex = string.format("#%06x", normal["bg"])
+      local fghex = string.format("#%06x", normal["fg"])
+      os.execute('printf "\\033]11;' .. bghex .. '\\007" > ' .. tty)
+      os.execute('printf "\\033]12;' .. fghex .. '\\007" > ' .. tty)
+      update_count = update_count + 1
+    end
+  })
+  vim.api.nvim_create_autocmd({ "VimLeavePre", "VimSuspend" }, {
+    callback = function()
+      for _ = 1, update_count do
+        os.execute('printf "\\033]30101\\007" > ' .. tty)
+      end
+    end
+  })
 end
+
 
 vim.opt.runtimepath:append("~/Development/neovim/domain.nvim")
 require("domain").setup({})

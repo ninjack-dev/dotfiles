@@ -531,6 +531,11 @@ in
     XDG_DATA_HOME = "$HOME/.local/share";
     XDG_STATE_HOME = "$HOME/.local/state";
 
+    PATH = [
+      "$HOME/.npm-global/bin"
+      "$HOME/go/bin"
+    ];
+
     EDITOR = "nvim";
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";

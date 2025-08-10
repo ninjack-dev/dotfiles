@@ -243,6 +243,11 @@ in
         find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${brave}/opt/brave.com/brave/brave-browser|' {} \;
       '';
     };
+    setNpmBinDirectory = {
+      text = ''
+        ${pkgs.nodejs}/bin/npm npm set prefix $HOME/.npm-global 
+      '';
+    };
   };
 
   users.users.jacksonb = {

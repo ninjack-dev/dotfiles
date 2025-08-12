@@ -1,4 +1,7 @@
+vim.o.guifont = "JetBrainsMono Nerd Font"
+
 vim.g.neovide_scale_factor = 0.85
+vim.g.neovide_input_ime = true
 local change_scale_factor = function(delta)
   vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
 end

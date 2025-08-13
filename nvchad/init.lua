@@ -67,6 +67,8 @@ vim.o.secure = true
 
 vim.o.linebreak = true
 
+vim.o.completeopt = 'fuzzy'
+
 vim.env.PATH = vim.fn.stdpath("config") .. "/lua/scripts:" .. vim.env.PATH
 
 -- Autocommand to update the title on certain events

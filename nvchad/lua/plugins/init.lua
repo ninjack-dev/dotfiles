@@ -18,7 +18,7 @@ return {
 
   {
     "lervag/vimtex",
-    lazy = false,   -- we don't want to lazy load VimTeX
+    lazy = false, -- we don't want to lazy load VimTeX
     -- tag = "v2.15", -- uncomment to pin to a specific release
     init = function()
       -- VimTeX configuration goes here, e.g.
@@ -26,6 +26,16 @@ return {
       -- vim.g.vimtex_compile_method = "latexrun"
     end
   },
+  {
+    'jmbuhr/otter.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {},
+  },
+  {
+    'github/copilot.vim'
+  }
   --
   -- {
   -- 	"williamboman/mason.nvim",

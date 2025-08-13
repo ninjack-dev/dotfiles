@@ -10,6 +10,27 @@ local servers = {
   gdscript = {},
   gopls = {},
   html = {},
+  jsonls = {
+    capabilites = (function()
+      local capabilites = vim.lsp.protocol.make_client_capabilities()
+      capabilites.textDocument.completion.completionItem.snippetSupport = true
+      return capabilites
+    end)(),
+    settings = {
+      json = {
+        format = { enable = true },
+        validate = { enable = true },
+        schemas = {
+          {
+            description = "TypeScript compiler configuration file",
+            fileMatch = { "tsconfig*.json" },
+            name = "tsconfig.json",
+            url = "https://www.schemastore.org/tsconfig.json"
+          },
+        }
+      }
+    }
+  },
   nixd = {
     settings = {
       nixd = {
@@ -29,6 +50,7 @@ local servers = {
   },
   nushell = {},
   openscad_lsp = {},
+  perlnavigator = {},
   pyright = {},
   tombi = {},
   ts_ls = {},

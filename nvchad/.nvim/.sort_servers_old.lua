@@ -88,4 +88,3 @@ local function sort_servers_table()
 end
 
 vim.api.nvim_create_user_command('SortLspServers', sort_servers_table, {})
-return sort_servers_table

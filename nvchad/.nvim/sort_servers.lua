@@ -1,6 +1,9 @@
 -- Sort the `servers` table alphabetically in lspconfig.lua
 -- This is the "magic numbers" version which works and is half the size, but it's near impossible to read.
--- TOOD: Wrap in pcall(). Just in case.
+-- TOOD: 
+-- - Wrap in pcall(). Just in case.
+-- - Expand it by capturing the text between the end byte of one LSP config and start byte of the next to preserve whitespace.
+--   Must determine which node to cluster it with.
 local function sort_servers_table()
   local bufnr = vim.fn.bufnr("lua/configs/lspconfig.lua", true)
   -- local bufnr = vim.fn.bufnr(vim.fn.getcwd() .. "/lua/configs/lspconfig.lua", true)
@@ -45,7 +48,7 @@ local function sort_servers_table()
   vim.notify("Sorted servers table in lspconfig.lua")
 end
 
-vim.api.nvim_create_autocmd("BufWritePost", {
+vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "lua/configs/lspconfig.lua", -- relative to CWD or use full path
   callback = sort_servers_table,
 })

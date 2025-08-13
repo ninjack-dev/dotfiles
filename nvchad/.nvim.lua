@@ -1,15 +1,22 @@
--- TODO: Make this a template callbe with something like `:Nvimrc`
-vim.cmd[[set runtimepath+=.nvim]]
+-- TODO: Either:
+-- - Make this a template which can be created with something like `:Nvimrc`
+-- or
+-- - Add it as a default feature to my general config
+-- - Add support for Vimscript files
+-- - MAYBE add support for Python?
 
-for name, type in vim.fs.dir(".nvim") do
-  if type == "file" and name:sub(-4) == ".lua" then
-
-    local ok, err = pcall(function()
-      vim.secure.read(".nvim/" .. name)
-    end)
-
-    if not ok then
-      vim.notify("Secure load failed or denied for " .. name .. ": " .. err, vim.log.levels.WARN)
+---@param path string
+local function recurse_dofile(path)
+  for name, type in vim.fs.dir(path) do
+    if type == "file" and name:sub(-4) == ".lua" then
+      local ok, err = pcall(function() assert(loadstring(vim.secure.read(path .. name), name))() end)
+      if not ok then
+        vim.notify("Secure load failed or denied for " .. name .. ": " .. err, vim.log.levels.WARN)
+      end
+    elseif type == "directory" or type == "link" then
+      recurse_dofile(path .. name)
     end
   end
 end
+
+recurse_dofile(".nvim/")

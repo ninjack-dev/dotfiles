@@ -317,7 +317,7 @@ in
     linuxKernel.packages.linux_zen.cpupower
     gum
     iptables
-    nushell
+    unstable.nushell
     blesh
     file
     unstable.powershell
@@ -413,7 +413,6 @@ in
     })
     gnome-software
 
-    # unstable.bambu-studio # Not launching; using Flatpak for now
     libnotify
     glib
     vala
@@ -449,11 +448,11 @@ in
     # in the nixos-rebuild custom command.
     # TODO: Put this in my actual flake so that it can get version locked, or somehow make it follow my system flake
     (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default
-    d-spy
     nordic
 
     # Graphical Apps
     vlc
+    d-spy
     unstable.kitty
     networkmanagerapplet
     nwg-displays
@@ -469,7 +468,6 @@ in
     gparted
     udiskie
 
-    # Electron
     obsidian
     discord
 
@@ -516,10 +514,10 @@ in
     taplo
     hyprls
     vala-language-server
-    # I believe the nodePackages attribute set causes my evaluation type to spike.
     nodePackages.typescript-language-server
     nodePackages.bash-language-server
     unstable.csharp-ls
+    perlnavigator
 
     arduino-cli
     arduino-language-server

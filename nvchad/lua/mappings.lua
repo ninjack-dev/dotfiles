@@ -1,5 +1,5 @@
 require "nvchad.mappings"
-
+local builtin = require("telescope.builtin")
 local map = vim.keymap.set
 
 map("i", "<C-BS>", "<C-w>", { noremap = true, silent = true, desc = "Delete backwards by a word (same as <C-w>)" })
@@ -15,3 +15,6 @@ map("n", "<C-w><C-m>", function()
   ]])
 end, { silent = true, desc = "Shrink window to size of longest line."}
 )
+
+-- TODO - Replace this if/when Telescope gets replaced
+map('n', '<leader>st', "<cmd>Telescope filetypes<CR>", { desc = 'Telscope set filetype'})

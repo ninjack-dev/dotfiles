@@ -20,3 +20,9 @@ local function recurse_dofile(path)
 end
 
 recurse_dofile(".nvim/")
+
+vim.filetype.add({
+  filename = {
+    ['nvin'] = 'lua',
+  },
+})

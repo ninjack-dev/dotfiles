@@ -1,6 +1,6 @@
 #!/usr/bin/env -S nvim --headless -l
 
-local socket = os.getenv("NVIM")
+local socket = vim.env.NVIM
 if not socket then
   io.stderr:write("$NVIM not set. Start Neovim with --listen\n")
   os.exit(1)

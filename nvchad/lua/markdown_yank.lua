@@ -74,7 +74,7 @@ local function yank_to_md_clipboard(opts)
   local md_lines = {}
   table.insert(md_lines, "```" .. ft)
   -- TODO: Expand this to use project root and get full filepath (e.g. nvim/lua/markdown_yank.lua). Maybe expand even more with GitHub URL?
-  if opts.filename_comment and filename then
+  if opts.filename_comment and filename ~= "" then
     table.insert(md_lines, get_comment_line(filename))
   end
   vim.list_extend(md_lines, lines)

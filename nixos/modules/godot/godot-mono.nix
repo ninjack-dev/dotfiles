@@ -36,14 +36,14 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   icon = fetchurl {
     name = "godot-icon";
-    url = "https://raw.githubusercontent.com/godotengine/godot/refs/heads/master/icon.svg";
-    hash = "sha256-FEOul0hCuBdl1bUOanKeu/Qeui6eUVqwkZ8upci49HU=";
+    url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/icon.svg";
+    hash = "sha256-epEgD5t/13ch698B6p9fm3sSk3zy613mzXQ4k5hewEg=";
   };
 
   desktopItem = fetchurl {
     name = "godot-desktop-file"; # The filename is invalid for the nix store, apparently; when this is not set, it downloads the raw HTML of the webpage...
-    url = "https://raw.githubusercontent.com/godotengine/godot/refs/heads/master/misc/dist/linux/org.godotengine.Godot.desktop";
-    hash = "sha256-hcXULJTSv5RtcYYIMWIJcXSAuBGcODSUXnYSckyT8fk=";
+    url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/misc/dist/linux/org.godotengine.Godot.desktop";
+    hash = "sha256-odW5+cG+GKvUEAgRWzcsScOdQemRYhhrzP79LWEOUIk=";
   };
 
   nativeBuildInputs = [

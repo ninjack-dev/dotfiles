@@ -467,8 +467,17 @@ in
     pavucontrol
     gparted
     udiskie
-
-    obsidian
+    (obsidian.overrideAttrs (
+      final: prev: rec {
+        version = "1.9.10";
+        filename =
+          if stdenv.hostPlatform.isDarwin then "Obsidian-${version}.dmg" else "obsidian-${version}.tar.gz";
+        src = fetchurl {
+          url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";
+          hash = if stdenv.hostPlatform.isDarwin then lib.fakeHash else "sha256-5d9x92Nu8dzAGCnTeYHmv5XQN6aWxRemRyjC6wN6lDQ=";
+        };
+      }
+    ))
     discord
 
     # Development

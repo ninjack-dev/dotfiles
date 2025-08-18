@@ -69,6 +69,8 @@ vim.o.linebreak = true
 
 vim.o.completeopt = 'fuzzy'
 
+vim.o.winborder = 'rounded'
+
 vim.env.PATH = vim.fn.stdpath("config") .. "/lua/scripts:" .. vim.env.PATH
 
 -- Autocommand to update the title on certain events

@@ -4,6 +4,10 @@
   ...
 }:
 let
+  # TODO:
+  # - Convert this to a nixpkgs overlay
+  # or
+  # - Convert any other overrides (e.g. Rofi) to a top level attribute "overload" "unsure of the name"
   brave = pkgs.brave.override {
     commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
   };
@@ -279,8 +283,8 @@ in
 
   qt = {
     enable = true;
-    platformTheme = lib.mkForce "gtk2";
-    style = lib.mkForce "gtk2";
+    # platformTheme = lib.mkForce "gtk2";
+    # style = lib.mkForce "gtk2";
   };
 
   programs.steam = {
@@ -473,14 +477,15 @@ in
     pavucontrol
     gparted
     udiskie
+
+    # TODO: Put this in its own module with auto update functionality
     (obsidian.overrideAttrs (
       final: prev: rec {
         version = "1.9.10";
-        filename =
-          if stdenv.hostPlatform.isDarwin then "Obsidian-${version}.dmg" else "obsidian-${version}.tar.gz";
+        filename = "obsidian-${version}.tar.gz";
         src = fetchurl {
           url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";
-          hash = if stdenv.hostPlatform.isDarwin then lib.fakeHash else "sha256-5d9x92Nu8dzAGCnTeYHmv5XQN6aWxRemRyjC6wN6lDQ=";
+          hash = "sha256-5d9x92Nu8dzAGCnTeYHmv5XQN6aWxRemRyjC6wN6lDQ=";
         };
       }
     ))

@@ -308,6 +308,14 @@ in
   #    ];
   #  };
 
+  nixpkgs.overlays = [
+    (self: super: {
+      rofi = pkgs.unstable.rofi.override {
+        rofi-unwrapped = (pkgs.unstable.callPackage ./modules/rofi.nix { });
+      };
+    })
+  ];
+
   environment.systemPackages = with pkgs; [
 
     # Shell Apps
@@ -404,11 +412,9 @@ in
     calibre
     libreoffice-fresh
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
-    (unstable.rofi-wayland.override {
+    (rofi.override {
       plugins = [
-        (unstable.rofi-calc.override {
-          rofi-unwrapped = unstable.rofi-wayland-unwrapped;
-        })
+        unstable.rofi-calc
       ];
     })
     gnome-software

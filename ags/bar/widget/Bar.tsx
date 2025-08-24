@@ -1,11 +1,8 @@
-import { App } from "astal/gtk3"
 import { Variable, GLib, bind } from "astal"
 import { Astal, Gtk, Gdk } from "astal/gtk3"
 import Hyprland from "gi://AstalHyprland"
-import Mpris from "gi://AstalMpris"
 import Battery from "gi://AstalBattery"
 import Wp from "gi://AstalWp"
-import Network from "gi://AstalNetwork"
 import Tray from "gi://AstalTray"
 import GlobalShortcuts from "../services/GlobalShortcuts"
 
@@ -64,6 +61,35 @@ function AudioSlider() {
   </box>
 }
 
+// TODO:
+// - Make the submap indicator slide in from the right-hand side instead of popping into existence
+function Submap() {
+  const hypr = Hyprland.get_default();
+
+  let current = hypr.message("submap").trim()
+  current = current === "default" ? "" : current;
+
+  const submapVar = new Variable(current);
+  hypr.connect('submap', (_, name) => {
+    submapVar.set(name);
+  });
+  const submap = bind(submapVar);
+
+  // Assumes submap is in form `submap_mode`
+  function normalizeSubmapName(str: string) {
+    return str
+      .replace("mode", "")
+      .toLowerCase()
+      .split('_')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ')
+  }
+
+  return <box visible={submap.as(s => s !== "")}>
+    <label label={submap.as(s => " " + normalizeSubmapName(s))} />
+  </box>
+}
+
 function BatteryLevel() {
   const bat = Battery.get_default()
 
@@ -101,7 +127,7 @@ function BatteryLevel() {
 //   </box>
 // }
 
-function Workspaces({monitor}: { monitor: Gdk.Monitor }) {
+function Workspaces({ monitor }: { monitor: Gdk.Monitor }) {
   const hypr = Hyprland.get_default()
   const shortcutManager = GlobalShortcuts.get_session();
   const super_key = shortcutManager.getShortcut('Super');
@@ -190,6 +216,7 @@ export default function Bar(monitor: Gdk.Monitor) {
         <AudioSlider />
         <BatteryLevel />
         <Time />
+        <Submap />
       </box>
     </centerbox>
   </window>

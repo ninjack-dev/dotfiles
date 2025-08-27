@@ -3,24 +3,18 @@ $env.config.show_banner = false
 
 # Using this custom completer by @scientiac https://github.com/nushell/nushell/issues/10285#issuecomment-2731825727
 # 
-# It's a working alternative to the one found in the cookbook https://www.nushell.sh/cookbook/external_completers.html#fish-completer
+# I've found that it's rather slow, and could really benefit from some kind of caching or background work.
 let fish_completer = {|spans|
-  let completions = fish --command $'complete "--do-complete=($spans | str join " ")"'
+    fish --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
     | from tsv --flexible --noheaders --no-infer
     | rename value description
-
-    let has_paths = ($completions | any {|row| $row.value =~ '/' or $row.value =~ '\\.\\w+$' or $row.value =~ ' '})
-
-    if $has_paths {
-      $completions | update value {|row| 
-        if $row.value =~ ' ' { 
-          $"'($row.value)'"  # Wrap in single quotes
-        } else { 
-          $row.value 
-        }
-      }
-    } else {
-      $completions
+    | update value {|row|
+      let value = $row.value
+      let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+      if ($need_quote and ($value | path exists)) {
+        let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+        $'"($expanded_path | str replace --all "\"" "\\\"")"'
+      } else {$value}
     }
 }
 
@@ -31,6 +25,15 @@ $env.config = {
             completer: $fish_completer
         }
     }
+}
+
+def hyprctl_completions [spans] {
+  do $fish_completer $spans
+  | where value != '-j'
+}
+
+def --wrapped hyprctl [...rest: string@hyprctl_completions] {
+    ^hyprctl -j ...$rest | from json
 }
 
 $env.config.cursor_shape.emacs = "blink_line"

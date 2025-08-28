@@ -483,7 +483,7 @@ in
     # TODO: Put this in its own module with auto update functionality
     (obsidian.overrideAttrs (
       final: prev: rec {
-        version = "1.9.10";
+        version = "1.9.12";
         filename = "obsidian-${version}.tar.gz";
         src = fetchurl {
           url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";

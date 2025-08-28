@@ -205,6 +205,8 @@ in
     alsa.support32Bit = true;
   };
 
+  programs.localsend.enable = true;
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [

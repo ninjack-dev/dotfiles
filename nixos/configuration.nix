@@ -487,7 +487,7 @@ in
         filename = "obsidian-${version}.tar.gz";
         src = fetchurl {
           url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";
-          hash = "sha256-5d9x92Nu8dzAGCnTeYHmv5XQN6aWxRemRyjC6wN6lDQ=";
+          hash = "sha256-qS4M9gvCs3B2kOlImH/ddm0zjsVa4Zrhu2VEBKYNuMo=";
         };
       }
     ))
@@ -544,6 +544,11 @@ in
     arduino-cli
     arduino-language-server
     arduino-ide
+
+    # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
+    (import (builtins.fetchTarball {
+        url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
+    }) {}).gamescope
   ];
 
   fonts.packages = with pkgs; [

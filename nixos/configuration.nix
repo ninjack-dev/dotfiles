@@ -467,7 +467,6 @@ in
     d-spy
     unstable.kitty
     networkmanagerapplet
-    nwg-displays
     tailscale
 
     kdePackages.qtsvg
@@ -502,6 +501,7 @@ in
         tkinter
       ]
     ))
+    black
     (perl.withPackages (
       perl-pkgs: with perl-pkgs; [
         NetDBus

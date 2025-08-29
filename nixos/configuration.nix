@@ -398,7 +398,7 @@ in
     brave
 
     # unstable.godot-mono # Unusuable until Dotnet is able to access libicu; this is addressed in my module
-    (unstable.callPackage ./modules/godot/godot-mono.nix { })
+    (unstable.callPackage ./modules/godot-mono.nix { })
 
     # Desktop Environment Apps
     eog # Image Viewer
@@ -448,6 +448,7 @@ in
     freecad-wayland
     # unstable.openscad-unstable
     unstable.openscad-lsp
+    (unstable.callPackage ./modules/kotlin-lsp.nix { })
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
     grim # https://sr.ht/~emersion/grim/ TODO: Replace with https://github.com/eriedaberrie/grim-hyprland

@@ -30,23 +30,27 @@ end
 -- Normalizes indentation around line with least indentation. Example:
 --
 -- ```lua
---      local s = line:gsub("^" .. string.rep(" ", min_indent), "", 1)
---      table.insert(res, s)
---    end
+--     local s = line:gsub("^" .. string.rep(" ", min_indent), "", 1)
+--     table.insert(res, s)
+--   end
 -- ```
 -- would be normalized as
 -- ```lua
---    local s = line:gsub("^" .. string.rep(" ", min_indent), "", 1)
---    table.insert(res, s)
---  end
+--   local s = line:gsub("^" .. string.rep(" ", min_indent), "", 1)
+--   table.insert(res, s)
+-- end
 -- ```
 ---@param lines string[]
 local function normalize_indent(lines)
   local min_indent = nil
+  local indent_str = " "
   for _, line in ipairs(lines) do
     local indent = line:match("^(%s*)%S")
     if indent then
       min_indent = (not min_indent or #indent < min_indent) and #indent or min_indent
+    end
+    if indent and indent:match("	") then
+      indent_str = "	"
     end
     print(line .. tostring(indent))
   end
@@ -55,7 +59,7 @@ local function normalize_indent(lines)
 
   local res = {}
   for _, line in ipairs(lines) do
-    local s = line:gsub("^" .. string.rep(" ", min_indent), "", 1)
+    local s = line:gsub("^" .. string.rep(indent_str, min_indent), "", 1)
     table.insert(res, s)
   end
   return res

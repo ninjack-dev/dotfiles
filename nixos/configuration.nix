@@ -242,7 +242,7 @@ in
   services.upower.enable = true;
 
   system.userActivationScripts = {
-    # When the Brave/Chromium hash changes, all PWA desktop files break. This at the very least ensures that when rebuilding the system, any PWAs installed between the last rebuild and now get updated with
+    # When the Brave/Chromium hash changes, all PWA desktop files break. This ensures that when updating Brave, any PWAs installed between the last rebuild and now get updated with the proper bin paths
     # TODO: Put this in its own module alongside brave.
     updateBravePWAs = {
       text = ''
@@ -251,7 +251,7 @@ in
     };
     setNpmBinDirectory = {
       text = ''
-        ${pkgs.nodejs}/bin/npm npm set prefix $HOME/.npm-global 
+        ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
       '';
     };
   };

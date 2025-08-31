@@ -37,7 +37,7 @@ export default function Notification(props: Props) {
     return <eventbox
         className={`Notification ${urgency(n)}`}
         setup={setup}
-        onHoverLost={onHoverLost}>
+        onHoverLost={() => n.dismiss()}>
         <box vertical>
             <box className="header">
                 {(n.appIcon || n.desktopEntry) && <icon
@@ -80,7 +80,9 @@ export default function Notification(props: Props) {
                         halign={START}
                         xalign={0}
                         label={n.summary}
-                        truncate
+                        wrap
+                        useMarkup={true}
+                        truncate={n.summary.length > 150} // Picked arbitrarily
                     />
                     {n.body && <label
                         className="body"

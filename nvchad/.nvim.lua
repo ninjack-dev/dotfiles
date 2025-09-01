@@ -5,7 +5,7 @@
 -- - Add support for Vimscript files
 -- - MAYBE add support for Python?
 
-vim.cmd[[set runtimepath+=.nvim]]
+vim.cmd [[set runtimepath+=.nvim]]
 
 ---@param path string
 local function recurse_dofile(path)

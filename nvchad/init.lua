@@ -132,4 +132,3 @@ vim.opt.runtimepath:append("~/Development/neovim/domain.nvim")
 require("domain").setup({})
 
 require "virtual_text_diagnostics"
-require "markdown_yank"

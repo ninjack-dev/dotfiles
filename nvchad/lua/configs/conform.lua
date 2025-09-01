@@ -1,15 +1,20 @@
 local options = {
   formatters_by_ft = {
     lua = { "stylua" },
-    -- css = { "prettier" },
-    -- html = { "prettier" },
+    python = { "black" },
+    css = { "prettier" },
+    html = { "prettier" },
+    bash = { "prettier" },
+    sh = { "prettier" }
   },
 
-  -- format_on_save = {
-  --   -- These options will be passed to conform.format()
-  --   timeout_ms = 500,
-  --   lsp_fallback = true,
-  -- },
+  formatters = {
+    prettier = {
+      append_args = function()
+        return { "--plugin=prettier-plugin-sh" }
+      end
+    }
+  },
 }
 
 require("conform").setup(options)

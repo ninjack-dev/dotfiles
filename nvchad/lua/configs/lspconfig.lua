@@ -31,6 +31,7 @@ local servers = {
       }
     }
   },
+  kotlin_ls = {},
   nixd = {
     settings = {
       nixd = {
@@ -51,7 +52,11 @@ local servers = {
   nushell = {},
   openscad_lsp = {},
   perlnavigator = {},
-  pyright = {},
+  rust_analyzer = {
+    settings = {
+      ['rust-analyzer'] = {}
+    }
+  },
   tombi = {},
   ts_ls = {},
   vala_ls = {

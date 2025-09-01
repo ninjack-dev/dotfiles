@@ -1,4 +1,5 @@
 -- Converts the text in a register into a Markdown codeblock, with optional formatting
+local M = {}
 
 ---@class markdown_codeblock_opts
 --- Add a comment containing the name of the file from which the block was yanked, e.g.
@@ -112,7 +113,7 @@ local function select_language(language_name_map, language, confirm)
     end
   end
 
-  if target_mappings_keys ~= nil then
+  if next(target_mappings_keys) ~= nil then
     table.insert(target_mappings_keys, "Other (use current language)")
     local choice
     vim.ui.select(target_mappings_keys, {
@@ -131,12 +132,12 @@ local function select_language(language_name_map, language, confirm)
 end
 
 ---@param opts? markdown_codeblock_opts
-local function markdown_codeblock(opts)
+function M.markdown_codeblock(opts)
   opts = opts or {}
   if opts.add_filename_comment == nil then opts.add_filename_comment = true end
   if opts.confirm_language_substitution == nil then opts.confirm_language_substitution = false end
   if opts.source_register == nil then opts.source_register = "0" end
-  if opts.target_register == nil then opts.source_register = "+" end
+  if opts.target_register == nil then opts.target_register = "+" end
   if opts.bufnr == nil then opts.bufnr = 0 end
 
   local ft = select_language(opts.language_name_map, vim.bo[opts.bufnr].filetype, opts.confirm_language_substitution)
@@ -160,16 +161,4 @@ local function markdown_codeblock(opts)
   vim.fn.setreg(opts.target_register, text)
 end
 
----@type markdown_codeblock_opts
-local opts = { add_filename_comment = true, language_name_map = { Discord = { gdscript = "php" } }, confirm_language_substitution = false}
-vim.keymap.set("n", "<leader>my", function()
-  vim.cmd("normal! yy")
-  markdown_codeblock(opts)
-  print("Yanked as markdown code block to clipboard.")
-end, { silent = true, desc = "Yank line as a Markdown code block" })
-
-vim.keymap.set("v", "<leader>my", function()
-  vim.cmd("normal! y")
-  markdown_codeblock(opts)
-  print("Yanked as markdown code block to clipboard.")
-end, { silent = true, desc = "Yank block as a Markdown code block" })
+return M

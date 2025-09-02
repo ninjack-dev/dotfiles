@@ -10,14 +10,14 @@
 
 rofi-unwrapped.overrideAttrs (oldAttrs: rec {
   pname = "rofi-unwrapped";
-  version = "2.0.0-beta1";
+  version = "2.0.0";
 
   src = fetchFromGitHub {
     owner = "davatorium";
     repo = "rofi";
     rev = version;
     fetchSubmodules = true;
-    hash = "sha256-IojT9QRjZ5NfbYYzh+xNdFkN/eP9BKOYeIbryR58PBg=";
+    hash = "sha256-akKwIYH9OoCh4ZE/bxKPCppxXsUhplvfRjSGsdthFk4=";
   };
 
   depsBuildBuild = oldAttrs.depsBuildBuild ++ [ pkg-config ];

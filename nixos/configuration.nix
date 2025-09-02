@@ -69,7 +69,10 @@ in
   # services.tlp.enable = true;
   services.auto-cpufreq.enable = true;
 
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    package = pkgs.unstable.tailscale;
+  };
 
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -242,8 +245,10 @@ in
   services.upower.enable = true;
 
   system.userActivationScripts = {
-    # When the Brave/Chromium hash changes, all PWA desktop files break. This ensures that when updating Brave, any PWAs installed between the last rebuild and now get updated with the proper bin paths
-    # TODO: Put this in its own module alongside brave.
+    # When the Brave/Chromium hash changes, all PWA desktop files break. This ensures that when updating Brave, any PWAs installed between the last rebuild and now get updated with the proper bin paths.
+    # Notably, this uses the second layer of wrappers; if this were somehow the start of the Brave instance, it would bypass the Wayland/trackpad flags. A more complicated regex would be required to fix this, specifically one that targets both `brave-browser` and `brave` in the `Exec` field
+    # TODO: 
+    # - Put this in its own module alongside brave.
     updateBravePWAs = {
       text = ''
         find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${brave}/opt/brave.com/brave/brave-browser|' {} \;
@@ -468,7 +473,7 @@ in
     d-spy
     unstable.kitty
     networkmanagerapplet
-    tailscale
+    unstable.tailscale
 
     kdePackages.qtsvg
     kdePackages.qtwayland
@@ -495,6 +500,7 @@ in
 
     # Development
     nodejs
+    deno
     (pkgs.python3.withPackages (
       python-pkgs: with python-pkgs; [
         pandas
@@ -523,8 +529,12 @@ in
     wayland-scanner
     wayland
 
+    lazygit
+
     unstable.mongodb-compass
     unstable.mongosh
+
+    hydra-check
 
     # language servers
     lua-language-server
@@ -537,10 +547,18 @@ in
     taplo
     hyprls
     vala-language-server
-    nodePackages.typescript-language-server
-    nodePackages.bash-language-server
     unstable.csharp-ls
     perlnavigator
+
+    # TODO: Test if removing these speeds up evaluation time
+    nodePackages.typescript-language-server
+    nodePackages.bash-language-server
+
+    rustc
+    cargo
+    rustfmt
+    clippy
+    rust-analyzer
 
     arduino-cli
     arduino-language-server
@@ -548,8 +566,8 @@ in
 
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
     (import (builtins.fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
-    }) {}).gamescope
+      url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
+    }) { }).gamescope
   ];
 
   fonts.packages = with pkgs; [

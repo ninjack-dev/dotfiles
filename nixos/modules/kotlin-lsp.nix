@@ -1,10 +1,11 @@
 {
+  lib,
   stdenv,
   fetchzip,
   makeWrapper,
   zulu24,
   jdk ? zulu24,
-  withVersion ? "0.253.10629"
+  withVersion ? "0.253.10629",
 }:
 stdenv.mkDerivation (finalAttrs: rec {
 
@@ -29,7 +30,6 @@ stdenv.mkDerivation (finalAttrs: rec {
     mkdir -p $out/bin
     makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
       --prefix PATH : ${jdk}/bin
-      # --add-flags "--enable-native-access=ALL-UNNAMED"
 
     runHook postInstall
   '';
@@ -38,5 +38,7 @@ stdenv.mkDerivation (finalAttrs: rec {
     description = "Official Kotlin language server protocol implementation.";
     homepage = "https://github.com/Kotlin/kotlin-lsp";
     maintainers = [ "ninjack-dev" ];
+    license = with lib.licenses; [ asl20 ];
+    changelog = "https://github.com/Kotlin/kotlin-lsp/releases/tag/kotlin-lsp%2F${version}";
   };
 })

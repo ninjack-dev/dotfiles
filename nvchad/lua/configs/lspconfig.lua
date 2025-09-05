@@ -52,6 +52,7 @@ local servers = {
   nushell = {},
   openscad_lsp = {},
   perlnavigator = {},
+  pyright = {},
   rust_analyzer = {
     settings = {
       ['rust-analyzer'] = {}

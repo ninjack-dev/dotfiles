@@ -402,8 +402,9 @@ in
 
     brave
 
-    activitywatch
-    aw-watcher-window-wayland
+    (activitywatch.override {
+      extraWatchers = with pkgs; [ aw-watcher-window-wayland ];
+    })
 
     # unstable.godot-mono # Unusuable until Dotnet is able to access libicu; this is addressed in my module
     (unstable.callPackage ./modules/godot-mono.nix { })

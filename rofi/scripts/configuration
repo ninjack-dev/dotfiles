@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+cd "$XDG_CONFIG_HOME" >/dev/null || exit 1
+
+declare -a config_dirs
+IFS=' ' readarray -t config_dirs < <(git ls-tree -d --name-only $(git branch --show-current))
+
+echo -en "\0prompt\x1fEdit Config for Program:\n"
+
+if [[ $# -eq 0 ]]; then
+  git ls-tree -d --name-only $(git branch --show-current)
+else
+  cd "$1" || exit 1
+  coproc neovide -- -c NvimTreeToggle
+fi

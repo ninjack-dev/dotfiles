@@ -5,6 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    hyprland.url = "github:hyprwm/Hyprland";
   };
 
   outputs =
@@ -53,6 +54,12 @@
                 "nixpkgs=${nixpkgs.outPath}"
                 "unstable=${nixpkgs-unstable.outPath}"
               ];
+
+              nix.settings = {
+                substituters = [ "https://hyprland.cachix.org" ];
+                trusted-substituters = [ "https://hyprland.cachix.org" ];
+                trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+              };
             }
           )
           ./configuration.nix

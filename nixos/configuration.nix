@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  inputs,
   ...
 }:
 let
@@ -37,8 +38,10 @@ in
 
   hardware.graphics = {
     enable = true;
-    # package = pkgs.unstable.mesa.drivers;
-    # package32 = pkgs.unstable.pkgsi686Linux.mesa;
+    package = inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mesa;
+    enable32Bit = true;
+    package32 =
+      inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pkgsi686Linux.mesa;
     extraPackages = with pkgs; [
       intel-media-driver # For Broadwell (2014) or newer processors. LIBVA_DRIVER_NAME=iHD
       # intel-ocl
@@ -174,7 +177,10 @@ in
   programs.hyprland = {
     enable = true;
     withUWSM = true;
-    # package = pkgs.unstable.hyprland;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    # make sure to also set the portal package, so that they are in sync
+    portalPackage =
+      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
   programs.hyprlock.enable = true;
@@ -247,7 +253,7 @@ in
   system.userActivationScripts = {
     # When the Brave/Chromium hash changes, all PWA desktop files break. This ensures that when updating Brave, any PWAs installed between the last rebuild and now get updated with the proper bin paths.
     # Notably, this uses the second layer of wrappers; if this were somehow the start of the Brave instance, it would bypass the Wayland/trackpad flags. A more complicated regex would be required to fix this, specifically one that targets both `brave-browser` and `brave` in the `Exec` field
-    # TODO: 
+    # TODO:
     # - Put this in its own module alongside brave.
     updateBravePWAs = {
       text = ''

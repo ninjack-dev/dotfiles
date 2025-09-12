@@ -33,7 +33,15 @@ def hyprctl_completions [spans] {
 }
 
 def --wrapped hyprctl [...rest: string@hyprctl_completions] {
-    ^hyprctl -j ...$rest | from json
+  let args = $rest | where {$in != "-j"}
+  let result = ^hyprctl -j ...$args | complete
+  if ($result.exit_code == 0) {
+    try {
+      return ($result.stdout | from json)
+    }
+  } 
+  print $result.stdout
+  ^false # Wish there was a way to set the exit code quickly; nu -c $"exit ($result.exit_code)" is too slow
 }
 
 $env.config.cursor_shape.emacs = "blink_line"

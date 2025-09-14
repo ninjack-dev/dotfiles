@@ -300,6 +300,15 @@ in
     # style = lib.mkForce "gtk2";
   };
 
+  programs.gamescope = {
+    enable = true;
+    package = pkgs.unstable.gamescope;
+    capSysNice = false; # this is unavailable for now, sadly
+    args = [
+      "--expose-wayland"
+    ];
+  };
+
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
@@ -574,10 +583,11 @@ in
     arduino-language-server
     arduino-ide
 
+    # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
-    (import (builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
-    }) { }).gamescope
+    # (import (builtins.fetchTarball {
+    #   url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
+    # }) { }).gamescope
   ];
 
   fonts.packages = with pkgs; [

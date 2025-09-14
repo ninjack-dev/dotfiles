@@ -583,6 +583,8 @@ in
     arduino-language-server
     arduino-ide
 
+    obs-studio
+
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
     # (import (builtins.fetchTarball {

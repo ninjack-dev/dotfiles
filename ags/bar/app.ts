@@ -5,11 +5,22 @@ import Bar from "./widget/Bar"
 
 
 async function main() {
+  print("Got here")
   const bars = new Map<Gdk.Monitor, Gtk.Widget>()
   const shortcutManager = GlobalShortcuts.get_session();
-  await shortcutManager.bindShortcuts(
-    new GlobalShortcut('Super'),
-  );
+  // TEMPORARY FIX
+  // Since updating to xdg-desktop-portal-hyprland 1.3.10, global shortcuts seem to be broken outright, along with screensharing. 
+  // Apparently people have had issues with it: https://github.com/hyprwm/Hyprland/discussions/10351#discussioncomment-14397830
+  // Notably for me, though, it just seems to crash at startup:
+  // [CRITICAL] Couldn't connect to a wayland compositor
+  try {
+    await shortcutManager.bindShortcuts(
+      new GlobalShortcut('Super'),
+    );
+  }
+  catch (e) {
+    print(e)
+  }
 
   for (const gdkmonitor of App.get_monitors()) {
     bars.set(gdkmonitor, Bar(gdkmonitor))

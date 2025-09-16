@@ -71,7 +71,13 @@ vim.o.completeopt = 'fuzzy'
 
 vim.o.winborder = 'rounded'
 
+vim.o.nrformats = vim.o.nrformats .. ",alpha"
+
 vim.env.PATH = vim.fn.stdpath("config") .. "/lua/scripts:" .. vim.env.PATH
+
+-- Use kitty's shell integration wrappers, bringing many nice features (like [[ to jump to previous prompt)
+vim.env.PATH = vim.fn.expand("$XDG_CONFIG_HOME/kitty/wrappers") .. ":" .. vim.env.PATH
+vim.o.shell = vim.o.shell:match("([^/\\]+)$")
 
 -- Autocommand to update the title on certain events
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "DirChanged" }, {

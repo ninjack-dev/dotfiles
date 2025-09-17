@@ -37,10 +37,12 @@ transient_prompt:
   template: "{{ .Folder }}> "
   foreground: p:blue
   background: transparent
+
 secondary_prompt:
   background: transparent
   foreground: "p:white"
   template: " "
+
 blocks:
   - type: prompt
     alignment: left
@@ -51,6 +53,16 @@ blocks:
         background: p:blue
         foreground: p:black
 
+      - type: command
+        style: powerline
+        template: " "
+        background: p:blue
+        foreground: p:white
+        properties:
+          script: "~/.config/ohmyposh/in-nix-shell.sh"
+        cache:
+          strategy: session
+
       - type: session
         style: diamond
         leading_diamond: 
@@ -58,6 +70,7 @@ blocks:
         template: " {{ if .SSHSession }} ⇒ {{ end }}{{ if .Env.IN_NIX_SHELL }} {{end}}{{ .UserName }}@{{ .HostName }} "
         foreground: p:black
         background: p:blue
+
       - type: time
         style: powerline
         properties:
@@ -79,15 +92,16 @@ blocks:
         foreground: p:black
         background: p:yellow
         powerline_symbol: 
-      # - type: docker
-      #   style: powerline
-      #   powerline_symbol: 
-      #   foreground: "#0B59E7"
-      #   background: p:red
-      #   template: "  {{ .Context }}"
-      #   properties:
-      #     display_mode: files
-      #
+      
+      - type: docker
+        style: powerline
+        powerline_symbol: 
+        foreground: "#0B59E7"
+        background: p:red
+        template: "  {{ .Context }}"
+        properties:
+          display_mode: files
+
       - type: command
         style: diamond
         trailing_diamond: "\u200B" # Ugh
@@ -111,6 +125,7 @@ blocks:
         foreground: p:black
         cache:
           strategy: session
+
       - type: text
         style: powerline
         powerline_symbol: ""

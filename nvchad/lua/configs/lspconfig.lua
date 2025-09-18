@@ -7,6 +7,9 @@ local servers = {
   clangd = {},
   csharp_ls = {},
   cssls = {},
+  denols = {
+    root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+  },
   gdscript = {},
   gopls = {},
   html = {},
@@ -59,7 +62,7 @@ local servers = {
     }
   },
   tombi = {},
-  ts_ls = {},
+  ts_ls = { root_dir = require("lspconfig").util.root_pattern("package.json"), single_file_support = false },
   vala_ls = {
     single_file_support = true,
   },

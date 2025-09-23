@@ -7,9 +7,9 @@ local servers = {
   clangd = {},
   csharp_ls = {},
   cssls = {},
-  denols = {
-    root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
-  },
+  -- denols = {
+  --   root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+  -- },
   gdscript = {},
   gopls = {},
   html = {},

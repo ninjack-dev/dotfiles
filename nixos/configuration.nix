@@ -274,6 +274,7 @@ in
       "networkmanager"
       "sudo"
       "docker"
+      "podman"
       "dialout"
     ];
     shell = pkgs.zsh;
@@ -321,8 +322,18 @@ in
     ];
   };
 
-  virtualisation.docker.enable = true;
-  virtualisation.docker.package = pkgs.docker_28;
+  virtualisation = {
+    containers.enable = true;
+    podman = {
+      enable = true;
+      package = pkgs.unstable.podman;
+      defaultNetwork.settings.dns_enabled = true;
+    };
+    docker = {
+      enable = true;
+      package = pkgs.unstable.docker;
+    };
+  };
 
   # This caused my system to be unbootable.
   #  fileSystems."/home/jacksonb/OneDrive" = {
@@ -584,6 +595,8 @@ in
     arduino-ide
 
     obs-studio
+    
+    podman-desktop
 
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)

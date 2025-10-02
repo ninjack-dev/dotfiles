@@ -518,11 +518,11 @@ in
     # TODO: Put this in its own module with auto update functionality
     (obsidian.overrideAttrs (
       final: prev: rec {
-        version = "1.9.12";
+        version = "1.9.14";
         filename = "obsidian-${version}.tar.gz";
         src = fetchurl {
           url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";
-          hash = "sha256-qS4M9gvCs3B2kOlImH/ddm0zjsVa4Zrhu2VEBKYNuMo=";
+          hash = "sha256-vS8PCz8dpMFvJCF1Heu2m+Qj9hl2ZmxNM0AwB6CbU88=";
         };
       }
     ))

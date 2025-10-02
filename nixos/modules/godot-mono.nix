@@ -22,7 +22,7 @@
   imagemagick,
   vulkan-loader,
   dbus,
-  withVersion ? "4.4.1-stable",
+  withVersion ? "4.5-stable",
 }:
 
 stdenv.mkDerivation (finalAttrs: rec {
@@ -31,7 +31,7 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   src = fetchurl {
     url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_mono_linux_x86_64.zip";
-    hash = "sha256-uV5pTKGD63IDdmRc3DVHcVzG0MAhUoI4y2UZmCriiy8=";
+    hash = "sha256-VFY8gr87bBMp50hi3x7iP2U+ikE1UUBDRkm7ZHkVgQA=";
   };
 
   icon = fetchurl {

@@ -595,7 +595,7 @@ in
     arduino-language-server
     arduino-ide
 
-    obs-studio
+    unstable.obs-studio
     
     podman-desktop
 

@@ -599,6 +599,8 @@ in
     
     podman-desktop
 
+    unstable.tree-sitter
+
     unstable.zig
     unstable.zls
 

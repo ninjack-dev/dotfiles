@@ -591,10 +591,6 @@ in
     clippy
     rust-analyzer
 
-    arduino-cli
-    arduino-language-server
-    arduino-ide
-
     unstable.obs-studio
     
     podman-desktop

@@ -537,6 +537,8 @@ in
     ))
     discord
 
+    gimp3
+
     # Development
     nodejs
     deno
@@ -600,7 +602,7 @@ in
     rust-analyzer
 
     unstable.obs-studio
-    
+
     podman-desktop
 
     unstable.tree-sitter

@@ -1,0 +1,99 @@
+[gd_resource type="EditorSettings" load_steps=3 format=3]
+
+[sub_resource type="InputEventKey" id="InputEventKey_61rdg"]
+command_or_control_autoremap = true
+alt_pressed = true
+keycode = 75
+unicode = 75
+
+[sub_resource type="InputEventKey" id="InputEventKey_a05qi"]
+keycode = 4194326
+
+[resource]
+interface/editor/display_scale = 2
+interface/theme/base_color = Color(0.21, 0.24, 0.29, 1)
+interface/theme/accent_color = Color(0.44, 0.73, 0.98, 1)
+interface/theme/contrast = 0.3
+filesystem/external_programs/raster_image_editor = "x"
+filesystem/external_programs/vector_image_editor = "inkscape"
+filesystem/external_programs/terminal_emulator = "kitty"
+text_editor/theme/highlighting/symbol_color = Color(0.67, 0.79, 1, 1)
+text_editor/theme/highlighting/keyword_color = Color(1, 0.44, 0.52, 1)
+text_editor/theme/highlighting/control_flow_keyword_color = Color(1, 0.55, 0.8, 1)
+text_editor/theme/highlighting/base_type_color = Color(0.26, 1, 0.76, 1)
+text_editor/theme/highlighting/engine_type_color = Color(0.56, 1, 0.86, 1)
+text_editor/theme/highlighting/user_type_color = Color(0.78, 1, 0.93, 1)
+text_editor/theme/highlighting/comment_color = Color(0.8025, 0.81, 0.8225, 0.5)
+text_editor/theme/highlighting/doc_comment_color = Color(0.6, 0.7, 0.8, 0.8)
+text_editor/theme/highlighting/string_color = Color(1, 0.93, 0.63, 1)
+text_editor/theme/highlighting/background_color = Color(0.115499996, 0.132, 0.15949999, 1)
+text_editor/theme/highlighting/completion_background_color = Color(0.21, 0.24, 0.29, 1)
+text_editor/theme/highlighting/completion_selected_color = Color(1, 1, 1, 0.07)
+text_editor/theme/highlighting/completion_existing_color = Color(1, 1, 1, 0.14)
+text_editor/theme/highlighting/completion_font_color = Color(0.8025, 0.81, 0.8225, 1)
+text_editor/theme/highlighting/text_color = Color(0.8025, 0.81, 0.8225, 1)
+text_editor/theme/highlighting/line_number_color = Color(0.8025, 0.81, 0.8225, 0.5)
+text_editor/theme/highlighting/safe_line_number_color = Color(0.8025, 0.97200006, 0.8225, 0.75)
+text_editor/theme/highlighting/caret_color = Color(1, 1, 1, 1)
+text_editor/theme/highlighting/selection_color = Color(0.44, 0.73, 0.98, 0.4)
+text_editor/theme/highlighting/brace_mismatch_color = Color(1, 0.47, 0.42, 1)
+text_editor/theme/highlighting/current_line_color = Color(1, 1, 1, 0.07)
+text_editor/theme/highlighting/line_length_guideline_color = Color(0.21, 0.24, 0.29, 1)
+text_editor/theme/highlighting/word_highlighted_color = Color(1, 1, 1, 0.07)
+text_editor/theme/highlighting/number_color = Color(0.63, 1, 0.88, 1)
+text_editor/theme/highlighting/function_color = Color(0.34, 0.7, 1, 1)
+text_editor/theme/highlighting/member_variable_color = Color(0.736, 0.88, 1, 1)
+text_editor/theme/highlighting/mark_color = Color(1, 0.47, 0.42, 0.3)
+text_editor/theme/highlighting/warning_color = Color(1, 0.87, 0.4, 0.15)
+text_editor/theme/highlighting/breakpoint_color = Color(1, 0.47, 0.42, 1)
+text_editor/theme/highlighting/code_folding_color = Color(1, 1, 1, 0.27)
+text_editor/theme/highlighting/search_result_color = Color(1, 1, 1, 0.07)
+text_editor/external/exec_path = "/home/jacksonb/.config/godot/launch_neovim_godot.sh"
+text_editor/external/exec_flags = "{project} {file} {line} {col}"
+text_editor/external/use_external_editor = true
+editors/3d_gizmos/gizmo_settings/bone_axis_length = 0.1
+editors/animation/default_animation_step = 0.033333335
+network/connection/network_mode = 1
+project_manager/default_renderer = "mobile"
+export/android/java_sdk_path = ""
+export/android/android_sdk_path = ""
+export/android/debug_keystore = "/home/jacksonb/.local/share/godot/keystores/debug.keystore"
+export/android/debug_keystore_pass = "android"
+export/macos/rcodesign = ""
+export/web/http_port = 8060
+export/web/tls_key = ""
+export/web/tls_certificate = ""
+export/windows/rcedit = ""
+export/windows/osslsigncode = ""
+export/windows/wine = ""
+_default_feature_profile = ""
+_use_favorites_root_selection = false
+network/debug_adapter/request_timeout = 1000
+editors/grid_map/editor_side = 1
+dotnet/editor/external_editor = 6
+dotnet/editor/custom_exec_path = "/home/jacksonb/.config/godot/launch_neovim_godot.sh"
+dotnet/editor/custom_exec_path_args = "{project} {file} {line} {col}"
+dotnet/build/verbosity_level = 2
+dotnet/build/problems_layout = 1
+_editor_settings_advanced_mode = true
+_project_settings_advanced_mode = false
+_export_template_download_directory = ""
+_script_setup_templates_dictionary = {
+"CharacterBody2D": "0CharacterBody2DBasic Movement",
+"Node": "0NodeDefault",
+"TextureRect": "0NodeDefault"
+}
+_script_setup_use_script_templates = true
+shortcuts = [{
+"name": "editor/clear_output",
+"shortcuts": [SubResource("InputEventKey_61rdg")]
+}, {
+"name": "spatial_editor/viewport_zoom_modifier_1",
+"shortcuts": [SubResource("InputEventKey_a05qi")]
+}, {
+"name": "spatial_editor/viewport_zoom_modifier_2",
+"shortcuts": []
+}]
+metadata/script_setup_templates_dictionary = {
+"CharacterBody2D": "0CharacterBody2DBasic Movement"
+}

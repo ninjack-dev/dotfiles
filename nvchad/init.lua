@@ -45,6 +45,11 @@ require("lazy").setup({
   { import = "plugins" },
 }, lazy_config)
 
+-- Bit of a hack for now until I can find a cleaner way of merging the two, or until I move away from NvChad
+local nvimtree_config = require "nvchad.configs.nvimtree"
+nvimtree_config["filters"]["custom"] = { ".uid$" }
+require("nvim-tree").setup(nvimtree_config)
+
 -- load theme
 dofile(vim.g.base46_cache .. "defaults")
 dofile(vim.g.base46_cache .. "statusline")
@@ -133,8 +138,8 @@ elseif vim.env.TERM:match("kitty") then
   })
 end
 
-
 vim.opt.runtimepath:append("~/Development/neovim/domain.nvim")
 require("domain").setup({})
 
 require "virtual_text_diagnostics"
+require "configs.treesitter"

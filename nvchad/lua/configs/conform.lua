@@ -5,7 +5,8 @@ local options = {
     css = { "prettier" },
     html = { "prettier" },
     bash = { "prettier" },
-    sh = { "prettier" }
+    sh = { "prettier" },
+    gdscript = { "gdscript_formatter" },
   },
 
   formatters = {
@@ -13,6 +14,10 @@ local options = {
       append_args = function()
         return { "--plugin=prettier-plugin-sh" }
       end
+    },
+    gdscript_formatter = {
+      command = "gdscript-formatter",
+      args = { "--stdout" },
     }
   },
 }

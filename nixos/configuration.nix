@@ -77,8 +77,9 @@ in
 
   services.envfs.enable = true;
 
-  # services.tlp.enable = true;
-  services.auto-cpufreq.enable = true;
+  # The E14 gen 6 nixos-hardware module apparently enables TLP.
+  # TODO: Determine if replacing TLP with auto-cpufreq is ideal.
+  # services.auto-cpufreq.enable = true;
 
   services.tailscale = {
     enable = true;

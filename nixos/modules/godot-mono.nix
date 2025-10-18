@@ -22,7 +22,7 @@
   imagemagick,
   vulkan-loader,
   dbus,
-  withVersion ? "4.5-stable",
+  withVersion ? "4.5.1-stable",
 }:
 
 stdenv.mkDerivation (finalAttrs: rec {
@@ -31,19 +31,19 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   src = fetchurl {
     url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_mono_linux_x86_64.zip";
-    hash = "sha256-VFY8gr87bBMp50hi3x7iP2U+ikE1UUBDRkm7ZHkVgQA=";
+    hash = "sha256-thaX3Wkh2nbj0jWKtZImPfquOY0KwSKeguq35KfDbL8=";
   };
 
   icon = fetchurl {
     name = "godot-icon";
     url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/icon.svg";
-    hash = "sha256-epEgD5t/13ch698B6p9fm3sSk3zy613mzXQ4k5hewEg=";
+    hash = "sha256-FEOul0hCuBdl1bUOanKeu/Qeui6eUVqwkZ8upci49HU=";
   };
 
   desktopItem = fetchurl {
     name = "godot-desktop-file"; # The filename is invalid for the nix store, apparently; when this is not set, it downloads the raw HTML of the webpage...
     url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/misc/dist/linux/org.godotengine.Godot.desktop";
-    hash = "sha256-odW5+cG+GKvUEAgRWzcsScOdQemRYhhrzP79LWEOUIk=";
+    hash = "sha256-z+T3b7utkNQ+cCfX+WNxaef//kpGIfGAJOBX0u4s0pw=";
   };
 
   nativeBuildInputs = [

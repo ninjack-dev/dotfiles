@@ -536,7 +536,9 @@ in
         };
       }
     ))
-    discord
+    (unstable.discord.override {
+      withVencord = true;
+    })
 
     gimp3
 

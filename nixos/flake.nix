@@ -21,7 +21,14 @@
       overlay-unstable = final: prev: {
         unstable = import nixpkgs-unstable {
           inherit system;
-          config.allowUnfree = true;
+          config = {
+            allowUnfree = true;
+            # TODO: Research how interactions with overlays works. Is this the only way to customize unstable?
+            # Waiting on #3224 (in Ventoy) for blobs to be built from scratch, at which point this should be marked as secure again
+            permittedInsecurePackages = [
+              "${nixpkgs-unstable.legacyPackages.${system}.ventoy.name}"
+            ];
+          };
         };
       };
       overlay-stable = final: prev: {

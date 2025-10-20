@@ -591,7 +591,6 @@ in
     taplo
     hyprls
     vala-language-server
-    unstable.csharp-ls
     perlnavigator
 
     # TODO: Test if removing these speeds up evaluation time
@@ -614,6 +613,14 @@ in
     unstable.zls
 
     unstable.ventoy
+
+    unstable.csharp-ls
+    (
+      with unstable.dotnetCorePackages;
+      combinePackages [
+        sdk_9_0_1xx
+      ]
+    )
 
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)

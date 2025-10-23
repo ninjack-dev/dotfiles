@@ -376,6 +376,7 @@ in
     blesh
     file
     unstable.powershell
+    unstable.powershell-editor-services
     zsh
     traceroute
     unstable.kanata-with-cmd

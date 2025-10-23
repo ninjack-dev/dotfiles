@@ -55,6 +55,7 @@ local servers = {
   nushell = {},
   openscad_lsp = {},
   perlnavigator = {},
+  powershell_es = { bundle_path = '/nix/store/vwd5fzfm08hln06ni1pyvjhx9fz3s6hw-powershell-editor-services-4.4.0/lib/powershell-editor-services/' }, -- TODO: Replace this hardcoded path with a manually-constructed invocation of the powershell-editor-services wrapper
   pyright = {},
   rust_analyzer = {
     settings = {

@@ -34,7 +34,7 @@ local servers = {
       }
     }
   },
-  kotlin_ls = {},
+  kotlin_lsp = {},
   nixd = {
     settings = {
       nixd = {

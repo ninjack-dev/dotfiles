@@ -599,6 +599,7 @@ in
     awk-language-server
     pyright
     taplo
+    unstable.tombi
     hyprls
     vala-language-server
     perlnavigator

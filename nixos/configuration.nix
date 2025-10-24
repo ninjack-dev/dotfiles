@@ -110,10 +110,18 @@ in
       80
       443
       8080
+      9090 # Calibre wireless connection
       65530 # audio-share https://github.com/mkckr0/audio-share
     ];
     allowedUDPPorts = [
+      8080
+      9090
       65530 # audio-share https://github.com/mkckr0/audio-share
+      54982 # Calibre's discovery protocol
+      48123
+      39001
+      44044
+      59678
     ];
   };
 

@@ -45,16 +45,6 @@ compinit -C
 
 ## Shell integrations and prompt ##
 eval "$(zoxide init zsh --cmd cd)"
-function cd() {
-  if [[ $# -gt 1 || $# -eq 0 ]]; then
-    __zoxide_z "$@"
-    return
-  fi
-  # redundant? 
-  if [ -d "$1" ]; then
-    __zoxide_z "$1"
-    return
-  fi
 
   local dir=$(find $(dirname $1) -maxdepth 1 -type d,l -wholename "*$(basename $1)*")
   if [ -d "$dir" ]; then

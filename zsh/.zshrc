@@ -202,7 +202,7 @@ loc() {
   find $( [[ -z "$1" ]] && echo "$1" || echo ".") -type f | xargs wc -l
 }
 
-## NEOVIM ##
+## Neovim ##
 
 # NeoVim Frontend SELector
 nvfsel() {
@@ -235,14 +235,11 @@ update_nvim_frontend_env_var(){
 nvsel() {
   select config in nvim nvchad 
   do update_nvim_config_env_var $config; break; 
-  done;
-}
 
-update_nvim_config_env_var()
-{
-  echo "$1 is now selected as default config.";
-  sed -i "s/NVIM_APPNAME=[^ ]*/NVIM_APPNAME=${1}/" $ZDOTDIR/.zshenv;
+  echo "$config is now selected as default config.";
+  sed -i "s/NVIM_APPNAME=[^ ]*/NVIM_APPNAME=$config/" $ZDOTDIR/.zshenv;
   source $ZDOTDIR/.zshenv;
+  done;
 }
 
 # Built for handling args designed for Neovim, but not for Neovide (to run Neovide with typical args, run `neovide/nvid <args>`)
@@ -250,7 +247,7 @@ nvim_neovide_handler()
 {
   for arg in "$@"; do
     if [[ "$arg" == "--help" ]]; then
-      /usr/bin/env nvim --help
+      \nvim --help
       return 0
     fi
   done

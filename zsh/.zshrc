@@ -19,19 +19,20 @@ stty -ctlecho # This disables the ^C echoing when killing an app
 setopt autocd
 unsetopt beep
 
-# Keybindings
+
+## Keybindings ##
 bindkey -e
-bindkey '^H' backward-kill-word # Bind <C> + <BS> to delete word
 
 bindkey "^[[1;5D" backward-word # Bind <C> + Left/Right to move 1 word
 bindkey "^[[1;5C" forward-word
 
-bindkey "^j" down-history # Bind <C> + j/k to scroll up/down through command history
+bindkey "^j" down-history
 bindkey "^k" up-history
 
 zle -N nvim_neovide_handler
 bindkey '^N' nvim_neovide_handler
 
+## Completions ##
 zstyle ':completion:*' matcher-list 'm:{A-Za-z}={a-zA-Z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle :compinstall filename '/home/jacksonb/.zshrc' # I don't know what this does. It was put here automagically when I set up ZSH so I'll leave it be. 
@@ -42,21 +43,32 @@ autoload bashcompinit && bashcompinit
 autoload -Uz compinit
 compinit -C
 
+complete -C 'aws_completer' aws
 
-## Shell integrations and prompt ##
-eval "$(zoxide init zsh --cmd cd)"
+## Aliases and Functions ##
+alias ls='ls -A --color'
+alias cat='bat'
+alias ff='fzf_with_preview'
 
-  local dir=$(find $(dirname $1) -maxdepth 1 -type d,l -wholename "*$(basename $1)*")
-  if [ -d "$dir" ]; then
-    __zoxide_z "./$dir"
-  else
-    __zoxide_z "$@"
-  fi
+getip()
+{
+  ip route get 1 | awk '{print $7;exit}'
 }
+
+loc() {
+  find $( [[ -z "$1" ]] && echo "$1" || echo ".") -type f | xargs wc -l
+}
+
+nix-which() {
+  readlink $('which' $1)
+}
+
+## Shell Integrations ##
+eval "$(zoxide init zsh --cmd cd)"
 
 eval "$(fzf --zsh)"
 
-# Custom FZF cd widget to use zoxide
+# Custom FZF cd widget which uses zoxide
 fzf-cd-widget() {
   setopt localoptions pipefail no_aliases 2> /dev/null
   local dir="$(
@@ -76,7 +88,10 @@ fzf-cd-widget() {
   return $ret
 }
 
-# FZF_CTRL_T_COMMAND="fd -H --full-path" # TODO: Debug this, 
+FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+FZF_ALT_C_COMMAND="fd --hidden --type directory --exclude .git"
+FZF_CTRL_T_COMMAND="fd -H --full-path"
+
 # Custom FZF file widget to expand paths currently being edited.
 # TODO: 
 # - Debug FZF_CTRL_T_COMMAND
@@ -126,25 +141,21 @@ fzf-file-widget() {
   base=${expanded_token:t} # Tail of path in token, e.g. /foo/bar -> bar
 
   if [[ -d "$expanded_token" ]]; then
-    printf "GOT HERE 1 %s" $expanded_token
     # If token is a directory, start search there
     new_path=$(__fzf_select --walker-root "$expanded_token")
     if [[ -n "$new_path" ]]; then
       LBUFFER="${LBUFFER/$original_token/$new_path}"
     fi
   elif [[ -f "$expanded_token" ]]; then
-    printf "GOT HERE 2"
     # If it's a valid file, do nothing
     :
   elif [[ -d "$parent" ]]; then
-    printf "GOT HERE 3"
     # If parent is a directory, set walker-root and pre-query base
     new_path=$(__fzf_select --walker-root "$parent" --query "$base")
     if [[ -n "$new_path" ]]; then 
       LBUFFER="${LBUFFER[1,-${#token}-1]}$new_path" # Replace current token with the new, expanded path
     fi
   else
-    printf "GOT HERE 4"
     # Fallback to normal fzf
     LBUFFER="${LBUFFER}$(__fzf_select)"
   fi
@@ -154,9 +165,7 @@ fzf-file-widget() {
   return $ret
 }
 
-# https://thevaluable.dev/fzf-shell-integration/
-
-# https://github.com/iffse/pay-respects
+# pay-respects integration https://github.com/iffse/pay-respects
 # Escaped hexadecimal: `echo -n "a_family_friendly_alias" | od -A n -t x1 | sed 's/ /\\0x/g' | tr -d '\n' | awk "{ printf \"\$(echo -n '\"\$1 \"')\"}" | wl-copy`
 local respects_alias=$(echo '\0x66\0x75\0x63\0x6b')
 eval "$(pay-respects zsh --alias $respects_alias)"
@@ -176,21 +185,6 @@ eval "$(direnv hook zsh)"
 if [ "$TERM" != "linux" ]; then
   eval "$(oh-my-posh init zsh)"
 fi
-
-# Aliases
-alias ls='ls -A --color'
-alias cat='bat'
-alias ff='fzf_with_preview'
-
-getip()
-{
-  ip route get 1 | awk '{print $7;exit}'
-}
-
-# I want to update this later so I can specify filetypes 
-loc() {
-  find $( [[ -z "$1" ]] && echo "$1" || echo ".") -type f | xargs wc -l
-}
 
 ## Neovim ##
 
@@ -294,25 +288,18 @@ fzf_with_preview()
   return 0
 }
 
-if [ $TERM = "linux" ]; then
-  NVIM_FRONTEND="term"
-fi
-
-nix-which() {
-  readlink $('which' $1)
-}
+## Terminal-specific functionality
+case "$TERM" in
+  "linux") 
+    NVIM_FRONTEND="term"
+  ;;
+  "xterm-kitty") 
+    :
+  ;;
+esac
 
 set_nvim_frontend_alias
 
-if [[ "$TERM" == "xterm-kitty" ]]; then
-
-fi
-
-# zprof
-
+## Variables ##
 HYPRLAND_INFO="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 HYPRLAND_CONTROL="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket.sock"
-
-FZF_ALT_C_COMMAND="fd -H --type directory"
-
-complete -C 'aws_completer' aws

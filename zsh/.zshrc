@@ -1,25 +1,3 @@
-# I want to see if this can be put elsewhere
-#if uwsm check may-start; then
-#exec uwsm start hyprland-uwsm.desktop
-#fi
-# alias Hyprland='exec uwsm start hyprland-uwsm.desktop'
-
-# Benchmark logic
-# zmodload zsh/datetime
-# setopt PROMPT_SUBST
-# PS4='+$EPOCHREALTIME %N:%i> '
-#
-# logfile=$(mktemp zsh_profile.XXXXXXXX)
-# echo "Logging to $logfile"
-# exec 3>&2 2>$logfile
-# setopt XTRACE
-# End benchmark logic
-
-# Official benchmark tool
-# zmodload zsh/zprof
-
-# Zinit can be installed with Nix, but since it's entirely shell-driven, we'll just install it to .local for usage with other operating systems.
-# Install (if needed) and initialize zinit and its needed environment variables. 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)" # If ZINIT_HOME folder isn't present, make it.
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" # If the git folderisn't present, clone the repo.  
@@ -28,10 +6,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
-# zinit ice depth=1
-# zinit light jeffreytse/zsh-vi-mode
-
-# ZSH auto-completion parameters
 
 HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000

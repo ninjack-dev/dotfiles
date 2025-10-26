@@ -261,13 +261,8 @@ fi
 
 # Aliases
 alias ls='ls -A --color'
-alias copy=$COPY_UTIL
 alias cat='bat'
 alias ff='fzf_with_preview'
-alias reload='exec zsh'
-alias reboot='systemctl shutdown -r now'
-# alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
-alias nvid='neovide'
 
 getip()
 {

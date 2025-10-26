@@ -266,7 +266,6 @@ alias cat='bat'
 alias ff='fzf_with_preview'
 alias reload='exec zsh'
 alias reboot='systemctl shutdown -r now'
-alias git-graph='git log --oneline --decorate --graph'
 # alias sudo='sudo ' # https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias nvid='neovide'
 

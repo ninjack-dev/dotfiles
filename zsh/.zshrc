@@ -33,8 +33,6 @@ zinit light zsh-users/zsh-autosuggestions
 
 # ZSH auto-completion parameters
 
-source ~/.config/zsh/.zshrc-framework
-
 HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000
 SAVEHIST=$HISTSIZE

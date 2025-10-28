@@ -1,19 +1,3 @@
-vim.opt.runtimepath:remove(vim.fn.expand("~/.config/nvim"))
-vim.opt.packpath:remove(vim.fn.expand("~/.local/share/nvim"))
-
-vim.opt.runtimepath:append(vim.fn.expand("~/.config/nvchad"))
-vim.opt.packpath:append(vim.fn.expand("~/.local/share/nvchad"))
-
-local old_stdpath = vim.fn.stdpath
-vim.fn.stdpath = function(value)
-  if value == "data" then
-    return vim.fn.expand("~/.local/share/nvchad")
-  else
-    return old_stdpath(value)
-  end
-end
-
-
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 
 vim.g.mapleader = " "

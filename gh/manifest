@@ -1,0 +1,14 @@
+[manifest "gh act"]
+	repo = nektos/gh-act
+	version = v0.2.82
+[manifest "gh markdown-preview"]
+	repo = yusukebe/gh-markdown-preview
+	version = e0579cac
+[manifestSettings]
+	commitOnSave = true
+[manifest "gh gitignore"]
+	repo = ninjack-dev/gh-gitignore
+	version = 3766bca4
+[manifest "gh manifest"]
+	repo = ninjack-dev/gh-manifest
+	version = 6406ca84

@@ -608,11 +608,11 @@ in
     nodePackages.typescript-language-server
     nodePackages.bash-language-server
 
-    rustc
-    cargo
-    rustfmt
-    clippy
-    rust-analyzer
+    unstable.rustc
+    unstable.cargo
+    unstable.rustfmt
+    unstable.clippy
+    unstable.rust-analyzer
 
     unstable.obs-studio
 

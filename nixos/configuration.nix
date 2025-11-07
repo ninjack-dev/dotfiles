@@ -657,6 +657,7 @@ in
     PATH = [
       "$HOME/.npm-global/bin"
       "$HOME/go/bin"
+      "$HOME/.cargo/bin"
     ];
 
     EDITOR = "nvim";

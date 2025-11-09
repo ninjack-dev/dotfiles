@@ -1,24 +1,14 @@
 # Ninjackson's Dotfiles
+These are my dotfiles. There are many like them, but these ones are mine.
 
-> [!CAUTION]
-> This repository is **unstable** at best. Breaking changes happen consistently, and there is a general lack of understanding on the author's part regarding several elements, specifically NixOS. 
-
-## Installation
-```bash
-git clone https://github.com/NinjacksonXV/dotfiles.git $USER/.config
+## Deployment
+To deploy the NixOS configuration on the only available host (Lenovo Thinkpad E14 Gen 6):
+1. Build the system (ensure the `--impure` flag is present[^1])
+```sh
+sudo nixos-rebuild switch --impure --flake ~/.config/nixos
 ```
-## To-Do List
-- [ ] Provide link directory to all relevant READMEs
-- [ ] Remove Nushell's auto-generated modules (Oh My Posh, Zoxide) from the tree; they are falsely inflated in the language panel on GitHub
-- [ ] Transition over to GNU Stow management
-    - Track the files in the following directories
-        - `~/.bashrc`
-	    - `~/.local/bin`
-	    - `~/.local/share/applications`
-	    - `~/.local/share/qalculate/definitions/functions.xml`
-            - For this particular file, write a small hook which can assemble multiple function definition files into this monolith using `yq`, `nu`, or `pwsh`
-### NixOS
-> [!WARNING]
-> This installation "guide" does NOT cover the usecase of installing to a fresh operating system. The underlying assumption (currently) is that 1. NixOS is installed on the host, and 2. that the host is a Framework 13 Intel 13th gen. It is *not* designed for multiple hosts (yet). This is on the [to-do list](./nixos/README.md#to-do).
+2. Symlink `$HOME/.local/bin` to `$XDG_CONFIG_HOME/bin` to make global scripts available in the `PATH`[^2].
+3. For future invocations, symlink `/etc/nixos` to `$XDG_CONFIG_HOME/nixos` and run `rebuild`, which updates flake inputs, rebuilds the system, and offers a reboot interface if the kernel version changed (pass the `full` flag to update the `unstable` nixpkgs flake input).
 
-The `./nixos` folder is meant to be symlinked to from `/etc/nixos`, at which point using the stock `sudo nixos-rebuild switch` will work as intended, pulling from `flake.nix` automatically.
+[^1]: The NixOS configuration uses `callFlake` to pull in my AGS flake, which requires a lock attribute for a pure evaluation; I am forgoing this requirement in favor of easier maintenance.
+[^2]: I have not wrapped any of the scripts into Nix derivations, mostly for "portability" and to expedite availability of new scripts. However, this is on an internal todo-list as a low-priority item.

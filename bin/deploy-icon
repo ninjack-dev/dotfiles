@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if [[ -z $XDG_DATA_HOME ]]; then 
+  echo "\$XDG_DATA_HOME is not set!"
+  exit 1
+fi
+
+icon=$1
+
+if [[ $(file --mime-type -b "$icon") == "image" ]]; then
+  echo "Must pass image file to this script!"
+  exit 1
+fi
+
+for size in 16 24 32 48 64 128 256 512; do
+  mkdir -p "$XDG_DATA_HOME/icons/hicolor/${size}x${size}/apps"
+  magick -background none "${icon}" -resize "$size"x"$size" "$XDG_DATA_HOME/icons/hicolor/${size}x${size}/apps/${icon%.*}.png"
+done
+
+gtk-update-icon-cache -t "$XDG_DATA_HOME/icons/"

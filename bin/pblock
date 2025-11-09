@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Removes PATH directories for testing purposes.
+# Dependencies:
+# - gum
+# TODO:
+# - Add list styling
+
+declare -A shell_colors=(
+["bash"]="#45B052"
+["zsh"]="#F15A1F"
+["pwsh"]="#0078D4"
+["fish"]="#4A9CC9"
+["nu"]="#3DD68C"
+)
+
+declare -A source_commands=(
+["bash"]='eval $(pblock)'
+["zsh"]='eval $(pblock)'
+["pwsh"]='Invoke-Expression $(pblock)'
+["fish"]='eval (pblock)'
+["nu"]='load-env (pblock | from json)'
+)
+
+SHELL_NAME="$(< /proc/$PPID/comm)"
+
+# Header
+gum style \
+	--foreground 222 \
+  --border-foreground "${shell_colors["$SHELL_NAME"]}" \
+  --border rounded \
+	--align center \
+  --width 50 \
+  --margin "0 0" \
+  --padding "0 0" \
+  "Source command for $SHELL_NAME: $(gum style --bold "${source_commands[$SHELL_NAME]}")" 1>&2
+
+NEW_PATH=$(
+echo -n "$PATH" | gum choose \
+  --input-delimiter=":" \
+  --output-delimiter=":" \
+  --no-limit \
+  --selected=* \
+  --cursor-prefix=" " \
+  --unselected-prefix=" " \
+  --header "Select PATH elements to remove")
+
+[[ -z "$NEW_PATH" ]] && exit
+
+case "$SHELL_NAME" in
+  bash | zsh)
+    cat << EOF
+export OLD_PATH="$PATH"
+export PATH="$NEW_PATH"
+EOF
+    ;;
+  fish)
+    cat << EOF
+set OLD_PATH "$PATH"
+set PATH "$NEW_PATH"
+EOF
+;;
+  nu)
+    cat << EOF
+{ OLD_PATH: "$PATH", PATH: "$NEW_PATH" }
+EOF
+    ;;
+  pwsh)
+    cat << EOF
+Invoke-Expression \$env:Path = "$PATH"
+EOF
+    ;;
+  *)
+    echo "Unsupported shell detected, exiting"
+    ;;
+esac

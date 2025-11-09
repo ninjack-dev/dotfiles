@@ -1,0 +1,16 @@
+#!/usr/bin/env nu
+
+# Nushell version of kitty-cwd-launcher, used for performance/latency comparisons (no notable difference)
+
+def main --wrapped [...args: string] {
+
+  let cwd = (try {
+  kitty @ ls --to unix:@kitty-$'(hyprctl activewindow -j | from json | get pid)' | from json 
+  | where is_active == true | first | get tabs 
+  | where is_active == true | first | get windows 
+  | where is_active == true | first | get cwd
+  } catch { $env.HOME })
+
+  cd $cwd
+  exec kitty ...$args
+}

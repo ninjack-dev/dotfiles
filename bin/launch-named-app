@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 || $1 == "-h" || $1 == "--help" ]]; then
+    echo "Usage: $(basename $0) <application name>"
+    echo "Launches a .desktop file based on the Name field, instead of the filename"
+    echo "Uses ripgrep (rg)"
+
+    [[ $# -eq 0 ]] && exit 1 || exit 0
+fi
+
+app_name=$1
+
+# Collect desktop entry directories
+desktop_dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/applications")
+IFS=: read -ra dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+for d in "${dirs[@]}"; do
+    desktop_dirs+=("$d/applications")
+done
+
+desktop_file=$(rg --glob "*.desktop" -l "^Name=$app_name" "${desktop_dirs[@]}" 2>/dev/null \
+    | head -n1
+)
+
+if [[ -z "$desktop_file" ]]; then
+    echo "No .desktop file found with Name=$app_name"
+    exit 1
+fi
+
+gtk-launch "$(basename --suffix ".desktop" "$desktop_file")"

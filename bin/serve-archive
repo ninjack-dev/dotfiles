@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+import argparse
+import io
+import os
+import sys
+import tarfile
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+
+
+def collect_files(paths, include_hidden=False):
+    """
+    Recursively collect files from a list of paths.
+    Returns a list of (real_path, archive_path) pairs.
+    """
+    collected = []
+
+    for path in paths:
+        if os.path.isfile(path):
+            if not include_hidden and os.path.basename(path).startswith("."):
+                continue
+            collected.append((path, os.path.basename(path)))
+        elif os.path.isdir(path):
+            root = os.path.abspath(path)
+            for dirpath, dirnames, filenames in os.walk(root):
+                if not include_hidden:
+                    dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+                    filenames = [f for f in filenames if not f.startswith(".")]
+
+                for f in filenames:
+                    real_path = os.path.join(dirpath, f)
+                    rel_path = os.path.relpath(real_path, os.path.dirname(root))
+                    collected.append((real_path, rel_path))
+        else:
+            print(f"Warning: {path} not found, skipping.", file=sys.stderr)
+
+    return collected
+
+
+def create_archive(filelist):
+    """
+    Create a tar.gz archive from filelist [(real_path, archive_path)].
+    Returns bytes.
+    """
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for real, arc in filelist:
+            tar.add(real, arcname=arc)
+    buf.seek(0)
+    return buf.getvalue()
+
+
+class TarballHandler(BaseHTTPRequestHandler):
+    def __init__(self, paths, filename, include_hidden, *args, **kwargs):
+        self.paths = paths
+        self.filename = filename
+        self.include_hidden = include_hidden
+        super().__init__(*args, **kwargs)
+
+    def do_GET(self):
+        if self.path not in ("/", f"/{self.filename}"):
+            self.send_error(404, "Not Found")
+            return
+
+        try:
+            filelist = collect_files(self.paths, include_hidden=self.include_hidden)
+            if not filelist:
+                self.send_error(500, "No files to include")
+                return
+            data = create_archive(filelist)
+        except FileNotFoundError as e:
+            self.send_error(500, f"File not found: {e.filename}")
+            return
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/gzip")
+        self.send_header("Content-Disposition", f'attachment; filename="{self.filename}"')
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+
+def run_server(paths, filename, port, include_hidden):
+    def handler(*args, **kwargs):
+        return TarballHandler(paths, filename, include_hidden, *args, **kwargs)
+
+    httpd = ThreadingHTTPServer(("0.0.0.0", port), handler)
+    print(f"Serving {filename} on http://0.0.0.0:{port}/{filename}")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nShutting down.")
+    finally:
+        httpd.server_close()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="serve-archive",
+        description=(
+            "Bundle files or directories into a tar.gz archive (rebuilt on each request) "
+            "and serve it over HTTP. By default, the current directory is archived, "
+            "excluding hidden files and directories."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  serve-archive                 # serve current dir as bundle.tar.gz on port 8080\n"
+            "  serve-archive myflake/        # serve 'myflake.tar.gz' from myflake/\n"
+            "  serve-archive foo bar -p 9000 # serve 'bundle.tar.gz' containing foo and bar on port 9000\n"
+            "  serve-archive -h mydir        # include hidden files/dirs"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help="Files or directories to include (default: current directory).",
+    )
+    parser.add_argument(
+        "-p", "--port", type=int, default=8080,
+        help="Port to serve on (default: 8080).",
+    )
+    parser.add_argument(
+        "-o", "--output",
+        help="Archive filename as served (default: based on directory name, or 'bundle.tar.gz').",
+    )
+    parser.add_argument(
+        "--hidden", action="store_true",
+        help="Include hidden files and directories.",
+    )
+
+    args = parser.parse_args()
+
+    if not args.paths:
+        args.paths = ["."]
+
+    # choose default output name
+    if args.output:
+        output_name = args.output
+    elif len(args.paths) == 1 and os.path.isdir(args.paths[0]):
+        dirname = os.path.basename(os.path.abspath(args.paths[0]))
+        output_name = f"{dirname}.tar.gz"
+    else:
+        output_name = "bundle.tar.gz"
+
+    run_server(args.paths, output_name, args.port, args.hidden)
+
+
+if __name__ == "__main__":
+    main()

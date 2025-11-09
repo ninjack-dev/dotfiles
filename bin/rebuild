@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+shopt -s expand_aliases
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+pushd /etc/nixos/ >/dev/null || exit
+
+# Adapted from https://stackoverflow.com/a/76439371
+# Allows for sending notification as root
+notify_send_root() {
+  sudo -u "$SUDO_USER" DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/"$(sudo -u "$SUDO_USER" id -u)"/bus notify-send "$@"
+}
+
+alias notify-send='notify_send_root'
+
+declare -a flakeInputs=("nixpkgs" "nixos-hardware")
+
+# WIP: Get list of flake inputs to update
+# nix flake metadata --json 2>/dev/null | jq '.locks.nodes.root.inputs.[]'
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    full)
+      flakeInputs=()
+      shift
+      ;;
+    -*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+nix flake update "${flakeInputs[@]}"
+
+if nixos-rebuild switch --impure; then
+  read -r -d '\n' name new_kernel_version < <(nix eval --json .#nixosConfigurations.nixos-laptop.config.boot.kernelPackages.kernel --apply \
+    'kernel: { name = kernel.pname; version = kernel.version; }' 2>/dev/null \
+    | jq -r '.name, .version'
+  )
+
+  name=$(sed 's/-/ /g; s/\b\(.\)/\u\1/g' <<< "$name")
+  current_kernel_version=$(uname -r | sed 's/-.*//g')
+
+  if [[ "$new_kernel_version" != "$current_kernel_version" ]]; then
+    notification_string="$name has been updated from $current_kernel_version to $new_kernel_version. Would you like to reboot?"
+    flags=("--action=Reboot")
+  fi
+
+  action=$(notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' "${flags[@]}" "Rebuild complete."  "$notification_string" 2>/dev/null)
+  case "$action" in
+    0)
+      reboot now
+      ;;
+    *)
+      ;;
+  esac
+
+  exit 0
+else
+  notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild failed!' 2>/dev/null
+  exit 1
+fi

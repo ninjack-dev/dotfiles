@@ -1,0 +1,28 @@
+:root {
+  --font-primary: "JetBrainsMono Nerd Font";
+  --font-display: "JetBrainsMono Nerd Font";
+  --font-headline: "JetBrainsMono Nerd Font";
+  --font-code: "JetBrainsMono Nerd Font";
+}
+
+::placeholder,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-display) !important;
+}
+
+/* Disable donate bar */
+.vc-special-card {
+  display: none;
+}
+/* Disable events */
+#app-mount > div.appAsidePanelWrapper_a3002d > div > div.app_a3002d > div > div.layers__960e4.layers__160d8 > div > div > div > div.content_c48ade > div.sidebar_c48ade.theme-dark.theme-darker.images-dark > section > div.mask__0d616 > div {
+  display: none;
+}
+/* Disable Nitro bar at top of screen */
+.notice__6e2b9 {
+  display: none;
+}

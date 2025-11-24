@@ -81,9 +81,13 @@ in
   # TODO: Determine if replacing TLP with auto-cpufreq is ideal.
   # services.auto-cpufreq.enable = true;
 
-  services.tailscale = {
+  services.netbird = {
     enable = true;
-    package = pkgs.unstable.tailscale;
+    package = pkgs.unstable.netbird;
+    ui = {
+      enable = true;
+      package = pkgs.unstable.netbird-ui;
+    };
   };
 
   services.flatpak.enable = true;

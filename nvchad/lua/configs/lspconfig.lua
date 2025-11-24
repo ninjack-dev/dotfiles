@@ -78,6 +78,7 @@ local servers = {
       }
     }
   },
+  zls = {}
 }
 
 for name, opts in pairs(servers) do

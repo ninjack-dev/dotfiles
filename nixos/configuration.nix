@@ -32,7 +32,7 @@ in
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 2w";
+    options = "--delete-older-than 14w";
   };
 
   programs.nix-ld = {

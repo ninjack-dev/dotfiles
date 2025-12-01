@@ -627,6 +627,7 @@ in
       with unstable.dotnetCorePackages;
       combinePackages [
         sdk_9_0_1xx
+        sdk_10_0-bin
       ]
     )
 

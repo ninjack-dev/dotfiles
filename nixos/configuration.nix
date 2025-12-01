@@ -9,17 +9,9 @@ let
   # - Convert this to a nixpkgs overlay
   # or
   # - Convert any other overrides (e.g. Rofi) to a top level attribute "overload" "unsure of the name"
-  # brave = pkgs.brave.override {
-  #   commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
-  # };
-
-  # https://github.com/basecamp/omarchy/issues/2184
-  # Locked on version 1.82.170 for now.
-  brave = (
-    (builtins.getFlake "github:nixos/nixpkgs/51c8f9cfaae8306d135095bcdb3df9027f95542d")
-    .legacyPackages.x86_64-linux.brave.override
-      { commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation"; }
-  );
+  brave = pkgs.brave.override {
+    commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
+  };
 in
 {
   imports = [
@@ -90,6 +82,7 @@ in
     };
   };
 
+  # TODO: Debug this service; if the system updates its network drivers, the rebuild fails because the flatpak update doesn't happen.
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
@@ -380,7 +373,7 @@ in
 
     # Shell Apps
     gnupg
-    pinentry
+    pinentry-gnome3
     stow
     linuxKernel.packages.linux_zen.cpupower
     gum

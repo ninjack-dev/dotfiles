@@ -33,3 +33,4 @@ map("v", "<leader>my", function()
   print("Yanked as markdown code block to clipboard.")
 end, { silent = true, desc = "Yank block as a Markdown code block" })
 
+map("n", "<leader>mk", ":make<CR>", { desc = "Run compiler"})

@@ -5,12 +5,13 @@
 # 
 # Relies on Kitty listening on kitty-<pid>, set in kitty.conf
 
-cwd=$(kitty @ ls --to "unix:@kitty-$(hyprctl activewindow -j | jq '.pid')" | jq -r \
+cwd=$(kitty @ ls --to "unix:@kitty-$(hyprctl activewindow -j | jq '.pid')" 2>/dev/null | jq -r \
 '
 .[] | select(.is_active == true).tabs[] 
 | select(.is_active == true).windows[]
 | select(.is_active == true).cwd
-'
-) 2>/dev/null
+')
 
-cd "$cwd" && exec "$@"
+[[ -d $cwd ]] && { cd "$cwd" || exit 1; }
+
+exec "$@"

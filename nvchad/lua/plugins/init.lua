@@ -33,9 +33,6 @@ return {
     },
     opts = {},
   },
-  {
-    'github/copilot.vim'
-  }
   --
   -- {
   -- 	"williamboman/mason.nvim",

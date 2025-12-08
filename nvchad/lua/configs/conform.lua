@@ -12,7 +12,7 @@ local options = {
   formatters = {
     prettier = {
       append_args = function()
-        return { "--plugin=prettier-plugin-sh" }
+        return { "--plugin=" .. vim.fn.expand("~/.npm-global/lib/node_modules/prettier-plugin-sh/lib/index.js") }
       end
     },
     gdscript_formatter = {

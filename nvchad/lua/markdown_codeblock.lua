@@ -10,7 +10,7 @@ local M = {}
 --- (Default: `true`)
 ---@field add_filename_comment? boolean
 --- Some platforms use syntax highlighting libraries which don't necessarily support all languages. This lets you map a set of targets or general languages to alternatives which may properly render. It will prompt you to select a platform if you pass it in the `platform = { <mapping> }` format.
---- Example: 
+--- Example:
 ---
 --- ```lua
 --- {discord = { gdscript = "php" }, jsx = "js" }
@@ -92,17 +92,17 @@ end
 ---Prompt user to select a mapping from language_name_map
 ---@param language_name_map table<string, string|table<string, string>>
 ---@param language string
----@param confirm boolean
+---@param confirm_substitution boolean
 ---@return string
-local function select_language(language_name_map, language, confirm)
+local function select_language(language_name_map, language, confirm_substitution)
   if language_name_map == nil then return language end
 
   local global_map_result = language_name_map[language]
   if global_map_result ~= nil and type(global_map_result) == "string" then
-    if confirm and
-      vim.fn.confirm(string.format("Syntax highlight substitution found: %s --> %s. Accept?", language, global_map_result), "&Yes\n&No", 1) ~= 1 then
-        return language
-      end
+    if confirm_substitution and
+        vim.fn.confirm(string.format("Syntax highlight substitution found: %s --> %s. Accept?", language, global_map_result), "&Yes\n&No", 1) ~= 1 then
+      return language
+    end
     return global_map_result
   end
 
@@ -117,7 +117,9 @@ local function select_language(language_name_map, language, confirm)
     table.insert(target_mappings_keys, "Other (use current language)")
     local choice
     vim.ui.select(target_mappings_keys, {
-      prompt = string.format("A syntax highlight substitution for \"%s\" was found in the following targets. Select a target for this Markdown block:", language),
+      prompt = string.format(
+        "A syntax highlight substitution for \"%s\" was found in the following targets. Select a target for this Markdown block:",
+        language),
     }, function(selected)
       choice = selected
     end)
@@ -151,10 +153,16 @@ function M.markdown_codeblock(opts)
   lines = normalize_indent(lines)
 
   local md_lines = { "```" .. ft }
+  local filename_line = 1
   if opts.add_filename_comment and filename ~= "" then
+    -- If the file includes a shebang, insert the filename underneath
+    if lines[1]:match("^#!.+") then
+      filename_line = 2
+      table.insert(md_lines, lines[1])
+    end
     table.insert(md_lines, get_comment_line(filename, opts.bufnr))
   end
-  vim.list_extend(md_lines, lines)
+  vim.list_extend(md_lines, vim.list_slice(lines, filename_line))
   table.insert(md_lines, "```")
 
   local text = table.concat(md_lines, "\n")

@@ -62,8 +62,8 @@ in
   boot.loader.grub.configurationLimit = 30;
 
   boot.tmp.cleanOnBoot = true;
-  services.logind.lidSwitch = "suspend";
-  services.logind.lidSwitchDocked = "suspend";
+  services.logind.settings.Login.HandleLidSwitch = "suspend";
+  services.logind.settings.Login.HandleLidSwitchDocked = "suspend";
 
   services.chrony.enable = true;
 

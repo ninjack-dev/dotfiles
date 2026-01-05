@@ -352,6 +352,10 @@ in
     };
   };
 
+  fileSystems = {
+    "/".options = [ "compress=zstd" "noatime" ];
+  };
+
   # This caused my system to be unbootable.
   #  fileSystems."/home/jacksonb/OneDrive" = {
   #    device = "OneDrive:";

@@ -440,6 +440,7 @@ in
     kdePackages.krdc
     distrobox
     hugo
+    sshfs
 
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
@@ -613,6 +614,8 @@ in
     unstable.rust-analyzer
 
     unstable.obs-studio
+
+    unstable.forgejo-cli
 
     podman-desktop
 

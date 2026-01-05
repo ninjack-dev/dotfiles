@@ -12,6 +12,7 @@ let
   brave = pkgs.brave.override {
     commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
   };
+  kernelPkg = pkgs.linuxKernel.packages.linux_zen;
 in
 {
   imports = [
@@ -52,7 +53,7 @@ in
 
   programs.gnupg.agent.enable = true;
 
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_zen;
+  boot.kernelPackages = kernelPkg;
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = true;
@@ -375,7 +376,7 @@ in
     gnupg
     pinentry-gnome3
     stow
-    linuxKernel.packages.linux_zen.cpupower
+    kernelPkg.cpupower
     gum
     iptables
     unstable.nushell

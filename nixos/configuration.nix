@@ -83,10 +83,10 @@ in
     };
   };
 
-  # TODO: Debug this service; if the system updates its network drivers, the rebuild fails because the flatpak update doesn't happen.
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
     path = [ pkgs.flatpak ];
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

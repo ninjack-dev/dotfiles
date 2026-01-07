@@ -1,2 +1,4 @@
 #!/bin/sh
-exec kitten run-shell --shell="$(whereis bash | awk '{print $NF}') $(env printf ' %q' "$@")"
+# kitten run-shell adds about 0.2s of latency to the launch; the two searches add a tiny bit more.
+# Depends on GNU coreutils printf for %q functionality.
+exec kitten run-shell --shell="$(whereis bash | awk '{print $NF}') $($(whereis printf | awk '{print $NF}') ' %q' "$@")"

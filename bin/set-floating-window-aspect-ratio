@@ -12,6 +12,7 @@ let window = (hyprctl clients -j
   | sort-by focusHistoryID
 	| first)
 
+# Sets size according to the window's height. In the future I'd like to find the smallest change to a valid size available to preserve the visual size of the window.
 let size =  $"(($window.size.0 / $ratio.x | math round) * $ratio.x) (($window.size.0 / $ratio.x | math round) * $ratio.y)"
 
 let address = $window | get address

@@ -1,0 +1,18 @@
+#!/usr/bin/env nu
+# Resizes the first floating window in a given workspace to conform to a given aspect ratio. The end goal is to combine this
+# with browser-ctl to get the resolution of a PIP video.
+
+# Default to 16:9 since 90% of YT content conforms to that.
+let ratio = {x: 16, y: 9}
+
+let window = (hyprctl clients -j 
+	| from json 
+	| where floating == true 
+  | where workspace.id == (hyprctl activeworkspace -j | from json | get id)
+  | sort-by focusHistoryID
+	| first)
+
+let size =  $"(($window.size.0 / $ratio.x | math round) * $ratio.x) (($window.size.0 / $ratio.x | math round) * $ratio.y)"
+
+let address = $window | get address
+hyprctl dispatch resizewindowpixel exact $"($size),address:($address)"

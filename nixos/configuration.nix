@@ -43,12 +43,14 @@ in
     enable32Bit = true;
     package32 =
       inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pkgsi686Linux.mesa;
-    extraPackages = with pkgs; [
-      intel-media-driver # For Broadwell (2014) or newer processors. LIBVA_DRIVER_NAME=iHD
-      # intel-ocl
-      # unstable.intel-media-driver # For Broadwell (2014) or newer processors. LIBVA_DRIVER_NAME=iHD
-      # unstable.intel-ocl
-    ];
+    # These are handled by nixos-hardware: https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/intel/default.nix
+    # extraPackages = with pkgs; [
+    #   intel-media-driver
+    #   vpl-gpu-rt
+    # ];
+    # extraPackages32 = with pkgs; [
+    #   intel-vaapi-driver
+    # ];
   };
 
   programs.gnupg.agent.enable = true;

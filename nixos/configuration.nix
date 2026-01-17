@@ -582,9 +582,6 @@ in
 
     lazygit
 
-    unstable.mongodb-compass
-    unstable.mongosh
-
     hydra-check
 
     # language servers

@@ -495,8 +495,7 @@ in
     syncthingtray
     vscodium
     android-file-transfer
-    freecad-wayland
-    # unstable.openscad-unstable
+    # unstable.freecad-wayland
     unstable.openscad-lsp
     (unstable.callPackage ./modules/kotlin-lsp.nix { })
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing

@@ -217,7 +217,6 @@ in
     settings = {
       General = {
         Enable = "Source,Sink,Media,Socket";
-        DiscoverableTimeout = 0;
       };
     };
   };

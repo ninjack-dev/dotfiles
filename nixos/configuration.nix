@@ -366,14 +366,6 @@ in
   #    ];
   #  };
 
-  nixpkgs.overlays = [
-    (self: super: {
-      rofi = pkgs.unstable.rofi.override {
-        rofi-unwrapped = (pkgs.unstable.callPackage ./modules/rofi.nix { });
-      };
-    })
-  ];
-
   environment.systemPackages = with pkgs; [
 
     # Shell Apps
@@ -476,7 +468,7 @@ in
     calibre
     libreoffice-fresh
     # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
-    (rofi.override {
+    (unstable.rofi.override {
       plugins = [
         unstable.rofi-calc
       ];

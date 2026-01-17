@@ -353,7 +353,10 @@ in
   };
 
   fileSystems = {
-    "/".options = [ "compress=zstd" "noatime" ];
+    "/".options = [
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   # This caused my system to be unbootable.

@@ -534,16 +534,7 @@ in
     udiskie
 
     # TODO: Put this in its own module with auto update functionality
-    (obsidian.overrideAttrs (
-      final: prev: rec {
-        version = "1.10.6";
-        filename = "obsidian-${version}.tar.gz";
-        src = fetchurl {
-          url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/${filename}";
-          hash = "sha256-FZbIHYZF/59lBrWz4aaWMlDZNyzrWOsDdVHlO8Gxb3I=";
-        };
-      }
-    ))
+    obsidian
     (unstable.discord.override {
       withVencord = true;
     })

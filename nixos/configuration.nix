@@ -242,10 +242,6 @@ in
   };
 
   programs.zsh.enable = true;
-  programs.zsh.shellAliases = {
-    nix-edit = "nvim -c \"lcd ~/.config/nixos\" -c NvimTreeToggle";
-    nix-develop = "nix develop -c \"zsh\" -c \"export SHELL=zsh; zsh -i\"";
-  };
   programs.fish.enable = true;
 
   # May be unnecessary if Hyprland is installed

@@ -356,6 +356,11 @@ in
     ];
   };
 
+  programs.git = {
+    enable = true;
+    lfs.enable = true;
+  };
+
   # This caused my system to be unbootable.
   #  fileSystems."/home/jacksonb/OneDrive" = {
   #    device = "OneDrive:";
@@ -390,7 +395,6 @@ in
     zoxide
     btop
     unstable.pay-respects
-    git
     unstable.gh
     psmisc # fuser, pstree
     unzip
@@ -617,7 +621,7 @@ in
         sdk_10_0-bin
       ]
     )
-
+    git-credential-manager
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
     # (import (builtins.fetchTarball {

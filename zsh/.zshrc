@@ -298,6 +298,10 @@ case "$TERM" in
   ;;
 esac
 
+if [[ -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
+  NVIM_FRONTEND="term"
+fi
+
 set_nvim_frontend_alias
 
 ## Variables ##

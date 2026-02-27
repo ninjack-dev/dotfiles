@@ -3,17 +3,15 @@
   stdenv,
   fetchzip,
   makeWrapper,
-  zulu24,
-  jdk ? zulu24,
-  withVersion ? "0.253.10629",
+  withVersion ? "261.13587.0",
 }:
 stdenv.mkDerivation (finalAttrs: rec {
 
   pname = "kotlin-lsp";
   version = "${withVersion}";
   src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-${version}.zip";
-    hash = "sha256-LCLGo3Q8/4TYI7z50UdXAbtPNgzFYtmUY/kzo2JCln0=";
+    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-linux-x64.zip";
+    hash = "sha256-EweSqy30NJuxvlJup78O+e+JOkzvUdb6DshqAy1j9jE=";
     stripRoot = false;
   };
 
@@ -25,11 +23,14 @@ stdenv.mkDerivation (finalAttrs: rec {
     mkdir -p $out/lib/kotlin-lsp
     cp -r * $out/lib/kotlin-lsp/
 
+    # The kotlin-lsp zip provides its own JRE, and tries to chmod it; we remove that line and do it ourselves
+    sed -i '/chmod +x "$LOCAL_JRE_PATH\/bin\/java"/d' $out/lib/kotlin-lsp/kotlin-lsp.sh
+    chmod +x $out/lib/kotlin-lsp/jre/bin/java
+
     chmod +x $out/lib/kotlin-lsp/kotlin-lsp.sh
 
     mkdir -p $out/bin
-    makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
-      --prefix PATH : ${jdk}/bin
+    makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp
 
     runHook postInstall
   '';

@@ -1,15 +1,12 @@
 require("nvchad.configs.lspconfig").defaults()
 
 local servers = {
-  arduino_language_server = {},
   awk_ls = {},
   bashls = {},
   clangd = {},
   csharp_ls = {},
   cssls = {},
-  -- denols = {
-  --   root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
-  -- },
+  denols = {},
   gdscript = {},
   gopls = {},
   html = {},
@@ -63,7 +60,7 @@ local servers = {
     }
   },
   tombi = {},
-  ts_ls = { root_dir = require("lspconfig").util.root_pattern("package.json"), single_file_support = false },
+  ts_ls = {},
   vala_ls = {
     single_file_support = true,
   },
@@ -78,7 +75,13 @@ local servers = {
       }
     }
   },
-  zls = {}
+  zls = {
+    settings = {
+      zls = {
+        enable_build_on_save = true,
+      }
+    }
+  }
 }
 
 for name, opts in pairs(servers) do

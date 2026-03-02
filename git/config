@@ -16,3 +16,10 @@
 [alias]
 	stat = status --short
   graph = log --oneline --decorate --graph
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[include]
+  path = "private"

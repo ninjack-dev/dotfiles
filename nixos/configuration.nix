@@ -622,6 +622,10 @@ in
       ]
     )
     git-credential-manager
+
+    (pass.override {
+      waylandSupport = true;
+    })
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
     # (import (builtins.fetchTarball {
@@ -666,6 +670,8 @@ in
   services.ollama = {
     enable = true;
   };
+
+  services.passSecretService.enable = true;
 
   # DO NOT CHANGE THIS. For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion
   system.stateVersion = "24.05"; # Did you read the comment?

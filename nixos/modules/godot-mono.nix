@@ -11,18 +11,25 @@
   unzip,
   makeWrapper,
   udev,
+  libX11,
+  libXcursor,
+  libXext,
+  libXfixes,
+  libXi,
+  libXinerama,
+  libXrandr,
+  libXrender,
   libdecor,
   libGL,
   libpulseaudio,
   libxkbcommon,
-  xorg,
   speechd-minimal,
   fontconfig,
   alsa-lib,
   imagemagick,
   vulkan-loader,
   dbus,
-  withVersion ? "4.5.1-stable",
+  withVersion ? "4.6.1-stable",
 }:
 
 stdenv.mkDerivation (finalAttrs: rec {
@@ -31,7 +38,7 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   src = fetchurl {
     url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_mono_linux_x86_64.zip";
-    hash = "sha256-thaX3Wkh2nbj0jWKtZImPfquOY0KwSKeguq35KfDbL8=";
+    hash = "sha256-NwjXTxmma3E59roAVcyrC7wu13HDdSQm/lkEbBsIahc=";
   };
 
   icon = fetchurl {
@@ -43,7 +50,7 @@ stdenv.mkDerivation (finalAttrs: rec {
   desktopItem = fetchurl {
     name = "godot-desktop-file"; # The filename is invalid for the nix store, apparently; when this is not set, it downloads the raw HTML of the webpage...
     url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/misc/dist/linux/org.godotengine.Godot.desktop";
-    hash = "sha256-z+T3b7utkNQ+cCfX+WNxaef//kpGIfGAJOBX0u4s0pw=";
+    hash = "sha256-5iwd2lbq50ZNi876GvZgTZWyIZ8vpW5SjPf/3Ogu1sM=";
   };
 
   nativeBuildInputs = [
@@ -57,15 +64,15 @@ stdenv.mkDerivation (finalAttrs: rec {
     alsa-lib
     libGL
     vulkan-loader
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXext
-    xorg.libXfixes
-    xorg.libXi
-    xorg.libXinerama
+    libX11
+    libXcursor
+    libXext
+    libXfixes
+    libXi
+    libXinerama
     libxkbcommon
-    xorg.libXrandr
-    xorg.libXrender
+    libXrandr
+    libXrender
     libdecor
     wayland
     dbus

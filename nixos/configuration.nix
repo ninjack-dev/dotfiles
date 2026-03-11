@@ -673,8 +673,6 @@ in
     enable = true;
   };
 
-  services.passSecretService.enable = true;
-
   # DO NOT CHANGE THIS. For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion
   system.stateVersion = "24.05"; # Did you read the comment?
 }

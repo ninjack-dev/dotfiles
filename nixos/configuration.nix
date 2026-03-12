@@ -535,11 +535,6 @@ in
     gparted
     udiskie
 
-    # TODO: Put this in its own module with auto update functionality
-    obsidian
-    (unstable.discord.override {
-      withVencord = true;
-    })
 
     gimp3
 

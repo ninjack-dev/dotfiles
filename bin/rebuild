@@ -55,10 +55,10 @@ if nixos-rebuild switch --impure; then
     flags=("--action=Reboot")
   fi
 
+  systemctl start prepare-kexec.service
   action=$(notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' "${flags[@]}" "Rebuild complete."  "$notification_string" 2>/dev/null)
   case "$action" in
     0)
-      systemctl start prepare-kexec.service
       systemctl kexec
       ;;
     *)

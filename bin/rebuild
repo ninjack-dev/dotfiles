@@ -42,7 +42,7 @@ done
 nix flake update "${flakeInputs[@]}"
 
 if nixos-rebuild switch --impure; then
-  read -r -d '\n' name new_kernel_version < <(nix eval --json .#nixosConfigurations.nixos-laptop.config.boot.kernelPackages.kernel --apply \
+  read -r -d '\n' name new_kernel_version < <(nix eval --impure --json .#nixosConfigurations.nixos-laptop.config.boot.kernelPackages.kernel --apply \
     'kernel: { name = kernel.pname; version = kernel.version; }' 2>/dev/null \
     | jq -r '.name, .version'
   )

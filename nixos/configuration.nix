@@ -55,9 +55,7 @@ in
 
   programs.gnupg.agent.enable = true;
 
-  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_zen;
-  # Waiting on #498620
-  boot.kernelPackages = (builtins.getFlake "nixpkgs/80d901ec0377e19ac3f7bb8c035201e2e098cc97").legacyPackages.x86_64-linux.linuxKernel.packages.linux_zen;
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_zen;
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = true;

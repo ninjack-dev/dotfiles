@@ -537,6 +537,7 @@ in
     gparted
     udiskie
 
+    unstable.obsidian
 
     gimp3
 

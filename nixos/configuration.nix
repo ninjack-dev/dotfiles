@@ -14,9 +14,13 @@ let
     commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
   };
 in
-{
+{ 
+  disabledModules = [
+    "services/networking/netbird.nix"
+  ];
   imports = [
     ./hardware-configuration.nix
+    "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/netbird.nix"
   ];
   nix.settings.experimental-features = [
     "nix-command"

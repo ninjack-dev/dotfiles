@@ -34,3 +34,11 @@ map("v", "<leader>my", function()
 end, { silent = true, desc = "Yank block as a Markdown code block" })
 
 map("n", "<leader>mk", ":make<CR>", { desc = "Run compiler"})
+
+-- Replaces :ascii
+map({ "n", "x", "o" }, "ga", function()
+  require("nvim-treesitter-textobjects.move").goto_next_start("@parameter.inner", "textobjects")
+end, { silent = true, desc = "Jump to next function argument" })
+map({ "n", "x", "o" }, "gA", function()
+  require("nvim-treesitter-textobjects.move").goto_previous_start("@parameter.inner", "textobjects")
+end, { silent = true, desc = "Jump to previous function argument" })

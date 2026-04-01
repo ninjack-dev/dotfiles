@@ -5,16 +5,7 @@
   config,
   ...
 }:
-let
-  # TODO:
-  # - Convert this to a nixpkgs overlay
-  # or
-  # - Convert any other overrides (e.g. Rofi) to a top level attribute "overload" "unsure of the name"
-  brave = pkgs.brave.override {
-    commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
-  };
-in
-{ 
+{
   disabledModules = [
     "services/networking/netbird.nix"
   ];
@@ -81,7 +72,7 @@ in
     extraConfig = "ResolveUnicastSingleLabel=yes";
   };
 
-  # The E14 gen 6 nixos-hardware module apparently enables TLP.
+  # The nixos-hardware module apparently enables TLP.
   # TODO: Determine if replacing TLP with auto-cpufreq is ideal.
   # services.auto-cpufreq.enable = true;
 
@@ -101,7 +92,7 @@ in
   #   path = [ pkgs.flatpak ];
   #   script = ''
   #     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  #     flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo 
+  #     flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
   #   '';
   # };
 
@@ -116,25 +107,18 @@ in
     allowedUDPPortRanges = [
     ];
     allowedTCPPorts = [
-      80
-      443
-      8080
+      8000
       9090 # Calibre wireless connection
       65530 # audio-share https://github.com/mkckr0/audio-share
     ];
     allowedUDPPorts = [
-      8080
+      8000
       9090
       65530 # audio-share https://github.com/mkckr0/audio-share
       54982 # Calibre's discovery protocol
-      48123
-      39001
-      44044
-      59678
     ];
   };
 
-  # https://wiki.nixos.org/wiki/Printing
   services.printing.enable = true;
 
   services.avahi = {
@@ -149,8 +133,7 @@ in
     keyboards.thinkpad.configFile = "/home/jacksonb/.config/kanata/thinkpad.kbd";
   };
 
-  # Waiting for https://github.com/NixOS/nixpkgs/issues/404687
-  # https://discourse.nixos.org/t/overriding-options-in-systemd-units-generated-by-nixos/13755/2
+  # The Kanata services cannot load $HOME-bound configuration files without this. See issue 404687.
   systemd.services.kanata-thinkpad.serviceConfig = {
     ProtectHome = lib.mkForce "read-only";
     DynamicUser = lib.mkForce false;
@@ -163,7 +146,6 @@ in
   boot.supportedFilesystems = [ "ntfs" ];
 
   networking.hostName = "nixos-laptop";
-  # TODO - Debug why this rule isn't working.
   security.polkit.enable = true;
   security.polkit.extraConfig = ''
     /* Don't require sudo for reboot/power-off */
@@ -247,18 +229,14 @@ in
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
-    # xdgOpenUsePortal = true; # This breaks a LOT when using Mimeo. Must research later.
   };
 
   programs.zsh.enable = true;
   programs.fish.enable = true;
 
-  # May be unnecessary if Hyprland is installed
-  services.libinput.enable = true;
-
   services.dbus = {
     enable = true;
-    packages = [ pkgs.dconf ];
+    packages = with pkgs; [ dconf ];
   };
 
   systemd.services.fprintd = {
@@ -273,15 +251,6 @@ in
   services.upower.enable = true;
 
   system.userActivationScripts = {
-    # When the Brave/Chromium hash changes, all PWA desktop files break. This ensures that when updating Brave, any PWAs installed between the last rebuild and now get updated with the proper bin paths.
-    # Notably, this uses the second layer of wrappers; if this were somehow the start of the Brave instance, it would bypass the Wayland/trackpad flags. A more complicated regex would be required to fix this, specifically one that targets both `brave-browser` and `brave` in the `Exec` field
-    # TODO:
-    # - Put this in its own module alongside brave.
-    updateBravePWAs = {
-      text = ''
-        find "$HOME/.local/share/applications/" -name "brave-*.desktop" -type f -exec ${pkgs.gnused}/bin/sed -i 's|^Exec=.*/brave-browser|Exec=${brave}/opt/brave.com/brave/brave-browser|' {} \;
-      '';
-    };
     setNpmBinDirectory = {
       text = ''
         ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
@@ -302,31 +271,27 @@ in
     ];
     shell = pkgs.zsh;
   };
+
   nixpkgs.config.allowUnfree = true;
 
-  # Disable default `l`, `ll` aliases
-  environment.shellAliases = lib.mkForce { };
+  environment.shellAliases = lib.mkForce { }; # Disable default `l`, `ll` aliases
 
   services.syncthing = {
     enable = true;
-
-    # TODO: Figure out how to prepend my system username to these paths
     user = "jacksonb";
     configDir = "/home/jacksonb/.config/syncthing";
   };
 
-  documentation.dev.enable = true; # Lets us use man 3
+  documentation.dev.enable = true;
 
   qt = {
     enable = true;
-    # platformTheme = lib.mkForce "gtk2";
-    # style = lib.mkForce "gtk2";
   };
 
   programs.gamescope = {
     enable = true;
     package = pkgs.unstable.gamescope;
-    capSysNice = false; # this is unavailable for now, sadly
+    capSysNice = false;
     args = [
       "--expose-wayland"
     ];
@@ -340,8 +305,7 @@ in
     localNetworkGameTransfers.openFirewall = true;
     gamescopeSession.enable = true;
     extraPackages = with pkgs; [
-      # Needed for Gamescope session?
-      coreutils
+      coreutils # Needed for Gamescope session
     ];
   };
 
@@ -381,7 +345,6 @@ in
   #  };
 
   environment.systemPackages = with pkgs; [
-
     # Shell Apps
     gnupg
     pinentry-gnome3
@@ -405,7 +368,7 @@ in
     btop
     unstable.pay-respects
     unstable.gh
-    psmisc # fuser, pstree
+    psmisc # Provides fuser, pstree
     unzip
     gtypist
     gcc
@@ -454,17 +417,18 @@ in
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
 
-    brave
+    (brave.override {
+      commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
+    })
 
     (activitywatch.override {
       extraWatchers = with pkgs; [ aw-watcher-window-wayland ];
     })
 
-    # unstable.godot-mono # Unusuable until Dotnet is able to access libicu; this is addressed in my module
     (unstable.callPackage ./modules/godot-mono.nix { })
 
     # Desktop Environment Apps
-    eog # Image Viewer
+    eog
     gucharmap
     zathura
     (texliveMedium.withPackages (
@@ -480,7 +444,6 @@ in
     nwg-look
     calibre
     libreoffice-fresh
-    # clipboard-jh # Waiting for https://github.com/Slackadays/Clipboard/issues/171
     (unstable.rofi.override {
       plugins = [
         unstable.rofi-calc
@@ -498,8 +461,6 @@ in
     unstable.ddcutil
     hyprpicker
     hyprpolkitagent
-    # unstable.hyprpicker
-    # unstable.hyprpolkitagent
     polkit_gnome
     via
     wev
@@ -508,24 +469,17 @@ in
     syncthingtray
     vscodium
     android-file-transfer
-    # unstable.freecad-wayland
     unstable.openscad-lsp
     (unstable.callPackage ./modules/kotlin-lsp.nix { })
     xdotool # Needed for Steam https://wiki.hyprland.org/Configuring/Uncommon-tips--tricks/#minimize-steam-instead-of-killing
 
-    grim # https://sr.ht/~emersion/grim/ TODO: Replace with https://github.com/eriedaberrie/grim-hyprland
-    slurp # https://github.com/emersion/slurp?tab=readme-ov-file
-    wf-recorder # https://github.com/ammen99/wf-recorder
+    grim # TODO: Consider replacing with https://github.com/eriedaberrie/grim-hyprland
+    slurp
+    wf-recorder
 
-    # The following is impure since it is not a locked reference, or something, meaning
-    # we need to build with --impure. I'm not sure if it's even possible to get it properly locked
-    # using only getFlake, opting for a flake input instead. For now, --impure is fine, and is included
-    # in the nixos-rebuild custom command.
-    # TODO: Put this in my actual flake so that it can get version locked, or somehow make it follow my system flake
     (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default
     nordic
 
-    # Graphical Apps
     vlc
     d-spy
     unstable.kitty
@@ -596,7 +550,6 @@ in
 
     hydra-check
 
-    # language servers
     lua-language-server
     clang-tools
     nixd
@@ -606,13 +559,10 @@ in
     pyright
     taplo
     unstable.tombi
-    hyprls
     vala-language-server
     perlnavigator
-
-    # TODO: Test if removing these speeds up evaluation time
-    nodePackages.typescript-language-server
-    nodePackages.bash-language-server
+    typescript-language-server
+    bash-language-server
 
     unstable.rustc
     unstable.cargo
@@ -648,11 +598,6 @@ in
     })
 
     seahorse
-    # unstable.gamescope
-    # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
-    # (import (builtins.fetchTarball {
-    #   url = "https://github.com/NixOS/nixpkgs/archive/3e2cf88148e732abc1d259286123e06a9d8c964a.tar.gz";
-    # }) { }).gamescope
   ];
 
   fonts.packages = with pkgs; [

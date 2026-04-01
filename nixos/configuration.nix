@@ -622,7 +622,7 @@
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     COPY_UTIL = "wl-copy";
     NIXOS_OZONE_WL = "1";
-    STEAM_FORCE_DESKTOPUI_SCALING = "1.2"; # Unfortunately, this also applies to monitors that don't need it.
+    STEAM_FORCE_DESKTOPUI_SCALING = "1.2";
     LIBVA_DRIVER_NAME = "iHD";
 
     POWERSHELL_UPDATECHECK = "Off"; # Disable PowerShell's update notification; is this worth making a PR for?

@@ -631,6 +631,8 @@ in
     (pass.override {
       waylandSupport = true;
     })
+
+    seahorse
     # unstable.gamescope
     # Gamescope v3.16.4 is the only one that works on Hyprland right now (8/28/25)
     # (import (builtins.fetchTarball {

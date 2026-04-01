@@ -412,6 +412,7 @@
     distrobox
     hugo
     sshfs
+    unstable.oh-my-posh
 
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)

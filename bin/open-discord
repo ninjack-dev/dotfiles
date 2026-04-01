@@ -1,0 +1,33 @@
+#!/usr/bin/env nu
+
+# Launches the Disord window by using busctl to trigger the "Open Discord" tray interaction to speed things up when running with a flatpak.
+if (pidof "Discord" | complete | get exit_code) != 0 {
+  flatpak run com.discordapp.Discord
+  exit
+}
+
+let services = (busctl -j --user get-property 
+  org.kde.StatusNotifierWatcher /StatusNotifierWatcher # Service, object
+  org.kde.StatusNotifierWatcher RegisteredStatusNotifierItems # Interface, property
+) | from json 
+| get data | parse "{s}/{_}" | get s
+
+let service = busctl --user -j list | from json
+| where process == "Discord"
+| get name
+| where $in in $services | first
+
+# Hardcoded for performance; discovered with the following where $in is the service name:
+# let id = busctl --user --json=short call $in /com/canonical/dbusmenu com.canonical.dbusmenu GetLayout iias -- 0 -1 0 | from json
+# | get data.1.2 # First submenu
+# | where $in.data.1.label?.data == "Open Discord"
+# | first 
+# | get data.0
+let id = 13
+
+(
+  busctl --user call 
+  $service /com/canonical/dbusmenu com.canonical.dbusmenu # Service, object, interface
+  Event isvu # Method, signature
+  $id clicked as 0 0  # For an empty v, I just pass an empty array of strings (as 0). 0 by itself doesn't work.
+)

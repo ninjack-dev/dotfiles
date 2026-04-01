@@ -375,7 +375,6 @@
     gnumake
     bc
     gdb
-    bind
     unstable.neovim
     unstable.neovide
     unstable.evil-helix
@@ -498,17 +497,17 @@
 
     (unstable.obsidian.overrideAttrs (
       final: prev: {
-        buildInputs = prev.buildInputs ++ [
+        nativeBuildInputs = prev.nativeBuildInputs ++ [
           asar
           jq
         ];
-        postPatch = ''
-          mkdir app
-          asar extract ./resources/app.asar ./app
-          mv ./app/package.json ./package.json.old
-          jq '.desktopName = "obsidian"' ./package.json.old > ./app/package.json
-          asar pack ./app ./resources/app.asar
-          rm -r ./app ./package.json.old
+        buildPhase = ''
+          runHook preBuild
+          asar extract resources/app.asar app
+          jq '.desktopName = "obsidian"' app/package.json > package.json
+          mv package.json app/package.json
+          asar pack app resources/app.asar
+          runHook postBuild
         '';
       }
     ))
@@ -606,8 +605,6 @@
   ];
   fonts.enableDefaultPackages = true;
 
-  # Neither environment.variables or environment.sessionVariables can export these during a login session post-rebuild
-  # or at least not that I've found. A relogin is required
   environment.sessionVariables = {
     XDG_CONFIG_HOME = "$HOME/.config";
     XDG_CACHE_HOME = "$HOME/.cache";

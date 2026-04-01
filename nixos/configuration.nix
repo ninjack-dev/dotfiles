@@ -542,7 +542,22 @@ in
     gparted
     udiskie
 
-    unstable.obsidian
+    (unstable.obsidian.overrideAttrs (
+      final: prev: {
+        buildInputs = prev.buildInputs ++ [
+          asar
+          jq
+        ];
+        postPatch = ''
+          mkdir app
+          asar extract ./resources/app.asar ./app
+          mv ./app/package.json ./package.json.old
+          jq '.desktopName = "obsidian"' ./package.json.old > ./app/package.json
+          asar pack ./app ./resources/app.asar
+          rm -r ./app ./package.json.old
+        '';
+      }
+    ))
 
     gimp3
 

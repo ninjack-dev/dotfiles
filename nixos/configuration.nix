@@ -76,6 +76,11 @@ in
 
   services.envfs.enable = true;
 
+  services.resolved = {
+    enable = true;
+    extraConfig = "ResolveUnicastSingleLabel=yes";
+  };
+
   # The E14 gen 6 nixos-hardware module apparently enables TLP.
   # TODO: Determine if replacing TLP with auto-cpufreq is ideal.
   # services.auto-cpufreq.enable = true;

@@ -15,4 +15,4 @@ To minimize the need for load order management, files are organized like so:
 3) `./after/plugin/` - Dependency-reliant config, e.g. key mappings, language server config, etc.
 
 ### Scripts
-`./scripts/` contains CLI utilities for use in Neovim terminals. One example is `nvin`, which accepts content from standard input (e.g. from commands) and pipes them into a buffer Neovim.
+`./scripts/` contains CLI utilities for use in Neovim terminals. One example is `nvin`, which accepts content from standard input (e.g. from commands) and pipes them into a buffer in Neovim.

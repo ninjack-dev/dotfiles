@@ -10,9 +10,9 @@ TODO:
 ## Structure
 ### Load Order
 To minimize the need for load order management, files are organized like so:
-1) `./lua/` - Dependency-free config, autocommands, etc. Must be `require`d in `init.lua`; should be kept relatively small. If there are plugins in `./plugin/` which have a dependency, they should be `vim.pack.add`ed in this directory. It also contains `utils`.
-2) `./plugin/` - All third-party plugins
-3) `./after/plugin/` - Dependency-oriented config, e.g. key mappings, language server config, etc.
+1) `./lua/` - Dependency-free config, autocommands, etc. These must be `require`d in `init.lua`; it should be kept relatively small. If there are plugins in `./plugin/` which have a dependency, they should be `vim.pack.add`ed in this directory instead of `./plugin/`. It also contains `utils/`.
+2) `./plugin/` - All third-party plugins and their configuration.
+3) `./after/plugin/` - Dependency-reliant config, e.g. key mappings, language server config, etc.
 
 ### Scripts
-`./scripts/` contains CLI utilities meant to be usable from a terminal managed by the Neovim session. One example is `nvin`, which accepts file contents from standard input and pipes them into a buffer in the parent Neovim.
+`./scripts/` contains CLI utilities for use in Neovim terminals. One example is `nvin`, which accepts content from standard input (e.g. from commands) and pipes them into a buffer Neovim.

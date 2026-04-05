@@ -30,7 +30,9 @@ elseif vim.env.TERM:match("kitty") then
   -- Adapted from bg.nvim https://github.com/typicode/bg.nvim/blob/main/plugin/bg.lua, modded to allow :restart
   -- Needs either debugging, or for new_tty post-:restart to be fixed; #38755 is potentially related.
 
-  local cmdstr = function(s) return vim.split(s, " ", {}) end
+  local cmdstr = function(s)
+    return vim.split(s, " ", {})
+  end
 
   local update_count = 0
   ---@type uv.uv_tty_t|nil

@@ -28,8 +28,6 @@ if vim.g.neovide then
   )
 elseif vim.env.TERM:match("kitty") then
   -- Adapted from bg.nvim https://github.com/typicode/bg.nvim/blob/main/plugin/bg.lua, modded to allow :restart
-  -- Needs either debugging, or for new_tty post-:restart to be fixed; #38755 is potentially related.
-
   local cmdstr = function(s)
     return vim.split(s, " ", {})
   end
@@ -89,5 +87,5 @@ elseif vim.env.TERM:match("kitty") then
 
   vim.api.nvim_create_autocmd({ "UIEnter" }, { callback = init })
   vim.api.nvim_create_autocmd({ "ColorScheme" }, { callback = update })
-  vim.api.nvim_create_autocmd({ "UILeave" }, { callback = reset })
+  vim.api.nvim_create_autocmd({ "UILeave", "VimLeavePre" --[[ Waiting on #38836 ]] }, { callback = reset })
 end

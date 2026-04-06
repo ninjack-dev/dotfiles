@@ -424,6 +424,7 @@
     })
 
     (unstable.callPackage ./modules/godot-mono.nix { })
+    unstable.gdscript-formatter
 
     # Desktop Environment Apps
     eog
@@ -531,6 +532,7 @@
     ))
     unstable.go
     lua
+    stylua
     gopls
     gjs
     flatpak-builder

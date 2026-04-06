@@ -1,33 +1,36 @@
 local map = vim.keymap.set
 
-map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to window above" })
-map("n", "<C-k>", "<C-w>k", { desc = "Go window below" })
+-- See :help <Tab>
+map("n", "<C-m>", "<C-m>")
+map("n", "<C-i>", "<C-i>")
 
-map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
-map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+map("n", "<C-h>", "<C-w>h", { desc = 'Move focus to the left window' })
+map("n", "<C-l>", "<C-w>l", { desc = 'Move focus to the right window' })
+map("n", "<C-j>", "<C-w>j", { desc = 'Move focus to the lower window' })
+map("n", "<C-k>", "<C-w>k", { desc = 'Move focus to the upper window' })
 
-map("n", "<leader>D", vim.lsp.buf.type_definition, { desc = "Go to type definition" })
+map("n", "<C-S-h>", "<C-w>H", { desc = "Move window left" })
+map("n", "<C-S-l>", "<C-w>L", { desc = "Move window right" })
+map("n", "<C-S-j>", "<C-w>J", { desc = "Move window down" })
+map("n", "<C-S-k>", "<C-w>K", { desc = "Move window up" })
 
 -- TODO: Conditionally map this when in terminal that supports <C-Esc>
 map("t", "<C-Esc>", "<C-\\><C-N>", { desc = "Exit terminal mode" })
+
+map("n", "<C-n>", MiniFiles.open, { desc = "Open file picker" })
 
 map("n", "<leader>n", function()
   vim.o.number = not vim.o.number or vim.o.relativenumber
   vim.o.relativenumber = vim.o.number and not vim.o.relativenumber
 end, { desc = "Cycle between enabled, relative, and disabled line number" })
 
-map("n", "<Esc>", "<cmd>noh<CR>", { desc = "Clear search highlights" })
+map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 
--- See :help <Tab>
-map("n", "<C-m>", "<C-m>")
-map("n", "<C-i>", "<C-i>")
-
-map("n", "<leader>/", "gcc", { desc = "toggle comment", remap = true })
-map("v", "<leader>/", "gc", { desc = "toggle comment", remap = true })
+map("n", "<leader>/", "gcc", { desc = "Toggle comment", remap = true })
+map("v", "<leader>/", "gc", { desc = "Toggle comment", remap = true })
 
 map("n", "<C-w><C-m>", function()
+  -- TODO: port this to lua
   vim.cmd([[
     let longest = max(map(range(1, line('$')), "virtcol([v:val, '$'])"))
     exec "vertical resize " . (longest + 4)
@@ -56,8 +59,6 @@ map("n", "<leader>my", function()
   print("Yanked as markdown code block to clipboard.")
 end, { silent = true, desc = "Yank file and format as Markdown code block" })
 
-map("n", "<leader>mk", ":make<CR>", { desc = "Run makeprg" })
-
 -- Replaces :ascii
 map({ "n", "x", "o" }, "ga", function()
   require("nvim-treesitter-textobjects.move").goto_next_start("@parameter.inner", "textobjects")
@@ -75,17 +76,7 @@ map({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
 map({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
 map({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
 
--- See block related to #38558
-local function reset_vmode()
-  local mode = vim.fn.mode()
-  if mode ~= "x" and mode ~= "v" and mode ~= "o" then
-    vim.cmd.normal({ "v\27", bang = true })
-  end
-end
-
--- Idea attribution: https://www.reddit.com/r/neovim/comments/1s9q0pi/comment/oduz87k
 map({ "n", "x", "o" }, "<CR>", function()
-  reset_vmode()
   if vim.fn.mode() == "n" then
     require("vim.treesitter._select").select_child(vim.v.count1)
   else
@@ -94,7 +85,6 @@ map({ "n", "x", "o" }, "<CR>", function()
 end, { desc = "Expand node selection" })
 
 map({ "n", "x", "o" }, "<BS>", function()
-  reset_vmode()
   if vim.treesitter.get_parser(nil, nil, { error = false }) then
     require("vim.treesitter._select").select_child(vim.v.count1)
   else
@@ -102,36 +92,11 @@ map({ "n", "x", "o" }, "<BS>", function()
   end
 end, { desc = "Shrink node selection" })
 
--- Replacements for some new builtins; when #38558 is available (likely v0.12.1), these (and reset_vmode) can be removed
-do
-  map({ "x" }, "[n", function()
-    reset_vmode()
-    require("vim.treesitter._select").select_prev(vim.v.count1)
-  end, { desc = "Select previous node" })
+map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+map("n", "<leader>D", vim.lsp.buf.type_definition, { desc = "Go to type definition" })
 
-  map({ "x" }, "]n", function()
-    reset_vmode()
-    require("vim.treesitter._select").select_next(vim.v.count1)
-  end, { desc = "Select next node" })
-
-  map({ "x", "o" }, "an", function()
-    if vim.treesitter.get_parser(nil, nil, { error = false }) then
-      reset_vmode()
-      require("vim.treesitter._select").select_parent(vim.v.count1)
-    else
-      vim.lsp.buf.selection_range(vim.v.count1)
-    end
-  end, { desc = "Select parent (outer) node" })
-
-  map({ "x", "o" }, "in", function()
-    if vim.treesitter.get_parser(nil, nil, { error = false }) then
-      reset_vmode()
-      require("vim.treesitter._select").select_child(vim.v.count1)
-    else
-      vim.lsp.buf.selection_range(-vim.v.count1)
-    end
-  end, { desc = "Select child (inner) node" })
-end
+map("n", "<leader>mk", ":make<CR>", { desc = "Run makeprg" })
 
 vim.keymap.set({ "n", "x" }, "<leader>fm", function()
   require("conform").format({ lsp_fallback = true })

@@ -25,6 +25,11 @@
 
   programs.nix-ld = {
     enable = true;
+    libraries =
+      with pkgs;
+      [ fuse ]
+      ++ (pkgs.appimageTools.defaultFhsEnvArgs.targetPkgs pkgs)
+      ++ (pkgs.appimageTools.defaultFhsEnvArgs.multiPkgs pkgs);
   };
 
   programs.command-not-found.enable = false;
@@ -172,28 +177,6 @@
 
   programs.appimage = {
     enable = true;
-    binfmt = true;
-    package = (
-      pkgs.appimage-run.override {
-        # appimage-run has some irritating output which can mess up CLI interactions. Removed here.
-        appimageTools = pkgs.appimageTools // {
-          appimage-exec = (
-            pkgs.appimageTools.appimage-exec.overrideAttrs (prev: {
-              src = pkgs.writeShellScript "appimage-exec.sh" (
-                builtins.replaceStrings
-                  [ "else echo \"$(basename \"$APPIMAGE\")\" installed in \"$APPDIR\"\n" ]
-                  [ "" ]
-                  (builtins.readFile prev.src)
-              );
-            })
-          );
-        };
-        extraPkgs =
-          pkgs: with pkgs; [
-            libthai
-          ];
-      }
-    );
   };
 
   programs.kdeconnect.enable = true;

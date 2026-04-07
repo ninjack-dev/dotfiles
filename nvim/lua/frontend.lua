@@ -87,5 +87,7 @@ elseif vim.env.TERM:match("kitty") then
 
   vim.api.nvim_create_autocmd({ "UIEnter" }, { callback = init })
   vim.api.nvim_create_autocmd({ "ColorScheme" }, { callback = update })
-  vim.api.nvim_create_autocmd({ "UILeave", "VimLeavePre" --[[ Waiting on #38836 ]] }, { callback = reset })
+  vim.api.nvim_create_autocmd({ "UILeave" }, { callback = reset })
+
+  vim.system({ 'cat' }, function () end) -- Apply workaround listed in #38836
 end

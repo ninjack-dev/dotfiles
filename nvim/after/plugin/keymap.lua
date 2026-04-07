@@ -47,8 +47,8 @@ local markdown_codeblock_opts = {
   confirm_language_substitution = false,
 }
 
-map("v", "<leader>my", function()
-  vim.cmd("y+")
+map({ "x", "o" }, "<leader>my", function()
+  vim.cmd("normal! \"+y")
   require("utils.markdown_codeblock").markdown_codeblock(markdown_codeblock_opts)
   print("Yanked as markdown code block to clipboard.")
 end, { silent = true, desc = "Yank block and format as Markdown code block" })

@@ -4,10 +4,10 @@ local map = vim.keymap.set
 map("n", "<C-m>", "<C-m>")
 map("n", "<C-i>", "<C-i>")
 
-map("n", "<C-h>", "<C-w>h", { desc = 'Move focus to the left window' })
-map("n", "<C-l>", "<C-w>l", { desc = 'Move focus to the right window' })
-map("n", "<C-j>", "<C-w>j", { desc = 'Move focus to the lower window' })
-map("n", "<C-k>", "<C-w>k", { desc = 'Move focus to the upper window' })
+map("n", "<C-h>", "<C-w>h", { desc = "Move focus to the left window" })
+map("n", "<C-l>", "<C-w>l", { desc = "Move focus to the right window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move focus to the lower window" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move focus to the upper window" })
 
 map("n", "<C-S-h>", "<C-w>H", { desc = "Move window left" })
 map("n", "<C-S-l>", "<C-w>L", { desc = "Move window right" })
@@ -76,21 +76,24 @@ map({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
 map({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
 map({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
 
-map({ "n", "x", "o" }, "<CR>", function()
-  if vim.fn.mode() == "n" then
-    require("vim.treesitter._select").select_child(vim.v.count1)
-  else
-    require("vim.treesitter._select").select_parent(vim.v.count1)
-  end
-end, { desc = "Expand node selection" })
-
-map({ "n", "x", "o" }, "<BS>", function()
-  if vim.treesitter.get_parser(nil, nil, { error = false }) then
-    require("vim.treesitter._select").select_child(vim.v.count1)
-  else
-    vim.lsp.buf.selection_range(vim.v.count1)
-  end
-end, { desc = "Shrink node selection" })
+-- I like the idea behind these, but:
+-- 1) I have yet to find a proper use for it
+-- 2) It messes up certain menus, e.g. the quickfix list
+-- map({ "n", "x", "o" }, "<CR>", function()
+--   if vim.fn.mode() == "n" then
+--     require("vim.treesitter._select").select_child(vim.v.count1)
+--   else
+--     require("vim.treesitter._select").select_parent(vim.v.count1)
+--   end
+-- end, { desc = "Expand node selection" })
+--
+-- map({ "n", "x", "o" }, "<BS>", function()
+--   if vim.treesitter.get_parser(nil, nil, { error = false }) then
+--     require("vim.treesitter._select").select_child(vim.v.count1)
+--   else
+--     vim.lsp.buf.selection_range(vim.v.count1)
+--   end
+-- end, { desc = "Shrink node selection" })
 
 map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
 map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })

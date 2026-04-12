@@ -88,17 +88,16 @@ fzf-cd-widget() {
   return $ret
 }
 
-FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
-FZF_ALT_C_COMMAND="fd --hidden --type directory --exclude .git"
-FZF_CTRL_T_COMMAND="fd -H --full-path"
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+export FZF_ALT_C_COMMAND="fd --hidden --type directory --exclude .git"
+export FZF_CTRL_T_COMMAND="fd --hidden --exclude .git . \$dir" # $dir is not typically set by FZF unless in Fish, but is added by the custom widget
 
 # Custom FZF file widget to expand paths currently being edited.
 # TODO: 
-# - Debug FZF_CTRL_T_COMMAND
 # - Update Regex to allow for escaped spaces
 # - Allow for path in quotes (need to pull path out of quotes)
 fzf-file-widget() {
-  #WIP
+  # WIP
   # Extract token under cursor, handling escaped spaces
   # local left="$LBUFFER"
   # local right="$RBUFFER"
@@ -116,20 +115,15 @@ fzf-file-widget() {
   # fi
   # token="${token_left}${token_right}"
 
-  # Regex match on left-of-cursor buffer; captures preceeding non-whitespace.
-  local token="${LBUFFER##*[[:space:]]}"
-  # Regex match on right-of-cursor buffer; captures leading non-whitespace.
-  [[ "$RBUFFER" =~ '^([^[:space:]]*)' ]] && token+="${match[1]}"
-  # [[ "$RBUFFER" =~ '^(([^[:space:]\\]|\\.)*)' ]] && token+="${match[1]}"
-
-  # token="${words[$CURRENT]}" 
+  
+  local token="${LBUFFER##*[[:space:]]}" # Regex match on left-of-cursor buffer; captures preceeding non-whitespace.
+  [[ "$RBUFFER" =~ '^([^[:space:]]*)' ]] && token+="${match[1]}" # Regex match on right-of-cursor buffer; captures leading non-whitespace.
 
   local original_token=$token
   local expanded_token=${~token} # Expands ~ and variables
 
   local parent base
 
-  # If token is empty, fallback to default behavior
   if [[ -z "$expanded_token" ]]; then
     LBUFFER="${LBUFFER}$(__fzf_select)"
     local ret=$?
@@ -137,12 +131,12 @@ fzf-file-widget() {
     return $ret
   fi
 
-  parent=${expanded_token:h} # Head of path in token, e.g. /foo/bar -> /foo/
-  base=${expanded_token:t} # Tail of path in token, e.g. /foo/bar -> bar
+  parent=${expanded_token:h} # Head of path in token, e.g. /foo/bar/baz -> /foo/bar
+  base=${expanded_token:t} # Tail of path in token, e.g. /foo/bar/baz -> baz
 
   if [[ -d "$expanded_token" ]]; then
     # If token is a directory, start search there
-    new_path=$(__fzf_select --walker-root "$expanded_token")
+    new_path=$(dir="$expanded_token" __fzf_select --walker-root "$expanded_token")
     if [[ -n "$new_path" ]]; then
       LBUFFER="${LBUFFER/$original_token/$new_path}"
     fi
@@ -151,7 +145,7 @@ fzf-file-widget() {
     :
   elif [[ -d "$parent" ]]; then
     # If parent is a directory, set walker-root and pre-query base
-    new_path=$(__fzf_select --walker-root "$parent" --query "$base")
+    new_path=$(dir="$parent" __fzf_select --walker-root "$parent" --query "$base")
     if [[ -n "$new_path" ]]; then 
       LBUFFER="${LBUFFER[1,-${#token}-1]}$new_path" # Replace current token with the new, expanded path
     fi

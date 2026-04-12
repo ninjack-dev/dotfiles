@@ -1,6 +1,6 @@
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)" # If ZINIT_HOME folder isn't present, make it.
-[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" # If the git folderisn't present, clone the repo.  
+[[ ! -d $ZINIT_HOME ]] && mkdir -p "$(dirname $ZINIT_HOME)"
+[[ ! -d $ZINIT_HOME/.git ]] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
 zinit light zsh-users/zsh-syntax-highlighting
@@ -11,10 +11,10 @@ HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000
 SAVEHIST=$HISTSIZE
 setopt appendhistory
-setopt sharehistory 
-setopt hist_ignore_space # prepend a space to prevent addition to history
+setopt sharehistory
+setopt hist_ignore_space
 
-stty -ctlecho # This disables the ^C echoing when killing an app
+stty -ctlecho
 
 setopt autocd
 unsetopt beep
@@ -64,9 +64,9 @@ nix-which() {
 }
 
 ## Shell Integrations ##
-eval "$(zoxide init zsh --cmd cd)"
+source <(zoxide init zsh --cmd cd)
 
-eval "$(fzf --zsh)"
+source <(fzf --zsh)
 
 # Custom FZF cd widget which uses zoxide
 fzf-cd-widget() {
@@ -162,11 +162,10 @@ fzf-file-widget() {
 # pay-respects integration https://github.com/iffse/pay-respects
 # Escaped hexadecimal: `echo -n "a_family_friendly_alias" | od -A n -t x1 | sed 's/ /\\0x/g' | tr -d '\n' | awk "{ printf \"\$(echo -n '\"\$1 \"')\"}" | wl-copy`
 local respects_alias=$(echo '\0x66\0x75\0x63\0x6b')
-eval "$(pay-respects zsh --alias $respects_alias)"
-for i in $(seq 1 10); do
+for i in {1..10}; do
   alias $(echo -n '\0x73\0x68'$(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias
 done
-for i in $(seq 2 10); do
+for i in {2..10}; do
   alias $(echo -n '\0x66'$(for j in $(seq 1 $i); do echo -n '\0x75'; done)'\0x63\0x6b')=$respects_alias
 done
 alias $(echo -n '\0x67\0x6f\0x64\0x66\0x75\0x63\0x6b\0x69\0x6e')=$respects_alias
@@ -175,8 +174,11 @@ alias $(echo -n '\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
 alias $(echo -n '\0x67\0x6f\0x64\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
 alias $(echo -n '\0x66\0x75\0x63\0x6b\0x69\0x6e\0x68\0x65\0x6c\0x6c')=$respects_alias
 
-eval "$(direnv hook zsh)"
-if [ "$TERM" != "linux" ]; then
+source <(pay-respects zsh --alias "$respects_alias")
+
+source <(direnv hook zsh)
+
+if [[ "$TERM" != "linux" ]]; then
   eval "$(oh-my-posh init zsh)"
 fi
 

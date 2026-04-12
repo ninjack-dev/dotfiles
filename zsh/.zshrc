@@ -222,17 +222,9 @@ nvsel() {
   done;
 }
 
-# Built for handling args designed for Neovim, but not for Neovide (to run Neovide with typical args, run `neovide/nvid <args>`)
 nvim_neovide_handler()
 {
-  for arg in "$@"; do
-    if [[ "$arg" == "--help" ]]; then
-      \nvim --help
-      return 0
-    fi
-  done
-
-  neovide --fork -- "$@"
+  neovide --fork -- --embed "$@"
 }
 
 fzf_with_preview()

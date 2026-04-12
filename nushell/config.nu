@@ -5,7 +5,7 @@ $env.config.show_banner = false
 # 
 # I've found that it's rather slow, and could really benefit from some kind of caching or background work.
 let fish_completer = {|spans|
-    fish --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+    fish --no-config --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
     | from tsv --flexible --noheaders --no-infer
     | rename value description
     | update value {|row|

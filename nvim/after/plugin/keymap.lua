@@ -4,6 +4,14 @@ local map = vim.keymap.set
 map("n", "<C-m>", "<C-m>")
 map("n", "<C-i>", "<C-i>")
 
+for i = 1, 10 do
+  local key = (i == 10) and "0" or tostring(i)
+  map("n", "<A-" .. key .. ">", function()
+    local bufnr = require("utils.buffer_list").by_index(i)
+    vim.cmd.buffer(bufnr)
+  end, { silent = true , desc = "Select " .. require("utils.display_utils").ordinal(i) .. " buffer in list" })
+end
+
 map("n", "<C-h>", "<C-w>h", { desc = "Move focus to the left window" })
 map("n", "<C-l>", "<C-w>l", { desc = "Move focus to the right window" })
 map("n", "<C-j>", "<C-w>j", { desc = "Move focus to the lower window" })

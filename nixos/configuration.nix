@@ -5,6 +5,15 @@
   config,
   ...
 }:
+let
+  dotnet = (
+    with pkgs.unstable.dotnetCorePackages;
+    combinePackages [
+      sdk_9_0_1xx
+      sdk_10_0_1xx
+    ]
+  );
+in
 {
   disabledModules = [
     "services/networking/netbird.nix"
@@ -423,7 +432,7 @@
       extraWatchers = with pkgs; [ aw-watcher-window-wayland ];
     })
 
-    (unstable.callPackage ./modules/godot-mono.nix { })
+    (unstable.callPackage ./modules/godot-mono.nix { inherit dotnet; })
     unstable.gdscript-formatter
 
     # Desktop Environment Apps
@@ -583,14 +592,9 @@
 
     unstable.ventoy
 
+    dotnet
     unstable.csharp-ls
-    (
-      with unstable.dotnetCorePackages;
-      combinePackages [
-        sdk_9_0_1xx
-        sdk_10_0-bin
-      ]
-    )
+
     git-credential-manager
 
     (pass.override {

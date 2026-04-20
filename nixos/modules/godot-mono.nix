@@ -6,7 +6,6 @@
   lib,
   fetchurl,
   autoPatchelfHook,
-  dotnetCorePackages,
   wayland,
   unzip,
   makeWrapper,
@@ -29,7 +28,9 @@
   imagemagick,
   vulkan-loader,
   dbus,
-  withVersion ? "4.6.1-stable",
+  dotnetCorePackages,
+  withVersion ? "4.6.2-stable",
+  dotnet ? dotnetCorePackages.sdk_9_0_1xx,
 }:
 
 stdenv.mkDerivation (finalAttrs: rec {
@@ -38,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   src = fetchurl {
     url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_mono_linux_x86_64.zip";
-    hash = "sha256-NwjXTxmma3E59roAVcyrC7wu13HDdSQm/lkEbBsIahc=";
+    hash = "sha256-fVMwLDFkitmLYg6MpbDIacEGZJV3DmKy+ncM/rAE8Wc=";
   };
 
   icon = fetchurl {
@@ -111,8 +112,8 @@ stdenv.mkDerivation (finalAttrs: rec {
     wrapProgram $out/bin/godot \
       --set "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT" 1 \
       --set LD_LIBRARY_PATH ${libraries} \
-      --set DOTNET_ROOT "${dotnetCorePackages.sdk_9_0_1xx}" \
-      --prefix PATH : ${lib.makeBinPath [ dotnetCorePackages.sdk_9_0_1xx ]} \
+      --set DOTNET_ROOT "${dotnet}" \
+      --prefix PATH : ${lib.makeBinPath [ dotnet ]} \
       --add-flags "--display-driver wayland"
   '';
 

@@ -6,7 +6,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "conform": {
-      "rev": "086a40dc7ed8242c03be9f47fbcee68699cc2395",
+      "rev": "dca1a190aa85f9065979ef35802fb77131911106",
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "friendly-snippets": {
@@ -19,11 +19,11 @@
       "version": "1.0.0 - 2.0.0"
     },
     "lspconfig": {
-      "rev": "3c156abc4f7912f66d8687512d75b939b14fbc42",
+      "rev": "b66a8ce16b141cd26576267e2d1f371d658b7bb7",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "mini.nvim": {
-      "rev": "c67822c53e8e282fe863343e88aa0a8ca3534059",
+      "rev": "be81509b7160aa02264a59789164a2e1c4a6750a",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "nvim-treesitter": {

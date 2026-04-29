@@ -1,4 +1,4 @@
-local lsp_file = "lua/lsp.lua"
+local lsp_file = "after/plugin/lsp.lua"
 -- Sort the `servers` table alphabetically in lspconfig.lua
 -- This is the "magic numbers" version which works and is half the size, but it's near impossible to read.
 -- TOOD:

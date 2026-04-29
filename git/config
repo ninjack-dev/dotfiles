@@ -1,6 +1,6 @@
 [user]
 	email = 84806918+ninjack-dev@users.noreply.github.com
-	name = Jackson Breit
+	name = ninjack-dev
 [credential "https://github.com"]
 	llhelper = 
 	helper = 
@@ -9,6 +9,8 @@
 	llhelper = 
 	helper = 
 	helper = !/run/current-system/sw/bin/gh auth git-credential
+[credential "https://codeberg.org"] 
+  helper = cache
 [init]
 	defaultBranch = main
 [push]
@@ -23,3 +25,9 @@
 	required = true
 [include]
   path = "private"
+[includeIf "hasconfig:remote.origin.url:github.com"]
+    path = "github"
+[includeIf "hasconfig:remote.origin.url:codeberg.org"]
+    path = "codeberg"
+[color]
+	ui = auto

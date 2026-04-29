@@ -133,4 +133,5 @@ do
   unlearn("n", "<down>", "Use j instead")
   unlearn("n", "<left>", "Use l instead")
   unlearn("n", "<right>", "Use h instead")
+  unlearn("n", "#", "You probably meant to use * instead.")
 end

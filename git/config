@@ -18,6 +18,19 @@
 [alias]
 	stat = status --short
   graph = log --oneline --decorate --graph
+  root = rev-parse --show-toplevel
+  ; Usage: git alias [name]
+  ; Similar output to Bash alias.
+  alias = "!alias() { \
+    a=\"$1\"; \
+    [ -z \"$1\" ] && a=\"*\"; \
+    git config --get-regexp \"alias.$a\" \
+    | awk '{ \
+    gsub(/^alias\\./, \"\", $1); \
+    a = $1; \
+    pattern = \"^\" $1 \" \"; \
+    gsub(pattern, \"\", $0); printf(\"%s=%s\\n\", a, $0) }'; \
+    }; alias "
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

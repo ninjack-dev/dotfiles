@@ -19,6 +19,7 @@ stty -ctlecho
 setopt autocd
 unsetopt beep
 
+setopt extendedglob
 
 ## Keybindings ##
 bindkey -e

@@ -9,7 +9,7 @@ cwd=$(kitty @ ls --to "unix:@kitty-$(hyprctl activewindow -j | jq '.pid')" 2>/de
 '
 .[] | select(.is_active == true).tabs[] 
 | select(.is_active == true).windows[]
-| select(.is_active == true).cwd
+| select(.is_active == true).foreground_processes[0].cwd
 ')
 
 [[ -d $cwd ]] && { cd "$cwd" || exit 1; }

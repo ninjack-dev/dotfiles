@@ -38,9 +38,9 @@
 	required = true
 [include]
   path = "private"
-[includeIf "hasconfig:remote.origin.url:github.com"]
-    path = "github"
-[includeIf "hasconfig:remote.origin.url:codeberg.org"]
-    path = "codeberg"
+[includeIf "hasconfig:remote.origin.url:https://github.com/**"]
+  path = "github"
+[includeIf "hasconfig:remote.origin.url:https://codeberg.org/**"]
+  path = "codeberg"
 [color]
 	ui = auto

@@ -38,6 +38,10 @@ local function create_floating_window(opts)
   return { buf = buf, win = win }
 end
 
+M.get_floating_terminal_buf = function()
+  return state.floating.buf
+end
+
 M.floating_terminal = function()
   if not vim.api.nvim_win_is_valid(state.floating.win) then
     state.floating = create_floating_window({ buf = state.floating.buf })

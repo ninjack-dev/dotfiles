@@ -258,11 +258,15 @@ in
   services.upower.enable = true;
 
   system.userActivationScripts = {
-    setNpmBinDirectory = {
-      text = ''
+    setNpmBinDirectory.text = ''
         ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
       '';
-    };
+    updateHyprlandLuarc.text = ''
+      LUARC_PATH="$XDG_CONFIG_HOME/hypr/.luarc.json"
+      cat <<< "$(${pkgs.jq}/bin/jq ".workspace.library = \
+      \"${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs\"" \
+      "$LUARC_PATH")" > "$LUARC_PATH"
+    '';
   };
 
   users.users.jacksonb = {

@@ -1,11 +1,11 @@
 {
-  description = "System flake.";
+  description = "System flake";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    hyprland.url = "github:hyprwm/Hyprland?ref=v0.54.3";
+    hyprland.url = "github:hyprwm/Hyprland?ref=v0.55.0";
   };
 
   outputs =

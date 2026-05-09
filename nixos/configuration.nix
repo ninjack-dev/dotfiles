@@ -264,7 +264,7 @@ in
     updateHyprlandLuarc.text = ''
       LUARC_PATH="$XDG_CONFIG_HOME/hypr/.luarc.json"
       cat <<< "$(${pkgs.jq}/bin/jq ".workspace.library = \
-      \"${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs\"" \
+      [\"${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs\"]" \
       "$LUARC_PATH")" > "$LUARC_PATH"
     '';
   };

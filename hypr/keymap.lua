@@ -45,6 +45,14 @@ bind(main_mod("SHIFT + L"), hl.dsp.window.move({ direction = "right" }), { descr
 
 bind(main_mod("P"), hl.dsp.window.pin({ window = "floating" }), { description = "Pin the active floating window" })
 
+local jump_list = require("hyprjump").jump_list.setup()
+hl.bind(main_mod("O"), jump_list.jump_down, { description = "Jump backward through window history" })
+hl.bind(main_mod("I"), jump_list.jump_up, { description = "Jump forward through window history" })
+
+local mark_mode = require("hyprjump").mark_mode.setup({ normalize = false })
+hl.bind(main_mod("M"), mark_mode.enter_mark_mode, { description = "Enter mark mode" })
+hl.bind(main_mod("apostrophe"), mark_mode.enter_jump_mode, { description = "Enter jump mode" })
+
 bind(
 	main_mod("Z"),
 	hl.dsp.exec_cmd(

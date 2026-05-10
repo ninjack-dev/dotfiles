@@ -7,11 +7,11 @@ browser_private = "brave --incognito"
 calculator = "qalculate-gtk"
 character_map = "gucharmap"
 
---- Kitty Panels
+-- Kitty Panels
 nvim_search = "kitty \\+kitten panel --lines 10 --focus-policy on-demand --layer top nvim_search.sh"
 btop = "kitty \\+kitten panel --lines 30 --focus-policy on-demand --layer top btop"
 
---- Rofi Menus
+-- Rofi Menus
 menu =
 	'rofi -show combi -combi-modes "hl-window,drun" -modes "hl-window:~/.config/rofi/scripts/hyprland_window_switcher.sh"'
 workspace_renamer =
@@ -43,8 +43,6 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("QT_QPA_PLATFORMTHEME", "gtk2")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
-
--- Look & Feel
 
 hl.config({
 	general = {
@@ -135,6 +133,5 @@ hl.animation({ leaf = "layers", enabled = true, speed = 4, bezier = "myBezier", 
 hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "myBezier", style = "slide bottom" })
 
 require("keymap")
-require("mark_mode")
 require("window_rules")
 require("lenovo_e14")

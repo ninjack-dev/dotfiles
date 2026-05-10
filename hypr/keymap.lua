@@ -97,7 +97,7 @@ bind(
 )
 bind(
 	"XF86AudioLowerVolume",
-	hl.dsp.exec_cmd(string.format("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ %d%%+", volume_delta)),
+	hl.dsp.exec_cmd(string.format("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ %d%%-", volume_delta)),
 	{ description = string.format("Lower volume by %s%%", volume_delta), locked = true, repeating = true }
 )
 bind(

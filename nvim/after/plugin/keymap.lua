@@ -5,7 +5,7 @@ map("n", "<C-m>", "<C-m>")
 map("n", "<C-i>", "<C-i>")
 
 for i = 1, 10 do
-  local key = (i == 10) and "0" or tostring(i)
+  local key = i % 10
   map("n", "<A-" .. key .. ">", function()
     local bufnr = require("utils.buffer_list").by_index(i)
     vim.cmd.buffer(bufnr)

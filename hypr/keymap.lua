@@ -165,7 +165,7 @@ launch(main_mod("Space"), string.format('pkill -f "%s" || %s', menu, menu), "Tog
 
 launch(main_mod("C"), "rofi -show configuration", "Open menu for editing dotfiles")
 
-launch(main_mod("C"), "hyprpicker --autocopy --format=hex", "Open color picker")
+launch(main_mod("SHIFT + C"), "hyprpicker --autocopy --format=hex", "Open color picker")
 
 launch(main_mod("F1"), calculator, "Launch calculator (Qalculate)")
 launch(main_mod("F2"), "launch-named-app Excalidraw", "Launch whiteboard (Excalidraw)")

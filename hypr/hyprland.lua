@@ -8,8 +8,8 @@ calculator = "qalculate-gtk"
 character_map = "gucharmap"
 
 --- Kitty Panels
-nvim_search = "kitty +kitten panel --lines 10 --focus-policy on-demand --layer top nvim_search.sh"
-btop = "kitty +kitten panel --lines 30 --focus-policy on-demand --layer top btop"
+nvim_search = "kitty \\+kitten panel --lines 10 --focus-policy on-demand --layer top nvim_search.sh"
+btop = "kitty \\+kitten panel --lines 30 --focus-policy on-demand --layer top btop"
 
 --- Rofi Menus
 menu =

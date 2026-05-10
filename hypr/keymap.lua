@@ -215,7 +215,7 @@ launch(main_mod("N"), "kitty-cwd-launcher neovide", "Open Neovim")
 
 launch(
 	main_mod("SHIFT + N"),
-	string.format('pkill -f "%s" || "%s"', nvim_search, nvim_search),
+	string.format('pkill -f "%s" || %s', nvim_search, nvim_search),
 	"Launch FZF in a Kitty panel and open the result in Neovim"
 )
-launch(main_mod("Escape"), string.format('pkill -f "%s" || "%s"', btop, btop), "Launch btop in a Kitty panel")
+launch(main_mod("Escape"), string.format('pkill -f "%s" || %s', btop, btop), "Launch btop in a Kitty panel")

@@ -135,5 +135,6 @@ hl.animation({ leaf = "layers", enabled = true, speed = 4, bezier = "myBezier", 
 hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "myBezier", style = "slide bottom" })
 
 require("keymap")
+require("mark_mode")
 require("window_rules")
 require("lenovo_e14")

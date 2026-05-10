@@ -119,6 +119,10 @@ bind(
 	{ description = "Toggle microphone mute", locked = true, repeating = true }
 )
 
+bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { description = "Play/pause current media track" })
+bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { description = "Skip to next media track" })
+bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl prev"), { description = "Skip to prev media track" })
+
 local brightness_delta = 10
 bind(
 	"XF86MonBrightnessUp",

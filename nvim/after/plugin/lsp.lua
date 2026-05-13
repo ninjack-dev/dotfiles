@@ -1,5 +1,12 @@
 ---@type table<string, vim.lsp.Config>
 local servers = {
+  astro = {
+    init_options = {
+      typescript = {
+        tsdk = vim.fn.expand("~/.deno/bin/.typescript/node_modules/typescript/lib"),
+      },
+    },
+  },
   awk_ls = {},
   bashls = {},
   clangd = {},

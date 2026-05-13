@@ -22,7 +22,7 @@ bind(
 )
 
 bind(main_mod("W"), hl.dsp.window.close(), { description = "Close the active window" })
-bind(main_mod("CTRL + Shift_L + Alt_L  + B"), hl.dsp.force_renderer_reload(), { description = "Reload Hyprland" })
+bind(main_mod("CTRL + Shift_L + Alt_L + B"), hl.dsp.force_renderer_reload(), { description = "Reload Hyprland" })
 -- TODO: Replace with hyprshutdown:
 -- hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'")
 bind(main_mod("Delete"), hl.dsp.exit(), { description = "Exit Hyprland" })
@@ -121,7 +121,7 @@ bind(
 
 bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { description = "Play/pause current media track" })
 bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { description = "Skip to next media track" })
-bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl prev"), { description = "Skip to prev media track" })
+bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { description = "Skip to previous media track" })
 
 local brightness_delta = 10
 bind(
@@ -188,6 +188,7 @@ local function get_unique_window(class, program, callback)
 		callback(w)
 		return
 	end
+  local sub
 	sub = hl.on("window.open", function(ew)
 		if ew.class == class then
 			sub:remove()

@@ -9,7 +9,7 @@ for i = 1, 10 do
   map("n", "<A-" .. key .. ">", function()
     local bufnr = require("utils.buffer_list").by_index(i)
     vim.cmd.buffer(bufnr)
-  end, { silent = true , desc = "Select " .. require("utils.display_utils").ordinal(i) .. " buffer in list" })
+  end, { silent = true, desc = "Select " .. require("utils.display_utils").ordinal(i) .. " buffer in list" })
 end
 
 map("n", "<C-h>", "<C-w>h", { desc = "Move focus to the left window" })
@@ -27,7 +27,7 @@ map("t", "<C-Esc>", "<C-\\><C-N>", { desc = "Exit terminal mode" })
 
 map("n", "<C-n>", MiniFiles.open, { desc = "Open file picker" })
 
-map({"n", "t"}, "<A-i>", require("utils.floating_terminal").floating_terminal, { desc = "Toggle floating terminal" })
+map({ "n", "t" }, "<A-i>", require("utils.floating_terminal").floating_terminal, { desc = "Toggle floating terminal" })
 
 map("n", "<leader>n", function()
   vim.o.number = not vim.o.number or vim.o.relativenumber
@@ -58,7 +58,7 @@ local markdown_codeblock_opts = {
 }
 
 map({ "x", "o" }, "<leader>my", function()
-  vim.cmd("normal! \"+y")
+  vim.cmd('normal! "+y')
   require("utils.markdown_codeblock").markdown_codeblock(markdown_codeblock_opts)
   print("Yanked as markdown code block to clipboard.")
 end, { silent = true, desc = "Yank block and format as Markdown code block" })
@@ -111,7 +111,7 @@ map("n", "<leader>D", vim.lsp.buf.type_definition, { desc = "Go to type definiti
 
 map("n", "<leader>mk", ":make<CR>", { desc = "Run makeprg" })
 
-vim.keymap.set({ "n", "x" }, "<leader>fm", function()
+map({ "n", "x" }, "<leader>fm", function()
   require("conform").format({ lsp_fallback = true })
 end, { desc = "Format file" })
 

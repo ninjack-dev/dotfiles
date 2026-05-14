@@ -122,6 +122,18 @@ map("n", "<leader>u", function()
   })
 end, { desc = "Toggle undotree" })
 
+map("n", "<leader>ff", function()
+  MiniPick.builtin.files()
+end, { desc = "Open Mini file picker" })
+
+map("n", "<leader>fb", function()
+  MiniPick.builtin.buffers()
+end, { desc = "Open Mini buffers picker" })
+
+map("n", "<leader>fg", function()
+  MiniPick.builtin.grep_live()
+end, { desc = "Open Mini live search" })
+
 do
   local function unlearn(mode, key, msg)
     vim.keymap.set(mode, key, function()

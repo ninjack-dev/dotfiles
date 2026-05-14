@@ -10,6 +10,7 @@ require("mini.surround").setup()
 -- Workflow
 require("mini.files").setup()
 require("mini.git").setup()
+require("mini.pick").setup()
 
 -- GUI
 require("mini.icons").setup()

@@ -22,17 +22,22 @@ hl.monitor({
 
 hl.env("XCURSOR_SIZE", "24")
 
+local keyboards = {
+"at-translated-set-2-keyboard",
+"at-translated-set-2-keyboard-kanata"
+}
+
 hl.bind("CTRL + XF86AudioMute", hl.dsp.exec_cmd("playerctl previous"), {
-	description = "Skip to previous audio track",
-	device = { inclusive = true, list = { " at-translated-set-2-keyboard" } },
+	description = "Skip to previous media track",
+	device = { inclusive = true, list = keyboards },
 })
-hl.bind("CTRL + XF86AudioLowerVolume", hl.dsp.exec_cmd("playerctl previous"), {
-	description = "Play/pause current audio track",
-	device = { inclusive = true, list = { " at-translated-set-2-keyboard" } },
+hl.bind("CTRL + XF86AudioLowerVolume", hl.dsp.exec_cmd("playerctl play-pause"), {
+	description = "Play/pause current media track",
+	device = { inclusive = true, list = keyboards },
 })
-hl.bind("CTRL + XF86AudioRaiseVolume", hl.dsp.exec_cmd("playerctl previous"), {
-	description = "Skip to next audio track",
-	device = { inclusive = true, list = { " at-translated-set-2-keyboard" } },
+hl.bind("CTRL + XF86AudioRaiseVolume", hl.dsp.exec_cmd("playerctl next"), {
+	description = "Skip to next media track",
+	device = { inclusive = true, list = keyboards },
 })
 
 hl.gesture({

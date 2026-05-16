@@ -10,7 +10,31 @@ require("mini.surround").setup()
 -- Workflow
 require("mini.files").setup()
 require("mini.git").setup()
-require("mini.pick").setup()
+
+do
+  require("mini.pick").setup()
+
+  MiniPick.registry.filetypes = function()
+    local fts = vim.fn.getcompletion("", "filetype")
+    local source = { items = fts, name = "Filetypes", choose = function() end }
+    local ft = MiniPick.start({ source = source })
+    if ft ~= nil then
+      vim.bo.filetype = ft
+    end
+  end
+
+  MiniPick.registry.pickers = function()
+    local pickers = MiniPick.registry
+    pickers.resume = nil
+    local items = vim.tbl_keys(pickers)
+    table.sort(items)
+    local source = { items = items, name = "Pickers", choose = function() end }
+    local picker = MiniPick.start({ source = source })
+    if picker ~= nil then
+      return MiniPick.registry[picker]()
+    end
+  end
+end
 
 -- GUI
 require("mini.icons").setup()

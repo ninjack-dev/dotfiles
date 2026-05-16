@@ -124,15 +124,19 @@ end, { desc = "Toggle undotree" })
 
 map("n", "<leader>ff", function()
   MiniPick.builtin.files()
-end, { desc = "Open Mini file picker" })
+end, { desc = "Open file picker" })
 
 map("n", "<leader>fb", function()
   MiniPick.builtin.buffers()
-end, { desc = "Open Mini buffers picker" })
+end, { desc = "Open buffers picker" })
 
 map("n", "<leader>fg", function()
   MiniPick.builtin.grep_live()
-end, { desc = "Open Mini live search" })
+end, { desc = "Open live search" })
+
+map("n", "<leader>ft", MiniPick.registry.filetypes, { desc = "Open file type picker" })
+
+map("n", "<leader>fp", MiniPick.registry.pickers, { desc = "Open pickers picker (picker of pickers)" })
 
 do
   local function unlearn(mode, key, msg)

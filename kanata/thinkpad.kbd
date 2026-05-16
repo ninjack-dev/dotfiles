@@ -1,20 +1,11 @@
 (defcfg 
-  process-unmapped-keys yes
-  linux-dev-names-include (
-    "AT Translated Set 2 keyboard"
-  )
+  process-unmapped-keys no
+  linux-dev-names-include ("AT Translated Set 2 keyboard")
+  linux-output-device-name "AT Translated Set 2 keyboard kanata"
 )
 
-(defsrc
-  caps
-  esc
-)
+(include untrain-lshift.kbd)
 
-(defalias
-  escctrl (tap-hold-press 150 150 esc lctrl)
-)
-
-(deflayer base
-  @escctrl
-  XX
+(deflayermap (escctrl)
+  caps (tap-hold-press 150 150 esc lctrl)
 )

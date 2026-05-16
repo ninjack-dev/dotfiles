@@ -1,0 +1,41 @@
+;; Prevents lsft from shifting left-side keys (`, 1-6, q-t, a-g, z-b) by blocking them outright,
+;; unless right-shift is held.
+
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            rmet
+)
+
+;; This is the best way found so far to enable passthrough when right-shift is held. 
+;; The problem with other branch-based approaches is getting relevant branches to be 
+;; re-evaluated when pressing either shift key.
+(defalias
+  lsft-train (layer-while-held no-lsft-left)
+  1t (fork XX 1 (rsft))   2t (fork XX 2 (rsft))   3t (fork XX 3 (rsft))
+  4t (fork XX 4 (rsft))   5t (fork XX 5 (rsft))   6t (fork XX 6 (rsft))
+  qt (fork XX q (rsft))   wt (fork XX w (rsft))   et (fork XX e (rsft))
+  rt (fork XX r (rsft))   tt (fork XX t (rsft))
+  at (fork XX a (rsft))   st (fork XX s (rsft))   dt (fork XX d (rsft))
+  ft (fork XX f (rsft))   gt (fork XX g (rsft))
+  zt (fork XX z (rsft))   xt (fork XX x (rsft))   ct (fork XX c (rsft))
+  vt (fork XX v (rsft))   bt (fork XX b (rsft))
+)
+
+(deflayer base
+       _    _    _    _    _    _    _    _    _    _    _    _    _    _
+       _    _    _    _    _    _    _    _    _    _    _    _    _    _
+       _    _    _    _    _    _    _    _    _    _    _    _    _
+  @lsft-train    _    _    _    _    _    _    _    _    _    _    _
+            _    _    _              _              _
+)
+
+(deflayer no-lsft-left
+  grv  @1t  @2t  @3t  @4t  @5t  @6t  S-7  S-8  S-9  S-0  S--  S-=  S-bspc
+  S-tab @qt @wt  @et  @rt  @tt  S-y  S-u  S-i  S-o  S-p  S-[  S-]  S-\
+  _    @at  @st  @dt  @ft  @gt  S-h  S-j  S-k  S-l  S-;  S-'  S-ret
+  _    @zt  @xt  @ct  @vt  @bt  S-n  S-m  S-,  S-.  S-/  _
+  _    _    _              S-spc          _
+)

@@ -31,6 +31,15 @@
     pattern = \"^\" $1 \" \"; \
     gsub(pattern, \"\", $0); printf(\"%s=%s\\n\", a, $0) }'; \
     }; alias "
+  set-user = "!f() { \
+    url=$(git remote get-url origin 2>/dev/null); \
+    if [ -z \"$url\" ]; then echo 'No origin remote found.' >&2; exit 1; fi; \
+    case \"$url\" in \
+      *codeberg.org*) git config include.path ~/.config/git/codeberg; echo 'Including Codeberg identity.';; \
+      *github.com*) git config include.path ~/.config/git/github; echo 'Including GitHub identity.';; \
+      *) echo \"Unknown remote host: $url\" >&2; exit 1;; \
+    esac; \
+    }; f"
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -38,9 +47,5 @@
 	required = true
 [include]
   path = "private"
-[includeIf "hasconfig:remote.origin.url:https://github.com/**"]
-  path = "github"
-[includeIf "hasconfig:remote.origin.url:https://codeberg.org/**"]
-  path = "codeberg"
 [color]
 	ui = auto

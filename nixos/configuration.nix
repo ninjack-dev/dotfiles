@@ -272,10 +272,15 @@ in
         ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
       '';
     updateHyprlandLuarc.text = ''
-      LUARC_PATH="$XDG_CONFIG_HOME/hypr/.luarc.json"
-      cat <<< "$(${pkgs.jq}/bin/jq ".workspace.library = \
-      [\"${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs\"]" \
-      "$LUARC_PATH")" > "$LUARC_PATH"
+      LUARC_PATH="./.luarc.json"
+      STUB_PATH="${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs"
+      [[ ! -s "$LUARC_PATH" ]] && printf '{}' > "$LUARC_PATH"
+      cat <<< "$(jq --arg new "$STUB_PATH" '
+        .workspace.library |= (. // [] | if any(endswith("/share/hypr/stubs"))
+            then map(if endswith("/share/hypr/stubs") then $new else . end)
+            else [$new] + .
+            end)
+      ' "$LUARC_PATH")" > "$LUARC_PATH"
     '';
   };
 

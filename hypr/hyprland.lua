@@ -44,6 +44,38 @@ hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("QT_QPA_PLATFORMTHEME", "gtk2")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 
+---Colors pulled from the [Nord site](https://www.nordtheme.com/).
+---@param i integer
+local nord = function(i)
+	local colors = {
+		-- Polar Night
+		"#2e3440",
+		"#3b4252",
+		"#434c5e",
+		"#4c566a",
+
+		-- Snow Storm
+		"#d8dee9",
+		"#e5e9f0",
+		"#eceff4",
+
+		-- Frost
+		"#8fbcbb",
+		"#88c0d0",
+		"#81a1c1",
+		"#5e81ac",
+
+		-- Aurora
+		"#bf616a",
+		"#d08770",
+		"#ebcb8b",
+		"#a3be8c",
+		"#b48ead",
+	}
+
+	return colors[i + 1] or colors[1]
+end
+
 hl.config({
 	general = {
 		layout = "dwindle",
@@ -56,11 +88,10 @@ hl.config({
 		-- Using Nord (https://www.nordtheme.com/docs/colors-and-palettes)
 		col = {
 			active_border = {
-				-- Nord Frost (nord4 - nord6)
-				colors = { "#8FBCBBee", "#88C0D0ee", "#81A1C1ee", "#5E81ACee" },
+				colors = { nord(7), nord(8), nord(9), nord(10) },
 				angle = 90,
 			},
-			inactive_border = "#2E3440aa", -- Nord Polar Night (nord0)
+			inactive_border = nord(0), -- Nord Polar Night (nord0)
 		},
 
 		resize_on_border = false,

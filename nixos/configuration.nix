@@ -15,12 +15,8 @@ let
   );
 in
 {
-  disabledModules = [
-    "services/networking/netbird.nix"
-  ];
   imports = [
     ./hardware-configuration.nix
-    "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/netbird.nix"
   ];
   nix.settings.experimental-features = [
     "nix-command"
@@ -83,7 +79,9 @@ in
 
   services.resolved = {
     enable = true;
-    extraConfig = "ResolveUnicastSingleLabel=yes";
+    settings.Resolve = {
+      UnicastSingleLabel = "yes";
+    };
   };
 
   # The nixos-hardware module apparently enables TLP.
@@ -91,12 +89,14 @@ in
   # services.auto-cpufreq.enable = true;
 
   services.netbird = {
-    enable = true;
-    package = pkgs.unstable.netbird;
-    ui = {
-      enable = true;
-      package = pkgs.unstable.netbird-ui;
+    clients.default = {
+      port = 51820;
+      name = "netbird";
+      interface = "wt0";
+      hardened = false;
     };
+    package = pkgs.unstable.netbird;
+    ui.package = pkgs.unstable.netbird-ui;
   };
 
   services.flatpak.enable = true;
@@ -269,8 +269,8 @@ in
 
   system.userActivationScripts = {
     setNpmBinDirectory.text = ''
-        ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
-      '';
+      ${pkgs.nodejs}/bin/npm set prefix $HOME/.npm-global 
+    '';
     updateHyprlandLuarc.text = ''
       LUARC_PATH="./.luarc.json"
       STUB_PATH="${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs"
@@ -433,12 +433,13 @@ in
     tlrc
     ripgrep
     fd
-    nixfmt-rfc-style
+    nixfmt
     kdePackages.krdc
     distrobox
     hugo
     sshfs
     unstable.oh-my-posh
+    git-filter-repo
 
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
@@ -469,7 +470,7 @@ in
     ))
     wl-clipboard
     nwg-look
-    calibre
+    unstable.calibre
     libreoffice-fresh
     (unstable.rofi.override {
       plugins = [
@@ -481,10 +482,12 @@ in
     libnotify
     glib
     vala
+    vala-language-server
     unstable.moonlight-qt
     adwaita-icon-theme
     zoom-us
     overskride
+    dig
     unstable.ddcutil
     hyprpicker
     hyprpolkitagent
@@ -543,8 +546,9 @@ in
     gimp3
 
     # Development
-    nodejs
-    deno
+    unstable.nodejs
+    unstable.deno
+
     (pkgs.python3.withPackages (
       python-pkgs: with python-pkgs; [
         pandas
@@ -553,16 +557,21 @@ in
       ]
     ))
     black
+
     (perl.withPackages (
       perl-pkgs: with perl-pkgs; [
         NetDBus
       ]
     ))
+
     unstable.go
+    unstable.gopls
+
     lua
     stylua
-    gopls
+
     gjs
+
     flatpak-builder
 
     wireshark
@@ -587,7 +596,6 @@ in
     pyright
     taplo
     unstable.tombi
-    vala-language-server
     perlnavigator
     typescript-language-server
     bash-language-server
@@ -637,6 +645,7 @@ in
 
     PATH = [
       "$HOME/.npm-global/bin"
+      "$HOME/.deno/bin"
       "$HOME/go/bin"
       "$HOME/.cargo/bin"
     ];

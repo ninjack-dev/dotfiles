@@ -13,6 +13,7 @@ SAVEHIST=$HISTSIZE
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
+setopt COMPLETE_ALIASES
 
 stty -ctlecho
 

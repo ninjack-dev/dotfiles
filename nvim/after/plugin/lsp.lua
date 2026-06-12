@@ -69,6 +69,7 @@ local servers = {
   },
   nushell = {},
   openscad_lsp = {},
+  oxlint = {},
   perlnavigator = {},
   powershell_es = {
     bundle_path = "/nix/store/vwd5fzfm08hln06ni1pyvjhx9fz3s6hw-powershell-editor-services-4.4.0/lib/powershell-editor-services/",

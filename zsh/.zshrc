@@ -30,6 +30,10 @@ bindkey "^[[1;5C" forward-word
 bindkey "^j" down-history
 bindkey "^k" up-history
 
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey "^g" edit-command-line
+
 zle -N nvim_neovide_handler
 bindkey '^N' nvim_neovide_handler
 

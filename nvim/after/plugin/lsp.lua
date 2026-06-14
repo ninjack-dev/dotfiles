@@ -72,7 +72,28 @@ local servers = {
   oxlint = {},
   perlnavigator = {},
   powershell_es = {
-    bundle_path = "/nix/store/vwd5fzfm08hln06ni1pyvjhx9fz3s6hw-powershell-editor-services-4.4.0/lib/powershell-editor-services/",
+    -- Note: -BundledModulesPath is not set like it is in the lspconfig cmd. It does not seem to have any issues.
+    -- A longterm, pure bundle path solution is desired but is difficult to maintain with Nix.
+    cmd = {
+      "powershell-editor-services",
+      "-LogPath",
+      vim.fn.stdpath("cache") .. "/powershell_es.log",
+      "-SessionDetailsPath",
+      vim.fn.stdpath("cache") .. "/powershell_es.session.json",
+      "-FeatureFlags",
+      "@()",
+      "-AdditionalModules",
+      "@()",
+      "-HostName",
+      "nvim",
+      "-HostProfileId",
+      "0",
+      "-HostVersion",
+      "1.0.0",
+      "-Stdio",
+      "-LogLevel",
+      "Normal",
+    },
   },
   pyright = {},
   rust_analyzer = {

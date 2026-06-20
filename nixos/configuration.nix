@@ -558,6 +558,7 @@ in
     unstable.nodejs
     unstable.deno
 
+    unstable.uv
     (pkgs.python3.withPackages (
       python-pkgs: with python-pkgs; [
         pandas

@@ -593,6 +593,7 @@ in
     wayland
 
     lazygit
+    unstable.jujutsu
 
     hydra-check
 

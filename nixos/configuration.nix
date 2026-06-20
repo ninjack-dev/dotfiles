@@ -655,6 +655,7 @@ in
 
     PATH = [
       "$HOME/.npm-global/bin"
+      "$XDG_DATA_HOME/pnpm/bin"
       "$HOME/.deno/bin"
       "$HOME/go/bin"
       "$HOME/.cargo/bin"

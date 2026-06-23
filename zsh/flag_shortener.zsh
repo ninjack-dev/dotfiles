@@ -44,7 +44,7 @@ _flag_shortener_widget() {
 
   local target=''
   local reverse=0
-  local rest=''
+  local -a left_parts=() right_parts=()
 
   # Long flag: --update, --human-readable, etc.
   if [[ "${words[$CURRENT]}" == --* ]]; then
@@ -57,17 +57,50 @@ _flag_shortener_widget() {
     local fullword="${PREFIX}${SUFFIX}"
     local fwlen=${#fullword}
 
-    # Patterns below avoid extendedglob (## / #) because emulate -L
-    # zsh does not enable it.  Use plain * and length checks instead.
-
     if [[ "$fullword" == -[a-zA-Z0-9]* && $fwlen -ge 2 ]]; then
       # Short flag: either simple (-u) or compound (-uv).
       if [[ $fwlen -gt 2 ]]; then
-        # Compound: expand the first character after the dash.
-        # Remaining characters become separate short flags.
-        target="-${fullword[2]}"
-        rest="${fullword[3,-1]}"
+        # Compound: expand the character at the cursor position.
+        # The cursor position is determined by comparing LBUFFER
+        # with the full word — the longest suffix of LBUFFER that
+        # matches a prefix of fullword tells us the cursor offset.
+        local expand_pos
+        local -i i
+
+        # Determine offset: longest suffix of LBUFFER matching
+        # a prefix of fullword.
+        local in_lbuf=0
+        for ((i = fwlen; i > 0; i--)); do
+          if [[ $i -le $#LBUFFER && "${LBUFFER[-i,-1]}" == "${fullword[1,i]}" ]]; then
+            in_lbuf=$i
+            break
+          fi
+        done
+
+        # Map cursor-relative position to expand position
+        if (( in_lbuf <= 1 )); then
+          expand_pos=2                    # Cursor at/before dash → first flag char
+        elif (( in_lbuf >= fwlen )); then
+          expand_pos=$fwlen               # Cursor at/after end → last char
+        else
+          expand_pos=$in_lbuf             # Char immediately before cursor
+        fi
+
+        target="-${fullword[$expand_pos]}"
         reverse=1
+
+        # Build left and right arrays for remaining flag chars.
+        # Flags before expand_pos go in left_parts (appear before
+        # the expanded flag), those after go in right_parts.
+        for ((j = 2; j <= fwlen; j++)); do
+          if [[ $j -ne $expand_pos ]]; then
+            if (( j < expand_pos )); then
+              left_parts+=( "-${fullword[j]}" )
+            else
+              right_parts+=( "-${fullword[j]}" )
+            fi
+          fi
+        done
       else
         # Simple single short flag: -u
         target="$fullword"
@@ -88,47 +121,27 @@ _flag_shortener_widget() {
 
   local cmd="${words[1]}"
   local subcmd=''
-  local -i i
-  for (( i=2; i <= ${#words}; i++ )); do
-    local w="${words[i]}"
-    if [[ "$w" != -* ]]; then
-      if [[ -z "$subcmd" ]]; then
-        subcmd="$w"
-      fi
-    fi
+  for w in "${words[@]:1}"; do
+    [[ "$w" != -* ]] && { subcmd="$w"; break; }
   done
 
   # ---------- 3. Find the counterpart flag ----------
 
   local counterpart=''
-  if (( reverse )); then
-    _flag_shortener_find_long "$cmd" "$subcmd" "$target"
-    counterpart=$REPLY
-  else
-    _flag_shortener_find_short "$cmd" "$subcmd" "$target"
-    counterpart=$REPLY
-  fi
+  _flag_shortener_find "$cmd" "$subcmd" "$target"
+  counterpart=$REPLY
 
   [[ -n "$counterpart" ]] || return 1
 
   # ---------- 4. Handle compound short flags ----------
 
-  # For compound short flags like -uv where the cursor splits at
-  # "-u|v", we already computed 'rest' above as the characters
-  # that weren't expanded.  Emit them as separate short flags.
-  local extra=''
-  if [[ -n "$rest" ]]; then
-    local -i j
-    for (( j=1; j <= $#rest; j++ )); do
-      if [[ "${rest[j]}" != - ]]; then
-        extra+=" -${rest[j]}"
-      fi
-    done
-  fi
+  # Build insertion as: left_parts + counterpart + right_parts,
+  # preserving the original order of remaining flags around the
+  # expanded one.
+  local -a all_parts=( "${left_parts[@]}" "$counterpart" "${right_parts[@]}" )
+  local insertion="${(j: :)all_parts}"
 
   # ---------- 5. Insert via completion pipeline ----------
-
-  local insertion="${counterpart}${extra}"
 
   compadd -UQ -- "$insertion"
 
@@ -142,21 +155,10 @@ _flag_shortener_widget() {
 }
 
 # ---------------------------------------------------------------------------
-# Mapping discovery — long → short
+# Mapping discovery — shared entry point
 # ---------------------------------------------------------------------------
 
-_flag_shortener_find_short() {
-  emulate -L zsh
-
-  local cmd="$1" subcmd="$2" target="$3"
-
-  _flag_shortener_from_comps "$cmd" "$subcmd" "$target" && return 0
-  _flag_shortener_from_help "$cmd" "$subcmd" "$target" && return 0
-
-  return 1
-}
-
-_flag_shortener_find_long() {
+_flag_shortener_find() {
   emulate -L zsh
 
   local cmd="$1" subcmd="$2" target="$3"
@@ -234,8 +236,6 @@ _flag_shortener_from_comps() {
   # the function handles short→long lookup too.
 
   local -A l2s s2l
-  l2s=()
-  s2l=()
   local temp="$src"
 
   # ERE pattern: match {-X,--yyyyy} (including + and = suffixes for value-taking options)

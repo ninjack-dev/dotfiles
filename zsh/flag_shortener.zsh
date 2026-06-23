@@ -1,7 +1,14 @@
-# flag_shortener - Zsh completion widget: replace long flags with short flags
+# flag_shortener - Zsh completion widget: toggle long flags ↔ short flags
 #
 # Press Ctrl-S with the cursor on a long flag like `--update`
 # and the widget replaces it with the short form `-u`.
+# Press Ctrl-S with the cursor on a short flag like `-u`
+# and the widget replaces it with the long form `--update`.
+#
+# Compound short flags are handled: if the cursor is on a character
+# inside a compound like `-u|v`, the character is expanded to its
+# long form and the rest kept as separate short flags:
+#   -u|v  -->  --update -v
 #
 # It discovers the mapping by parsing the Zsh completion function
 # source for the current command, looking for brace patterns like
@@ -29,26 +36,52 @@
 _flag_shortener_widget() {
   emulate -L zsh
 
+  # Clear REPLY to prevent stale values from a previous invocation
+  # leaking when the look-up functions fail to find a mapping.
+  REPLY=''
+
   # ---------- 1. Find the word we want to replace ----------
 
   local target=''
+  local reverse=0
+  local rest=''
 
-  # If the word at CURRENT looks like a long flag, use it.
+  # Long flag: --update, --human-readable, etc.
   if [[ "${words[$CURRENT]}" == --* ]]; then
     target="${words[$CURRENT]}"
-  fi
-
-  # If the combined PREFIX+SUFFIX (cursor in middle of word) looks like
-  # a long flag, use that — this catches the case where the cursor is
-  # inside a long flag like --up|date.
-  if [[ -z "$target" ]] && [[ "${PREFIX}${SUFFIX}" == --* ]]; then
+  elif [[ "${PREFIX}${SUFFIX}" == --* ]]; then
     target="${PREFIX}${SUFFIX}"
   fi
 
-  # Only convert the word under the cursor.  Unlike the old normal
-  # widget (which walked backwards), a completion widget cannot
-  # replace a word that isn't the current one — compadd always
-  # inserts at the cursor position.
+  if [[ -z "$target" ]]; then
+    local fullword="${PREFIX}${SUFFIX}"
+    local fwlen=${#fullword}
+
+    # Patterns below avoid extendedglob (## / #) because emulate -L
+    # zsh does not enable it.  Use plain * and length checks instead.
+
+    if [[ "$fullword" == -[a-zA-Z0-9]* && $fwlen -ge 2 ]]; then
+      # Short flag: either simple (-u) or compound (-uv).
+      if [[ $fwlen -gt 2 ]]; then
+        # Compound: expand the first character after the dash.
+        # Remaining characters become separate short flags.
+        target="-${fullword[2]}"
+        rest="${fullword[3,-1]}"
+        reverse=1
+      else
+        # Simple single short flag: -u
+        target="$fullword"
+        reverse=1
+      fi
+    elif [[ "${words[$CURRENT]}" == -[a-zA-Z0-9]* ]]; then
+      local wlen=${#words[$CURRENT]}
+      if [[ $wlen -ge 2 ]]; then
+        target="${words[$CURRENT]}"
+        reverse=1
+      fi
+    fi
+  fi
+
   [[ -n "$target" ]] || return 1
 
   # ---------- 2. Determine command and subcommand ----------
@@ -65,36 +98,51 @@ _flag_shortener_widget() {
     fi
   done
 
-  # ---------- 3. Find the short flag via Zsh completions ----------
+  # ---------- 3. Find the counterpart flag ----------
 
-  local short_flag
-  _flag_shortener_find_short "$cmd" "$subcmd" "$target"
-  short_flag=$REPLY
+  local counterpart=''
+  if (( reverse )); then
+    _flag_shortener_find_long "$cmd" "$subcmd" "$target"
+    counterpart=$REPLY
+  else
+    _flag_shortener_find_short "$cmd" "$subcmd" "$target"
+    counterpart=$REPLY
+  fi
 
-  [[ -n "$short_flag" ]] || return 1
+  [[ -n "$counterpart" ]] || return 1
 
-  # ---------- 4. Insert via completion pipeline ----------
+  # ---------- 4. Handle compound short flags ----------
 
-  # Register the short flag as a completion match.
-  #   -U : use the word as-given (no quoting transformations)
-  #   -Q : display as given (no additional quoting)
-  #   -- : guard against short_flag starting with dash (e.g., -u)
-  compadd -UQ -- "$short_flag"
+  # For compound short flags like -uv where the cursor splits at
+  # "-u|v", we already computed 'rest' above as the characters
+  # that weren't expanded.  Emit them as separate short flags.
+  local extra=''
+  if [[ -n "$rest" ]]; then
+    local -i j
+    for (( j=1; j <= $#rest; j++ )); do
+      if [[ "${rest[j]}" != - ]]; then
+        extra+=" -${rest[j]}"
+      fi
+    done
+  fi
 
-  # Insert the match immediately (no menu selection).
+  # ---------- 5. Insert via completion pipeline ----------
+
+  local insertion="${counterpart}${extra}"
+
+  compadd -UQ -- "$insertion"
+
   compstate[insert]=1
 
-  # When SUFFIX is non-empty (cursor in middle of the word, e.g.
-  # "--up█date"), the completion system normally replaces only
-  # PREFIX and keeps SUFFIX.  Setting exact=-1 tells it to treat
-  # the match as exact and replace the whole word.
+  # When SUFFIX is non-empty (cursor in middle of word), tell the
+  # completion system to replace the full word, not just PREFIX.
   [[ -n "$SUFFIX" ]] && compstate[exact]=-1
 
   return 0
 }
 
 # ---------------------------------------------------------------------------
-# Mapping discovery
+# Mapping discovery — long → short
 # ---------------------------------------------------------------------------
 
 _flag_shortener_find_short() {
@@ -102,10 +150,18 @@ _flag_shortener_find_short() {
 
   local cmd="$1" subcmd="$2" target="$3"
 
-  # Strategy A: Parse Zsh completion function source
   _flag_shortener_from_comps "$cmd" "$subcmd" "$target" && return 0
+  _flag_shortener_from_help "$cmd" "$subcmd" "$target" && return 0
 
-  # Strategy B: Parse command help output (fallback)
+  return 1
+}
+
+_flag_shortener_find_long() {
+  emulate -L zsh
+
+  local cmd="$1" subcmd="$2" target="$3"
+
+  _flag_shortener_from_comps "$cmd" "$subcmd" "$target" && return 0
   _flag_shortener_from_help "$cmd" "$subcmd" "$target" && return 0
 
   return 1
@@ -119,6 +175,7 @@ _flag_shortener_from_comps() {
   emulate -L zsh
 
   local cmd="$1" subcmd="$2" target="$3"
+  REPLY=''
 
   # Get the top-level completion function
   local comp_func="${_comps[$cmd]}"
@@ -173,10 +230,12 @@ _flag_shortener_from_comps() {
   #   '(-n --dry-run)'{-n,--dry-run}'[dry run]'
   #
   # The short and long flags are linked via a brace expansion.
-  # We extract those pairs here.
+  # We extract those pairs here.  Both directions are built so that
+  # the function handles short→long lookup too.
 
-  local -A l2s
+  local -A l2s s2l
   l2s=()
+  s2l=()
   local temp="$src"
 
   # ERE pattern: match {-X,--yyyyy} (including + and = suffixes for value-taking options)
@@ -196,12 +255,16 @@ _flag_shortener_from_comps() {
 
     if [[ "$short_part" == -[a-zA-Z0-9] && "$long_part" == --[a-zA-Z0-9_-]* ]]; then
       l2s[$long_part]="$short_part"
+      s2l[$short_part]="$long_part"
     fi
 
     temp="${temp#*$MATCH}"
   done
 
+  # Check both maps so this function works for both directions.
   REPLY="${l2s[$target]}"
+  [[ -n "$REPLY" ]] && return 0
+  REPLY="${s2l[$target]}"
   [[ -n "$REPLY" ]] && return 0
   return 1
 }
@@ -214,7 +277,7 @@ _flag_shortener_from_help() {
   emulate -L zsh
 
   local cmd="$1" subcmd="$2" target="$3"
-  local target_name="${target##--}"
+  REPLY=''
 
   local help_text=''
 
@@ -236,32 +299,64 @@ _flag_shortener_from_help() {
   # Remove ESC ] ... (ESC \ or BEL)  (OSC sequences, e.g. hyperlinks)
   help_text="${help_text//$'\e]'[^$'\e\a']#($'\e\\'|$'\a')/}"
 
-  local short=''
+  local counterpart=''
   local line
 
-  while IFS= read -r line; do
-    line="${line##[[:space:]]##}"
+  if [[ "$target" == --* ]]; then
+    # ---- Long → short ----
+    local target_name="${target##--}"
 
-    # Remove [no-] prefix from --long-name in help (--[no-]verbose -> --verbose)
-    local clean="${line//\[no-\]/}"
+    while IFS= read -r line; do
+      line="${line##[[:space:]]##}"
+      local clean="${line//\[no-\]/}"
 
-    # Pattern: -X,--NAME or -X, --NAME
-    if [[ "$clean" == (-[a-zA-Z0-9],[[:space:]]#--"${target_name}"*) ]]; then
-      short="${clean:0:2}"
-      break
-    fi
+      # Pattern: -X,--NAME or -X, --NAME
+      if [[ "$clean" == (-[a-zA-Z0-9],[[:space:]]#--"${target_name}"*) ]]; then
+        counterpart="${clean:0:2}"
+        break
+      fi
 
-    # Pattern: --NAME,-X or --NAME, -X
-    if [[ "$clean" == (--"${target_name}",[[:space:]]#-[a-zA-Z0-9]*) ]]; then
-      local comma_rest="${clean#*,}"
-      comma_rest="${comma_rest##[[:space:]]##}"
-      short="${comma_rest:0:2}"
-      break
-    fi
-  done <<< "$help_text"
+      # Pattern: --NAME,-X or --NAME, -X
+      if [[ "$clean" == (--"${target_name}",[[:space:]]#-[a-zA-Z0-9]*) ]]; then
+        local comma_rest="${clean#*,}"
+        comma_rest="${comma_rest##[[:space:]]##}"
+        counterpart="${comma_rest:0:2}"
+        break
+      fi
+    done <<< "$help_text"
 
-  if [[ -n "$short" ]]; then
-    REPLY="$short"
+  elif [[ "$target" == -[a-zA-Z0-9] ]]; then
+    # ---- Short → long ----
+    local target_char="${target#-}"
+
+    while IFS= read -r line; do
+      line="${line##[[:space:]]##}"
+      local clean="${line//\[no-\]/}"
+
+      # Pattern: -X,--NAME or -X, --NAME
+      if [[ "$clean" == (-"${target_char}",[[:space:]]#--[a-zA-Z0-9_-]*) ]]; then
+        # Extract the long flag: --NAME
+        local after_comma="${clean#*,}"
+        after_comma="${after_comma##[[:space:]]##}"
+        counterpart="${after_comma%%[^a-zA-Z0-9_-]*}"
+        # Ensure it starts with --
+        if [[ "$counterpart" == --* ]]; then
+          break
+        fi
+        counterpart=''
+      fi
+
+      # Pattern: --NAME,-X or --NAME, -X
+      if [[ "$clean" == (--[a-zA-Z0-9_-]*,[[:space:]]#-"${target_char}"*) ]]; then
+        counterpart="${clean%%,*}"
+        counterpart="${counterpart%%[^a-zA-Z0-9_-]*}"
+        break
+      fi
+    done <<< "$help_text"
+  fi
+
+  if [[ -n "$counterpart" ]]; then
+    REPLY="$counterpart"
     return 0
   fi
 
@@ -273,9 +368,7 @@ _flag_shortener_from_help() {
 # ---------------------------------------------------------------------------
 
 # Register as a completion widget so ZLE provides $words, $CURRENT,
-# $PREFIX, and $SUFFIX automatically (no manual context computation
-# needed). The widget function still manipulates BUFFER directly
-# for reliable replacement regardless of cursor position.
+# $PREFIX, and $SUFFIX automatically (no manual context computation).
 zle -C flag-shortener .complete-word _flag_shortener_widget
 
 # Bind to Ctrl-S

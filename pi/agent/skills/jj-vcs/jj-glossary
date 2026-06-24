@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# jj-glossary — Look up terms in jj's built-in glossary
+#
+# Usage:
+#   jj-glossary              List all available glossary terms
+#   jj-glossary <term> [...] Print the full entries for one or more terms
+#
+# Term names are matched case-insensitively.  Each term is printed in the
+# same format as the original glossary (## heading + body).
+#
+# Requires: jj, GNU awk 4+, Bash 4+, GNU coreutils
+# Colocated with the jj-vcs skill at ~/.pi/agent/skills/jj-vcs/
+
+set -euo pipefail
+
+declare -A _glossary       # original-case term  → body text
+declare -A _glossary_lc    # lowercased term     → original-case term
+
+_parse_glossary() {
+    # awk outputs each record as two null-terminated fields:
+    #   <term>\0<body>\0
+    # We read them with read -d '' (empty delimiter = null byte).
+    while IFS=$'\n' read -r -d '' term body; do
+        _glossary["$term"]="$body"
+        _glossary_lc["${term,,}"]="$term"
+    done < <(jj help -k glossary 2>/dev/null | awk '
+        /^## / {
+            if (heading != "") {
+                # Strip leading blank lines (the \n after ## Heading)
+                # and trailing blank lines (the \n before next ## Heading)
+                sub(/^\n+/, "", body)
+                sub(/\n+$/, "", body)
+                printf "%s\n%s\0", heading, body
+            }
+            heading = $0
+            sub(/^## /, "", heading)
+            gsub(/<[^>]+>/, "", heading)       # strip <a name="..."></a>
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", heading)
+            body = ""
+            next
+        }
+        /^# / { next }
+        { body = body $0 "\n" }
+        END {
+            if (heading != "") {
+                sub(/^\n+/, "", body)
+                sub(/\n+$/, "", body)
+                printf "%s\0%s\0", heading, body
+            }
+        }
+    ')
+}
+
+_banner() { sed -n '3,8p' "$0" | sed 's/^# \?//'; }
+
+main() {
+    command -v jj >/dev/null 2>&1 || {
+        printf '%s: jj not found — is it installed?\n' "$(basename "$0")" >&2
+        exit 1
+    }
+
+    _parse_glossary
+
+    if [[ ${#_glossary[@]} -eq 0 ]]; then
+        printf '%s: glossary is empty — did "jj help -k glossary" produce output?\n' \
+            "$(basename "$0")" >&2
+        exit 1
+    fi
+
+    if [[ $# -eq 0 ]]; then
+        _banner
+        echo ""
+        echo "Available terms:"
+        printf '%s\n' "${!_glossary[@]}" | sort -f | awk '{print "  " $0}'
+        exit 0
+    fi
+
+    local rc=0
+    for search in "$@"; do
+        local key="${search,,}"
+        if [[ -v _glossary_lc["$key"] ]]; then
+            local orig_term="${_glossary_lc["$key"]}"
+            printf "## %s\n\n%s\n\n" "$orig_term" "${_glossary["$orig_term"]}"
+        else
+            printf '%s: no term matching "%s" found\n' "$(basename "$0")" "$search" >&2
+            rc=1
+        fi
+    done
+
+    exit "$rc"
+}
+
+main "$@"

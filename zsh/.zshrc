@@ -15,7 +15,8 @@ setopt sharehistory
 setopt hist_ignore_space
 setopt COMPLETE_ALIASES
 
-stty -ctlecho
+# Disable Ctrl-C echo and terminal flow control so Ctrl-S can be used by ZLE widgets
+stty -ctlecho -ixon
 
 setopt autocd
 unsetopt beep
@@ -37,6 +38,10 @@ bindkey "^g" edit-command-line
 
 zle -N nvim_neovide_handler
 bindkey '^N' nvim_neovide_handler
+
+source $ZDOTDIR/flag_shortener.zsh
+zle -C flag-shortener .complete-word _flag_shortener_widget
+bindkey '^S' flag-shortener 
 
 ## Completions ##
 zstyle ':completion:*' matcher-list 'm:{A-Za-z}={a-zA-Z}'

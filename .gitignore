@@ -1,9 +1,6 @@
 /*
 *.log
 
-gh/hosts.yml
-git/private
-
 !.bashrc
 !.gitignore
 !README.md
@@ -18,6 +15,7 @@ git/private
 !godot
 !hypr
 !inkscape
+!jj
 !kanata
 !kitty
 !neovide

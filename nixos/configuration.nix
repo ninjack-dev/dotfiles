@@ -17,6 +17,7 @@ in
 {
   imports = [
     ./hardware-configuration.nix
+    ./modules/authentik-platform
   ];
   nix.settings.experimental-features = [
     "nix-command"
@@ -678,6 +679,11 @@ in
 
   services.ollama = {
     enable = true;
+  };
+
+  services.authentik-platform = {
+    enable = true;
+    agent.enable = true;
   };
 
   services.gnome.gnome-keyring.enable = true;

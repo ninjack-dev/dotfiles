@@ -115,6 +115,7 @@ local servers = {
           ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
             "*compose*.y*ml",
           },
+          kubernetes = "k8s/*.y*ml",
         },
       },
     },

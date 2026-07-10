@@ -9,13 +9,13 @@
   installShellFiles,
 }:
 let
-  version = "v0.50.0";
+  version = "v0.50.2";
 
   src = fetchFromGitHub {
     owner = "goauthentik";
     repo = "platform";
     tag = version;
-    hash = "sha256-R65QfQZsHcVi/oAeOI6WLTKuwX4GbNJCDlsA4x1QTiU=";
+    hash = "sha256-b2hkabHDdjz2Ao/VxroI8SSsoP9hLg1ZpdBD6IvXaVA=";
   };
 
   meta = {
@@ -27,7 +27,7 @@ let
     platforms = lib.platforms.all;
   };
 
-  cargoHash = "sha256-Dkjj8yiiasJIrSJHAd0iV+2PRhwY8RxTGoTJZ/I+ON0=";
+  cargoHash = "sha256-m7TSZp7Ezkl8UXSgxJoA28uXUg7P93i5cWZf4NKee70=";
   vendorHash = "sha256-01qnu0q6Na8fvO9GQekvJuk8oregRwtumIPLSibzJo8=";
 
   ak-pam = rustPlatform.buildRustPackage (finalAttrs: {

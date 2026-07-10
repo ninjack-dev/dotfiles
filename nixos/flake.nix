@@ -23,7 +23,6 @@
           inherit system;
           config = {
             allowUnfree = true;
-            # TODO: Research how interactions with overlays works. Is this the only way to customize unstable?
             # Waiting on #3224 (in Ventoy) for blobs to be built from scratch, at which point this should be marked as secure again
             permittedInsecurePackages = [
               "${nixpkgs-unstable.legacyPackages.${system}.ventoy.name}"
@@ -47,8 +46,7 @@
                 channel.enable = false;
                 registry = {
                   nixpkgs.flake = nixpkgs;
-                  nixpkgs-unstable.flake = nixpkgs-unstable;
-                  nixos-hardware.flake = nixos-hardware;
+                  unstable.flake = nixpkgs-unstable;
                 };
               };
 

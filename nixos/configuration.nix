@@ -71,6 +71,9 @@ in
   boot.loader.grub.configurationLimit = 30;
 
   boot.tmp.cleanOnBoot = true;
+
+  zramSwap.enable = true;
+
   services.logind.settings.Login.HandleLidSwitch = "suspend";
   services.logind.settings.Login.HandleLidSwitchDocked = "suspend";
 

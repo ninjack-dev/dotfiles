@@ -29,7 +29,7 @@
   vulkan-loader,
   dbus,
   dotnetCorePackages,
-  withVersion ? "4.6.2-stable",
+  withVersion ? "4.7-stable",
   dotnet ? dotnetCorePackages.sdk_9_0_1xx,
 }:
 
@@ -39,12 +39,12 @@ stdenv.mkDerivation (finalAttrs: rec {
 
   src = fetchurl {
     url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_mono_linux_x86_64.zip";
-    hash = "sha256-fVMwLDFkitmLYg6MpbDIacEGZJV3DmKy+ncM/rAE8Wc=";
+    hash = "sha256-aehVAB40sQjrgST/Hq6ERQJrKjCoO25jFPcFrpY9D+E=";
   };
 
   icon = fetchurl {
     name = "godot-icon";
-    url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/icon.svg";
+    url = "https://raw.githubusercontent.com/godotengine/godot/refs/tags/${version}/misc/logo/icon.svg";
     hash = "sha256-FEOul0hCuBdl1bUOanKeu/Qeui6eUVqwkZ8upci49HU=";
   };
 

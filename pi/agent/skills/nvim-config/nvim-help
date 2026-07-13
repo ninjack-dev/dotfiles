@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eu
+
+topic="${1:?Usage: $0 <topic>}"
+
+lua_code='
+local buf = vim.api.nvim_get_current_buf()
+if vim.bo[buf].filetype ~= "help" then
+  vim.cmd("cquit!")
+  return
+end
+local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+local cursor = vim.api.nvim_win_get_cursor(0)
+for i = cursor[1], #lines do
+  io.write(lines[i] or "", "\n")
+end
+vim.cmd("qa!")
+'
+
+nvim --headless \
+  -c "help $topic" \
+  -c "lua dofile('/dev/stdin')" \
+  -c 'qa!' <<< "$lua_code"

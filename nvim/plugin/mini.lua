@@ -4,7 +4,13 @@ vim.pack.add({
 
 -- Text editing
 require("mini.comment").setup()
-require("mini.pairs").setup()
+require("mini.pairs").setup({
+  mappings = {
+    ['"'] = { action = 'closeopen', pair = '""', neigh_pattern = '^[^\\][^%w_]', register = { cr = false } },
+    ["'"] = { action = 'closeopen', pair = "''", neigh_pattern = '^[^%a\\][^%w_]', register = { cr = false } },
+    ['`'] = { action = 'closeopen', pair = '``', neigh_pattern = '^[^\\][^%w_]', register = { cr = false } },
+  },
+})
 require("mini.surround").setup()
 
 -- Workflow

@@ -101,6 +101,7 @@ local servers = {
       ["rust-analyzer"] = {},
     },
   },
+  tofu_ls = {},
   tombi = {},
   ts_ls = {},
   vala_ls = {

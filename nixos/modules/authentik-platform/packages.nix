@@ -7,6 +7,7 @@
   udev,
   pkg-config,
   installShellFiles,
+  cacert,
 }:
 let
   version = "v0.50.2";
@@ -15,7 +16,7 @@ let
     owner = "goauthentik";
     repo = "platform";
     tag = version;
-    hash = "sha256-b2hkabHDdjz2Ao/VxroI8SSsoP9hLg1ZpdBD6IvXaVA=";
+    hash = "sha256-PWQU9wDDmPgPEtfFNJCFe75tUoOGMzMdWTWPWtbVPBw=";
   };
 
   meta = {
@@ -27,8 +28,8 @@ let
     platforms = lib.platforms.all;
   };
 
-  cargoHash = "sha256-m7TSZp7Ezkl8UXSgxJoA28uXUg7P93i5cWZf4NKee70=";
-  vendorHash = "sha256-01qnu0q6Na8fvO9GQekvJuk8oregRwtumIPLSibzJo8=";
+  cargoHash = "sha256-l5nRXflOFUxE0ueLjH3Awg3YME7BMfywdHpQuUdsTuY=";
+  vendorHash = "sha256-th5pu4x5BLVeeOHyDpDfVAQ13XzzDFWrd/c4HRDvULE=";
 
   ak-pam = rustPlatform.buildRustPackage (finalAttrs: {
     pname = "ak-pam";
@@ -93,6 +94,7 @@ let
 
     nativeBuildInputs = [
       installShellFiles
+      cacert # Needed to fix reqwest's client builder during installShellCompletion
     ];
 
     doCheck = false;

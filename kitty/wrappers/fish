@@ -1,2 +1,4 @@
 #!/bin/sh
-exec kitten run-shell --shell="$(whereis fish | awk '{print $NF}') $($(whereis printf | awk '{print $NF}') ' %q' "$@")"
+_SHELL="$(whereis fish | awk 'NR == 1 { printf "%s", $3 }')"
+[ -z "$_SHELL" ] && { printf 'Fish not found in PATH\n' 2>&1; exit 1; }
+exec kitten run-shell --shell="$_SHELL $($(whereis printf | awk '{print $NF}') ' %q' "$@")"

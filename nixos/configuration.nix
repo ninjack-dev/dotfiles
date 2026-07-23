@@ -261,7 +261,10 @@ in
     ];
   };
 
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    enableGlobalCompInit = false;
+  };
   programs.fish.enable = true;
 
   services.dbus = {

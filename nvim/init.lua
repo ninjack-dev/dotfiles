@@ -1,5 +1,7 @@
 vim.g.mapleader = " "
 
+vim.env.RIPGREP_CONFIG_PATH = vim.fn.stdpath("config") .. "/.ripgreprc"
+
 vim.env.PATH =
   -- Prepend utility scripts
   (vim.fn.stdpath("config") .. "/scripts:")

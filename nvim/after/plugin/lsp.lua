@@ -3,7 +3,27 @@ local servers = {
   astro = {
     init_options = {
       typescript = {
-        tsdk = vim.fn.expand("~/.deno/bin/.typescript/node_modules/typescript/lib"),
+        -- Searches pnpm for TypeScript 6 SDK. Will be obsolete when Astro upgrades to TS7.
+        tsdk = (function()
+          local result = vim.fn.system({ "pnpm", "ls", "-g", "typescript*", "--json" })
+          if result == "" then
+            return nil
+          end
+          local ok, packages = pcall(vim.json.decode, result)
+          if not ok then
+            return nil
+          end
+          for _, entry in ipairs(packages) do
+            if entry.dependencies then
+              for _, dep in pairs(entry.dependencies) do
+                if dep.from == "@typescript/typescript6" then
+                  return dep.path .. "/node_modules/typescript/lib"
+                end
+              end
+            end
+          end
+          return nil
+        end)(),
       },
     },
   },
@@ -103,7 +123,18 @@ local servers = {
   },
   tofu_ls = {},
   tombi = {},
-  ts_ls = {},
+  tsgo = {
+    cmd = function(dispatchers, config)
+      local cmd = "tsc"
+      if (config or {}).root_dir then
+        local local_cmd = vim.fs.joinpath(config.root_dir, "node_modules/.bin", cmd)
+        if vim.fn.executable(local_cmd) == 1 then
+          cmd = local_cmd
+        end
+      end
+      return vim.lsp.rpc.start({ cmd, "--lsp", "--stdio" }, dispatchers)
+    end,
+  },
   vala_ls = {
     single_file_support = true,
   },

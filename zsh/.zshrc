@@ -13,7 +13,6 @@ SAVEHIST=$HISTSIZE
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
-setopt COMPLETE_ALIASES
 
 # Disable Ctrl-C echo and terminal flow control so Ctrl-S can be used by ZLE widgets
 stty -ctlecho -ixon

@@ -188,6 +188,7 @@ alias $(echo -n '\0x66\0x75\0x63\0x6b\0x69\0x6e\0x68\0x65\0x6c\0x6c')=$respects_
 source <(pay-respects zsh --alias "$respects_alias")
 
 source <(direnv hook zsh)
+source <(mise activate zsh)
 
 if [[ "$TERM" != "linux" ]]; then
   eval "$(oh-my-posh init zsh)"

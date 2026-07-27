@@ -11,7 +11,6 @@ require("conform").setup({
     html = { "prettier" },
     bash = { "prettier" },
     sh = { "prettier" },
-    gdscript = { "gdscript_formatter" },
   },
 
   formatters = {
@@ -19,10 +18,6 @@ require("conform").setup({
       append_args = function()
         return { "--plugin=" .. vim.fn.expand("~/.npm-global/lib/node_modules/prettier-plugin-sh/lib/index.js") }
       end,
-    },
-    gdscript_formatter = {
-      command = "gdscript-formatter",
-      args = { "--stdout" },
     },
   },
 })

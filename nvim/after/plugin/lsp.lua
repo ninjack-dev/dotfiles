@@ -5,11 +5,11 @@ local servers = {
       typescript = {
         -- Searches pnpm for TypeScript 6 SDK. Will be obsolete when Astro upgrades to TS7.
         tsdk = (function()
-          local result = vim.fn.system({ "pnpm", "ls", "-g", "typescript*", "--json" })
-          if result == "" then
+          local result = vim.system({ "pnpm", "ls", "-g", "typescript*", "--json" }):wait()
+          if result.code ~= 0 then
             return nil
           end
-          local ok, packages = pcall(vim.json.decode, result)
+          local ok, packages = pcall(vim.json.decode, result.stdout)
           if not ok then
             return nil
           end
@@ -17,7 +17,7 @@ local servers = {
             if entry.dependencies then
               for _, dep in pairs(entry.dependencies) do
                 if dep.from == "@typescript/typescript6" then
-                  return dep.path .. "/node_modules/typescript/lib"
+                  return dep.path .. "/lib"
                 end
               end
             end
@@ -126,12 +126,6 @@ local servers = {
   tsgo = {
     cmd = function(dispatchers, config)
       local cmd = "tsc"
-      if (config or {}).root_dir then
-        local local_cmd = vim.fs.joinpath(config.root_dir, "node_modules/.bin", cmd)
-        if vim.fn.executable(local_cmd) == 1 then
-          cmd = local_cmd
-        end
-      end
       return vim.lsp.rpc.start({ cmd, "--lsp", "--stdio" }, dispatchers)
     end,
   },

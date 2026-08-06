@@ -8,5 +8,8 @@ email = "84806918+ninjack-dev@users.noreply.github.com"
 [aliases]
 update-branches = {
   doc = "Rebase branches off of the trunk onto the last commit",
-  definition = ["rebase", "--source", "roots(trunk()..) ~ @", "--onto", "@-", "--skip-emptied"],
+  definition = ["rebase", "--source", "roots(trunk()..) ~ trunk()::", "--onto", "trunk()", "--skip-emptied"],
   }
+
+[revset-aliases]
+"branch_roots()" = "roots(trunk()..) ~ trunk()::"

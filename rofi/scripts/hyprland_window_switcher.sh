@@ -36,11 +36,12 @@ if [ "$ROFI_RETV" -eq $INITIAL_CALL ]; then
   exit 0
 fi
 
+# For some reason, without coproc, the dispatcher doesn't follow through all the way; it moves the cursor but doesn't focus the window
 case "$ROFI_RETV" in
   "$DEFAULT_SELECT")
-    hyprctl dispatch "hl.dsp.focus({ window = \"address:0x$ROFI_INFO\" })" > /dev/null 2>&1
+    coproc hyprctl dispatch "hl.dsp.focus({ window = \"address:0x$ROFI_INFO\" })" > /dev/null 2>&1
     ;;
   "$CUSTOM_BIND_1")
-    hyprctl dispatch "hl.dsp.window.move({ workspace = \"$(hyprctl monitors | awk '/active workspace:/ { workspace = $3} /focused: yes/ { print workspace }')\", window = \"address:0x$ROFI_INFO\" })" > /dev/null 2>&1
+    coproc hyprctl dispatch "hl.dsp.window.move({ workspace = \"$(hyprctl monitors | awk '/active workspace:/ { workspace = $3} /focused: yes/ { print workspace }')\", window = \"address:0x$ROFI_INFO\" })" > /dev/null 2>&1
     ;;
 esac

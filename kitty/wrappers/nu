@@ -1,4 +1,13 @@
 #!/bin/sh
+quote() {
+    printf "'"
+    printf '%s' "$1" | sed "s/'/'\\\\''/g"
+    printf "'"
+}
 _SHELL="$(whereis nu | awk 'NR == 1 { printf "%s", $3 }')"
 [ -z "$_SHELL" ] && { printf 'Nushell not found in PATH' 2>&1; exit 1; }
-exec kitten run-shell --shell="$_SHELL $($(whereis printf | awk '{print $NF}') ' %q' "$@")"
+OUT=""
+for a in "$@"; do
+    OUT="$OUT $(quote "$a")"
+done
+exec kitten run-shell --shell="$_SHELL$OUT"

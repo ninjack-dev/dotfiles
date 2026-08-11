@@ -1,6 +1,14 @@
 #!/bin/sh
 # kitten run-shell adds about 0.2s of latency to the launch; the two searches add a tiny bit more.
-# Depends on GNU coreutils printf for %q functionality.
+quote() {
+    printf "'"
+    printf '%s' "$1" | sed "s/'/'\\\\''/g"
+    printf "'"
+}
 _SHELL="$(whereis bash | awk 'NR == 1 { printf "%s", $3 }')"
 [ -z "$_SHELL" ] && { printf 'Bash not found in PATH\n' 2>&1; exit 1; }
-exec kitten run-shell --shell="$_SHELL $($(whereis printf | awk '{print $NF}') ' %q' "$@")"
+OUT=""
+for a in "$@"; do
+    OUT="$OUT $(quote "$a")"
+done
+exec kitten run-shell --shell="$_SHELL$OUT"

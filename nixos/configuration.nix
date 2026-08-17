@@ -15,10 +15,17 @@ let
   );
 in
 {
+  disabledModules = [
+    "services/networking/netbird.nix"
+  ];
+
   imports = [
     ./hardware-configuration.nix
     ./modules/authentik-platform
+
+    "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/netbird.nix"
   ];
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"

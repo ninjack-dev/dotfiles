@@ -7,4 +7,11 @@
   "packages": [
     "npm:pi-mcp-adapter"
   ],
+  "tuiMode": "regular",
+  "treeFilterMode": "default",
+  "doubleEscapeAction": "tree",
+  "markdown": {
+    "mermaid": "streaming"
+  },
+  "hideThinkingBlock": true
 }

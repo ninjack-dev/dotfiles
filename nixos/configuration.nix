@@ -752,10 +752,6 @@ in
 
   services.openssh.enable = true;
 
-  services.ollama = {
-    enable = true;
-  };
-
   services.authentik-platform = {
     enable = true;
     agent.enable = true;

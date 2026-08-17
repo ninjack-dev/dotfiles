@@ -104,6 +104,26 @@ in
       port = 51820;
       name = "netbird";
       interface = "wt0";
+      config = {
+        IFaceBlackList = [
+          "cni0"
+          "flannel.1"
+          "wt0"
+          "wt"
+          "utun"
+          "tun0"
+          "zt"
+          "ZeroTier"
+          "wg"
+          "ts"
+          "Tailscale"
+          "tailscale"
+          "docker"
+          "veth"
+          "br-"
+          "lo"
+        ]; # Ignore K3s ifaces, otherwise NetBird ICE tries to punch through which fails
+      };
       hardened = false;
     };
     package = pkgs.unstable.netbird;
@@ -144,12 +164,14 @@ in
       8000
       9090 # Calibre wireless connection
       65530 # audio-share https://github.com/mkckr0/audio-share
+      8472 # VXLAN for flannel
     ];
     allowedUDPPorts = [
       8000
       9090
       65530 # audio-share https://github.com/mkckr0/audio-share
       54982 # Calibre's discovery protocol
+      8472 # VXLAN for flannel
     ];
   };
 
@@ -369,6 +391,14 @@ in
       enable = true;
       package = pkgs.unstable.docker;
     };
+  };
+
+  services.k3s = {
+    enable = true;
+    role = "agent";
+    serverAddr = "https://192.168.2.3:6443";
+    extraFlags = [ "--flannel-iface wt0" ];
+    package = pkgs.unstable.k3s;
   };
 
   fileSystems = {
@@ -655,6 +685,35 @@ in
     (pass.override {
       waylandSupport = true;
     })
+
+    unstable.fluxcd
+
+    unstable.opentofu
+    unstable.tofu-ls
+
+    # TODO: Break this out into module alongside K3S config
+    (
+      let
+        k3s-bin = "${pkgs.unstable.k3s}/bin";
+      in
+      pkgs.runCommand "k3s-completions"
+        {
+          nativeBuildInputs = [ pkgs.installShellFiles ];
+        }
+        ''
+          export HOME=$PWD
+          export XDG_CACHE_HOME=$PWD/cache
+          export XDG_DATA_HOME=$PWD/data
+
+          installShellCompletion --cmd k3s \
+            --bash <(${k3s-bin}/k3s completion bash) \
+            --zsh <(${k3s-bin}/k3s completion zsh)
+
+          installShellCompletion --cmd kubectl \
+            --bash <(${k3s-bin}/kubectl completion bash) \
+            --zsh <(${k3s-bin}/kubectl completion zsh)
+        ''
+    )
 
     seahorse
   ];

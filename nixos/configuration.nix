@@ -459,10 +459,13 @@ in
     nixfmt
     kdePackages.krdc
     distrobox
-    hugo
+    unstable.hugo
     sshfs
     unstable.oh-my-posh
     git-filter-repo
+    aha
+    pwgen
+    bpftrace
 
     inkscape
     librsvg # Needed for proper Inkscape PDF exports (hyprlinks)
@@ -619,7 +622,6 @@ in
     yaml-language-server
     awk-language-server
     pyright
-    taplo
     unstable.tombi
     perlnavigator
     typescript-language-server
@@ -630,12 +632,13 @@ in
     unstable.rustfmt
     unstable.clippy
     unstable.rust-analyzer
+    unstable.sccache
 
     unstable.obs-studio
 
     unstable.forgejo-cli
 
-    podman-desktop
+    unstable.podman-desktop
 
     unstable.tree-sitter
 

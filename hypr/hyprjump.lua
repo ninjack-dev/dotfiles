@@ -71,15 +71,11 @@ do
 			"window.active",
 			---@param w HL.Window
 			function(w)
-				local on_blank_workspace = w.address == nil -- Jumping to blank workspace produces this event, but with an empty window
 				local target_window = jump_list[jump_idx > 0 and jump_idx or 1]
 				local on_target = w.address == (target_window and target_window.address) -- The event can fire twice occasionally
 
-				if on_blank_workspace or (not in_transition and not on_target) then
+				if not in_transition and not on_target then
 					build_jump_list()
-					if on_blank_workspace then
-						jump_idx = 0
-					end
 				elseif on_target then
 					in_transition = false
 				end

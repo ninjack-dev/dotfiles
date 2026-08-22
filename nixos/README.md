@@ -1,3 +1,6 @@
+>[!warning]
+> This NixOS configuration is **hot garbage**. It is in *desperate* need of a ground-up refactor with proper modularization and clean abstractions in some places.
+
 ## To-Do
 - [x] Debug [Godot package](./modules/godot/godot-mono.nix)
     - [The Godot package has now been updated to not use Dotnet 6](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/tools/godot/common.nix). Regardless, the speed at which this package was updated was somewhat agonizing, so going with the prebuilt binary seems nice. There are still bugs to fix, though.

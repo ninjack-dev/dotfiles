@@ -13,6 +13,20 @@ let
       sdk_10_0_1xx
     ]
   );
+  hyprlandSource = "nixpkgs";
+  sys = pkgs.stdenv.hostPlatform.system;
+  hypr =
+    if hyprlandSource == "flake" then {
+      hyprland = inputs.hyprland.packages.${sys}.hyprland;
+      portal = inputs.hyprland.packages.${sys}.xdg-desktop-portal-hyprland;
+      mesa = inputs.hyprland.inputs.nixpkgs.legacyPackages.${sys}.mesa;
+      mesa32 = inputs.hyprland.inputs.nixpkgs.legacyPackages.${sys}.pkgsi686Linux.mesa;
+    } else {
+      hyprland = pkgs.unstable.hyprland;
+      portal = pkgs.unstable.xdg-desktop-portal-hyprland;
+      mesa = pkgs.unstable.mesa;
+      mesa32 = pkgs.unstable.pkgsi686Linux.mesa;
+    };
 in
 {
   disabledModules = [
@@ -52,10 +66,9 @@ in
 
   hardware.graphics = {
     enable = true;
-    package = inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mesa;
+    package = hypr.mesa;
     enable32Bit = true;
-    package32 =
-      inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pkgsi686Linux.mesa;
+    package32 = hypr.mesa32;
     # These are handled by nixos-hardware: https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/intel/default.nix
     # extraPackages = with pkgs; [
     #   intel-media-driver
@@ -245,9 +258,8 @@ in
   programs.hyprland = {
     enable = true;
     withUWSM = true;
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    portalPackage =
-      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+    package = hypr.hyprland;
+    portalPackage = hypr.portal;
   };
 
   programs.hyprlock.enable = true;
@@ -318,7 +330,7 @@ in
     '';
     updateHyprlandLuarc.text = ''
       LUARC_PATH="$XDG_CONFIG_HOME/hypr/.luarc.json"
-      STUB_PATH="${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/share/hypr/stubs"
+      STUB_PATH="${hypr.hyprland}/share/hypr/stubs"
       [[ ! -s "$LUARC_PATH" ]] && printf '{}' > "$LUARC_PATH"
       cat <<< "$(${pkgs.jq}/bin/jq --arg new "$STUB_PATH" '
         .workspace.library |= (. // [] | if any(endswith("/share/hypr/stubs"))

@@ -1,24 +1,12 @@
->[!warning]
-> This NixOS configuration is **hot garbage**. It is in *desperate* need of a ground-up refactor with proper modularization and clean abstractions in some places.
+# NixOS Config
 
-## To-Do
-- [x] Debug [Godot package](./modules/godot/godot-mono.nix)
-    - [The Godot package has now been updated to not use Dotnet 6](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/development/tools/godot/common.nix). Regardless, the speed at which this package was updated was somewhat agonizing, so going with the prebuilt binary seems nice. There are still bugs to fix, though.
-    - Currently, it must be built with the EXACT same Dotnet version as the language server, otherwise `csharp-ls` cannot load the .sln; as such, it gets built with `unstable.callPackage` 
-    - There's a problem with `libicu` and DOTNET; I temporarily disabled the usage of it. See [the relevant Dotnet documentaiton](https://learn.microsoft.com/en-us/dotnet/core/extensions/globalization-icu).
-- [ ] Fully modularize Nix configuration
-- [ ] Replace hardcoded instances of username with proper Nix variable
-- [ ] Organize `environment.systemPackages`
-- [ ] Break out configuration for separate hosts
-- [ ] Fix dolphin
-    - [ ] Add proper Qt theme
-        - Look into making the Qt theme identical to the GTK theme. If this is not possible, consider moving on to a Gtk-based file manager.
-    - [ ] Integrate proper terminal (not Konsole)
-- [ ] Set up new Nix LS
-### Config-Specific
-- PAM
-    - [ ] Potentially add [pam-any](https://github.com/ChocolateLoverRaj/pam-any)
-        - I'm still unsure of the security implications of this. I've read that it's difficult for something like this to exist due to... async stuff, for lack of a better description. Regardless, this is an ideal solution to having both a password field and a fingerprint reader setup.
-        - Will likely need to package it myself
-### Tenative
-- [ ] Add Stylix
+***Now dendritic free![^1]***
+
+**Layout**: 
+- `modules` -- All NixOS config for `nixos-laptop`
+- `nixosModules` -- Custom NixOS modules
+- `packages` -- Custom packages
+
+The only current host is `nixos-laptop`, thus no `hosts` dir. It's a perpetual WIP and I've yet to find an ideal organizational pattern. Config modules are laid out strictly for organizational purposes and are not yet exposed in the flake (although this is planned for some modules, especially anything dev-related). The rule of thumb is that if a "semantic module" takes more than one attribute set to define, then it should be its own file or directory; otherwise, dump it in `configuration.nix`.
+
+[^1]: This repo has never actually used `flake-parts`. The only feature it provides that I would currently use is the cleaner module references, and I'd rather not pull in an entire dependency and refactor the tree for this minor feature. This might change if/when I compartmentalize a bit more and use some modules externally (e.g. shared K3s config).

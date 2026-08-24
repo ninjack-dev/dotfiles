@@ -10,7 +10,6 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       nixpkgs-unstable,
       nixos-hardware,
@@ -40,7 +39,7 @@
         specialArgs = { inherit inputs nixpkgs nixpkgs-unstable; };
         modules = [
           (
-            { config, pkgs, ... }:
+            { ... }:
             {
               nix = {
                 channel.enable = false;
@@ -67,7 +66,7 @@
               };
             }
           )
-          ./configuration.nix
+          ./modules/configuration.nix
           nixos-hardware.nixosModules.lenovo-thinkpad-e14-intel-gen6
         ];
       };

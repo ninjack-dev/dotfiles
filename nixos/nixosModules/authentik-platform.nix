@@ -66,7 +66,8 @@ in
     environment.systemPackages = [
       cfg.package
       cfg.cliPackage
-    ] ++ lib.optionals cfg.agent.enable [
+    ]
+    ++ lib.optionals cfg.agent.enable [
       # keep ak-agent out of system path; not happy with this solution but it's the only one I'm aware of
       (pkgs.runCommandLocal "ak-agent-polkit-policy" { } ''
         mkdir -p "$out/share/polkit-1/actions"

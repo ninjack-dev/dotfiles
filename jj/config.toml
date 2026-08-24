@@ -6,6 +6,28 @@ name = "ninjack-dev"
 email = "84806918+ninjack-dev@users.noreply.github.com"
 
 [aliases]
+set-user = {
+  doc = "Set this repo's jj identity from ~/.config/git/<host> based on the origin remote, or an explicit host arg",
+  definition = ["util", "exec", "--", "bash", "-c", '''
+set -euo pipefail
+if [ "$#" -gt 0 ]; then
+  identity=$1
+else
+  url=$(git remote get-url origin 2>/dev/null) || { echo "No origin remote found." >&2; exit 1; }
+  case "$url" in
+    *codeberg.org*) identity=codeberg ;;
+    *github.com*)   identity=github ;;
+    *) echo "Unknown remote host: $url" >&2; exit 1 ;;
+  esac
+fi
+file="$HOME/.config/git/$identity"
+[ -f "$file" ] || { echo "No identity file: $file" >&2; exit 1; }
+name=$(git config --file "$file" --get user.name) || { echo "user.name not set in $file" >&2; exit 1; }
+email=$(git config --file "$file" --get user.email) || { echo "user.email not set in $file" >&2; exit 1; }
+jj config set --repo user.name "$name"
+jj config set --repo user.email "$email"
+'''],
+  }
 update-branches = {
   doc = "Rebase branches off of the trunk onto the last commit",
   definition = ["rebase", "--source", "roots(trunk()..) ~ trunk()::", "--onto", "trunk()", "--skip-emptied"],

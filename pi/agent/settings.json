@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.84.2",
+  "lastChangelogVersion": "0.84.3",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProvider": "opencode-go",
   "defaultModel": "deepseek-v4-flash",

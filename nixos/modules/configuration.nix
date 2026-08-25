@@ -194,6 +194,7 @@
     (brave.override {
       commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
     })
+    unstable.atuin
 
     eog
     gucharmap

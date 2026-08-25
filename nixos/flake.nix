@@ -54,9 +54,12 @@
                 overlay-unstable
               ];
 
+              environment.etc."nix/inputs/nixpkgs".source = nixpkgs.outPath;
+              environment.etc."nix/inputs/unstable".source = nixpkgs-unstable.outPath;
+
               nix.nixPath = [
-                "nixpkgs=${nixpkgs.outPath}"
-                "unstable=${nixpkgs-unstable.outPath}"
+                "nixpkgs=/etc/nix/inputs/nixpkgs"
+                "unstable=/etc/nix/inputs/unstable"
               ];
 
               nix.settings = {

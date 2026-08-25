@@ -77,6 +77,7 @@ nix-which() {
 source <(zoxide init zsh --cmd cd)
 
 source <(fzf --zsh)
+source <(atuin init zsh)
 
 # Custom FZF cd widget which uses zoxide
 fzf-cd-widget() {

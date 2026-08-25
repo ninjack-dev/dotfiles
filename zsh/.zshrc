@@ -189,6 +189,7 @@ source <(pay-respects zsh --alias "$respects_alias")
 
 source <(direnv hook zsh)
 source <(mise activate zsh)
+source <(devenv hook zsh)
 
 if [[ "$TERM" != "linux" ]]; then
   eval "$(oh-my-posh init zsh)"

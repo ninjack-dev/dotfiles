@@ -116,6 +116,9 @@ in
       gum
       stow
 
+      unstable.devenv
+      unstable.secretspec
+
       # Networking
       dig
       socat

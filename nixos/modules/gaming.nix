@@ -1,8 +1,18 @@
 {
   pkgs,
+  inputs,
   ...
 }:
 {
+
+  disabledModules = [
+    "programs/steam.nix"
+  ];
+
+  imports = [
+    "${inputs.nixpkgs-unstable}/nixos/modules/programs/steam.nix"
+  ];
+
   programs.gamescope = {
     enable = true;
     package = pkgs.unstable.gamescope;

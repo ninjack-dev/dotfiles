@@ -60,13 +60,13 @@ in
     enable = true;
     package = hypr.mesa;
     enable32Bit = true;
-    package32 = hypr.mesa;
+    package32 = hypr.pkgsi686Linux.mesa;
     # These are also handled by nixos-hardware: https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/intel/default.nix
     extraPackages = with pkgs; [
       intel-media-driver
       vpl-gpu-rt
     ];
-    extraPackages32 = with pkgs; [ intel-vaapi-driver ];
+    extraPackages32 = with pkgs.pkgsi686Linux; [ intel-vaapi-driver ];
   };
 
   systemd.user.services.hyprpolkitagent = {

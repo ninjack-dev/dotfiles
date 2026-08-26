@@ -39,3 +39,9 @@ int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf, size_t buflen,
     (*result)->pw_shell = (char *)kOverrideShell;
   return rc;
 }
+
+__attribute__((constructor))
+static void strip_preload(void)
+{
+  unsetenv("LD_PRELOAD");
+}

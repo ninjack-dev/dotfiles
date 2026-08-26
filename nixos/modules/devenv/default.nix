@@ -8,8 +8,9 @@
 # to $SHELL or the PATH, which messes with my Kitty wrappers. Upstream needs
 # to be fixed at some point.
 #
-# Caveats: LD_PRELOAD is environment-inherited, so devenv's children
-# carry the override too. Forcing bash there is (probably) harmless in practice.
+# Caveats: a constructor in the override unsets LD_PRELOAD once loaded, so
+# devenv's children don't inherit the hack. Side effect: any other preloads
+# the env had are dropped for those children too. Nobody here relies on those.
 let
   devenv =
     let

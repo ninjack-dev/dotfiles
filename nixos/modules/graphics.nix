@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   inputs,
   ...
 }:
@@ -56,17 +57,31 @@ in
 
   programs.thunderbird.enable = true;
 
+  # Experimental driver
+  hardware.intelgpu.driver = "xe";
+
   hardware.graphics = {
     enable = true;
     package = hypr.mesa;
     enable32Bit = true;
     package32 = hypr.pkgsi686Linux.mesa;
-    # These are also handled by nixos-hardware: https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/intel/default.nix
-    extraPackages = with pkgs; [
-      intel-media-driver
-      vpl-gpu-rt
-    ];
-    extraPackages32 = with pkgs.pkgsi686Linux; [ intel-vaapi-driver ];
+    # These are typically handled by nixos-hardware: https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/intel/default.nix
+    # mkForce fixes merge conflicts when inputs to buildEnv diverge.
+    extraPackages = lib.mkForce (
+      with hypr;
+      [
+        intel-media-driver
+        vpl-gpu-rt
+        intel-compute-runtime
+      ]
+    );
+    extraPackages32 = lib.mkForce (
+      with hypr.pkgsi686Linux;
+      [
+        intel-media-driver
+        intel-vaapi-driver
+      ]
+    );
   };
 
   systemd.user.services.hyprpolkitagent = {

@@ -13,6 +13,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       nixpkgs-unstable,
       nixos-hardware,
@@ -49,6 +50,7 @@
                 registry = {
                   nixpkgs.flake = nixpkgs;
                   unstable.flake = nixpkgs-unstable;
+                  system.flake = self;
                 };
               };
 

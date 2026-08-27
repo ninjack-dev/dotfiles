@@ -145,7 +145,6 @@ bind(
 	hl.dsp.exec_cmd('grim - | tee "$HOME"/Pictures/Captures/"$(date +%m-%y)"/"$(date +%d-%H:%M)".png | wl-copy'),
 	{ description = "Take a selection-based screenshot" }
 )
--- TODO: Fix wf-recorder, or use an alternative
 bind(
 	"SHIFT + Print",
 	hl.dsp.exec_cmd(
@@ -211,10 +210,10 @@ local function pull_window(class, program)
 end
 
 launch(main_mod("CTRL + O"), function()
-	goto_window("obsidian", "obsidian")
+	goto_window("md.Obsidian", "obsidian")
 end, "Focus Obsidian")
 launch(main_mod("CTRL + SHIFT + O"), function()
-	pull_window("obsidian", "obsidian")
+	pull_window("md.Obsidian", "obsidian")
 end, "Bring Obsidian to current workspace")
 
 launch(main_mod("D"), function()

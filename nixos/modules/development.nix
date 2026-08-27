@@ -103,7 +103,17 @@ in
       wget
       tmux
       zoxide
-      unstable.nushell
+
+      # TODO: Replace with 26.11 module when it releases (or pull in from unstable)
+      (
+        let
+          officialPlugins = builtins.filter (
+            plugin: (lib.strings.hasPrefix "https://github.com/nushell/nushell" (plugin.meta.homepage or ""))
+          ) (lib.attrValues unstable.nushellPlugins);
+        in
+        unstable.nushell.withPlugins officialPlugins
+      )
+
       psmisc # Provides fuser, pstree
       unstable.pay-respects
       unstable.gh

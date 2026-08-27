@@ -123,12 +123,7 @@ local servers = {
   },
   tofu_ls = {},
   tombi = {},
-  tsgo = {
-    cmd = function(dispatchers, config)
-      local cmd = "tsc"
-      return vim.lsp.rpc.start({ cmd, "--lsp", "--stdio" }, dispatchers)
-    end,
-  },
+  tsc = {},
   vala_ls = {
     single_file_support = true,
   },

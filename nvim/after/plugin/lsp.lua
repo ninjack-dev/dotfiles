@@ -37,10 +37,10 @@ local servers = {
   gopls = {},
   html = {},
   jsonls = {
-    capabilites = (function()
-      local capabilites = vim.lsp.protocol.make_client_capabilities()
-      capabilites.textDocument.completion.completionItem.snippetSupport = true
-      return capabilites
+    capabilities = (function()
+      local capabilities = vim.lsp.protocol.make_client_capabilities()
+      capabilities.textDocument.completion.completionItem.snippetSupport = true
+      return capabilities
     end)(),
     settings = {
       json = {
@@ -163,7 +163,7 @@ vim.lsp.config("*", {
 })
 
 for name, opts in pairs(servers) do
-  opts.capabilites = require("blink.cmp").get_lsp_capabilities(opts.capabilities)
+  opts.capabilities = require("blink.cmp").get_lsp_capabilities(opts.capabilities)
   vim.lsp.config(name, opts)
   vim.lsp.enable(name)
 end

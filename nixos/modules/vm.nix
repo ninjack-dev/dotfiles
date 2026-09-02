@@ -1,12 +1,7 @@
 {
   lib,
-  config,
   ...
 }:
-# Heavily WIP.
-let
-  cfg = config.vm;
-in
 {
   virtualisation.vmVariant = {
 
@@ -20,6 +15,7 @@ in
     services.kanata.enable = lib.mkForce false;
     services.printing.enable = lib.mkForce false;
     services.udev.extraRules = lib.mkForce "";
+    services.k3s.enable = lib.mkForce false;
 
     boot.loader.grub.useOSProber = lib.mkForce false;
     boot.loader.grub.configurationLimit = lib.mkForce 5;
@@ -29,10 +25,10 @@ in
     services.hypridle.enable = lib.mkForce false;
     systemd.user.services.hyprpolkitagent.enable = lib.mkForce false;
 
-    virtualisation.memorySize = cfg.memorySize;
-    virtualisation.cores = cfg.cores;
-    virtualisation.diskSize = cfg.diskSize;
-    virtualisation.graphics = cfg.graphics;
+    virtualisation.memorySize = 4096;
+    virtualisation.cores = 4;
+    virtualisation.diskSize = 10000;
+    virtualisation.graphics = false;
 
     virtualisation.forwardPorts = [
       {

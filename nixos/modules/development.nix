@@ -107,9 +107,17 @@ in
       # TODO: Replace with 26.11 module when it releases (or pull in from unstable)
       (
         let
-          officialPlugins = builtins.filter (
-            plugin: (lib.strings.hasPrefix "https://github.com/nushell/nushell" (plugin.meta.homepage or ""))
-          ) (lib.attrValues unstable.nushellPlugins);
+          officialPlugins = (
+            builtins.filter
+              (plugin: (lib.strings.hasPrefix "https://github.com/nushell/nushell" (plugin.meta.homepage or "")))
+              (
+                lib.attrValues (
+                  # Hopefully this isn't a permanent requirement.
+                  # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/nu/nushell/plugins/default.nix#L22
+                  removeAttrs unstable.nushellPlugins [ "semver" ]
+                )
+              )
+          );
         in
         unstable.nushell.withPlugins officialPlugins
       )

@@ -131,6 +131,8 @@ in
       extraWatchers = with pkgs; [ aw-watcher-window-wayland ];
     })
     (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default # Crappy desktop shell, will be replaced (and this garbage stripped out)
+    nvtopPackages.intel
+
     (brave.override {
       commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
     })

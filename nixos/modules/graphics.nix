@@ -110,6 +110,7 @@ in
       ]
     );
   };
+  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
 
   systemd.user.services.hyprpolkitagent = {
     description = "Hyprland Polkit Agent";

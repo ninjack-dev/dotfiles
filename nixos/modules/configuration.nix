@@ -298,7 +298,6 @@
     ZDOTDIR = "$XDG_CONFIG_HOME/zsh";
     NIXOS_OZONE_WL = "1";
     STEAM_FORCE_DESKTOPUI_SCALING = "1.2";
-    LIBVA_DRIVER_NAME = "iHD";
 
     GTK_THEME = "Nordic";
 

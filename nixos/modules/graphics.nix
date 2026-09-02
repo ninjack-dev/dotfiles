@@ -13,6 +13,33 @@ let
       // inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}
     else
       pkgs.unstable;
+
+  # Adapted from https://github.com/StanAngeloff/nix-meridian/blob/trunk/home/apps/brave/default.nix.
+  # Learn more at https://github.com/NixOS/nixpkgs/pull/378184.
+  brave =
+    let
+      enabledFeatures = [
+        "Vulkan"
+        "DefaultANGLEVulkan"
+        "VulkanFromANGLE"
+        "VaapiIgnoreDriverChecks"
+      ];
+    in
+    (pkgs.brave.overrideAttrs (prev: {
+      preFixup = (prev.preFixup or "") + ''
+        gappsWrapperArgs+=(
+          --prefix LD_LIBRARY_PATH : "${hypr.vulkan-loader}/lib"
+        )
+      '';
+      postFixup = (prev.postFixup or "") + ''
+        substituteInPlace $out/bin/brave \
+          --replace-fail "--enable-features=" "--enable-features=${builtins.concatStringsSep "," enabledFeatures},"
+
+        # Replace shipped libvulkan with vulkan-loader's. Using hypr's just in case.
+        ln -sf "${hypr.vulkan-loader}/lib/libvulkan.so.1" "$out/opt/brave.com/brave/libvulkan.so.1"
+      '';
+    })).override
+      { libva = hypr.libva; };
 in
 {
   hardware.bluetooth = {
@@ -104,5 +131,8 @@ in
       extraWatchers = with pkgs; [ aw-watcher-window-wayland ];
     })
     (builtins.getFlake "path:/home/jacksonb/.config/ags").packages."x86_64-linux".default # Crappy desktop shell, will be replaced (and this garbage stripped out)
+    (brave.override {
+      commandLineArgs = "--enable-features=TouchpadOverscrollHistoryNavigation";
+    })
   ];
 }

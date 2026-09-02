@@ -10,7 +10,7 @@
   ];
 
   imports = [
-    "${inputs.nixpkgs-unstable}/nixos/modules/programs/steam.nix"
+    "${inputs.unstable}/nixos/modules/programs/steam.nix"
   ];
 
   programs.gamescope = {

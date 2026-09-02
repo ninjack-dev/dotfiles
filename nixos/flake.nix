@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -15,20 +15,20 @@
     {
       self,
       nixpkgs,
-      nixpkgs-unstable,
+      unstable,
       nixos-hardware,
       ...
     }@inputs:
     let
       system = "x86_64-linux";
       overlay-unstable = final: prev: {
-        unstable = import nixpkgs-unstable {
+        unstable = import unstable {
           inherit system;
           config = {
             allowUnfree = true;
             # Waiting on #3224 (in Ventoy) for blobs to be built from scratch, at which point this should be marked as secure again
             permittedInsecurePackages = [
-              "${nixpkgs-unstable.legacyPackages.${system}.ventoy.name}"
+              "${unstable.legacyPackages.${prev.system}.ventoy.name}"
             ];
           };
         };
@@ -40,7 +40,7 @@
     {
       nixosConfigurations."nixos-laptop" = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs nixpkgs nixpkgs-unstable; };
+        specialArgs = { inherit inputs nixpkgs unstable; };
         modules = [
           (
             { ... }:
@@ -49,7 +49,7 @@
                 channel.enable = false;
                 registry = {
                   nixpkgs.flake = nixpkgs;
-                  unstable.flake = nixpkgs-unstable;
+                  unstable.flake = unstable;
                   system.flake = self;
                 };
               };
@@ -60,7 +60,7 @@
               ];
 
               environment.etc."nix/inputs/nixpkgs".source = nixpkgs.outPath;
-              environment.etc."nix/inputs/unstable".source = nixpkgs-unstable.outPath;
+              environment.etc."nix/inputs/unstable".source = unstable.outPath;
 
               nix.nixPath = [
                 "nixpkgs=/etc/nix/inputs/nixpkgs"

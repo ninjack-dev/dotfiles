@@ -11,7 +11,7 @@
   ];
 
   imports = [
-    "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/netbird.nix"
+    "${inputs.unstable}/nixos/modules/services/networking/netbird.nix"
   ];
 
   services.netbird = {

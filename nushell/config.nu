@@ -1,21 +1,24 @@
 oh-my-posh init nu
 $env.config.show_banner = false
 
-# Using this custom completer by @scientiac https://github.com/nushell/nushell/issues/10285#issuecomment-2731825727
-# 
-# I've found that it's rather slow, and could really benefit from some kind of caching or background work.
+# Custom fish, adapted from https://www.nushell.sh/cookbook/external_completers.html#fish-completer
+# To save on startup time, we:
+# - bypass the kitty wrapper (~30ms)
+# - rebuild the the completion paths from scratch so that we can use --no-config (~40ms)
+let fish_path = whereis -b fish | split row ' ' | last
+let fish_completion_profile = open $"($env.XDG_CONFIG_HOME)/nushell/completion-profile.fish"
 let fish_completer = {|spans|
-    fish --no-config --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
-    | from tsv --flexible --noheaders --no-infer
-    | rename value description
-    | update value {|row|
-      let value = $row.value
-      let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
-      if ($need_quote and ($value | path exists)) {
-        let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
-        $'"($expanded_path | str replace --all "\"" "\\\"")"'
-      } else {$value}
-    }
+  ^$fish_path --no-config $"--init-command=($fish_completion_profile)" --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+  | from tsv --flexible --noheaders --no-infer
+  | rename value description
+  | update value {|row|
+    let value = $row.value
+    let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+    if ($need_quote and ($value | path exists)) {
+      let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+      $'"($expanded_path | str replace --all "\"" "\\\"")"'
+    } else {$value}
+  }
 }
 
 $env.config = {

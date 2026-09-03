@@ -22,12 +22,23 @@ let fish_completer = {|spans|
 }
 
 $env.config = {
-    completions: {
-        external: {
-            enable: true
-            completer: $fish_completer
-        }
+  completions: {
+    external: {
+      enable: true
+      completer: $fish_completer
     }
+  }
+  keybindings: [
+    {
+      name: open_editor
+      modifier: control
+      keycode: char_g
+      mode: [emacs vi_insert vi_normal]
+      event: {
+        send: OpenEditor
+      }
+    }
+  ]
 }
 
 def hyprctl_completions [spans] {

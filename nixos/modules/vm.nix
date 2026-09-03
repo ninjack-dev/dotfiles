@@ -3,27 +3,27 @@
   ...
 }:
 {
-  virtualisation.vmVariant = {
+  virtualisation.vmVariant = builtins.mapAttrs (_: value: lib.mkVMOverride value) {
 
-    hardware.graphics.enable = lib.mkForce false;
+    hardware.graphics.enable = false;
 
-    hardware.bluetooth.enable = lib.mkForce false;
-    hardware.i2c.enable = lib.mkForce false;
-    hardware.keyboard.qmk.enable = lib.mkForce false;
+    hardware.bluetooth.enable = false;
+    hardware.i2c.enable = false;
+    hardware.keyboard.qmk.enable = false;
 
-    services.fprintd.enable = lib.mkForce false;
-    services.kanata.enable = lib.mkForce false;
-    services.printing.enable = lib.mkForce false;
-    services.udev.extraRules = lib.mkForce "";
-    services.k3s.enable = lib.mkForce false;
+    services.fprintd.enable = false;
+    services.kanata.enable = false;
+    services.printing.enable = false;
+    services.udev.extraRules = "";
+    services.k3s.enable = false;
 
-    boot.loader.grub.useOSProber = lib.mkForce false;
-    boot.loader.grub.configurationLimit = lib.mkForce 5;
+    boot.loader.grub.useOSProber = false;
+    boot.loader.grub.configurationLimit = 5;
 
-    programs.hyprland.enable = lib.mkForce false;
-    programs.hyprlock.enable = lib.mkForce false;
-    services.hypridle.enable = lib.mkForce false;
-    systemd.user.services.hyprpolkitagent.enable = lib.mkForce false;
+    programs.hyprland.enable = false;
+    programs.hyprlock.enable = false;
+    services.hypridle.enable = false;
+    systemd.user.services.hyprpolkitagent.enable = false;
 
     virtualisation.memorySize = 4096;
     virtualisation.cores = 4;
@@ -39,6 +39,6 @@
     ];
 
     # For faster boot, avoid waiting for ARP on the virtual NIC.
-    networking.dhcpcd.extraConfig = lib.mkForce "noarp";
+    networking.dhcpcd.extraConfig = "noarp";
   };
 }

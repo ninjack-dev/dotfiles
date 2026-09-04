@@ -112,6 +112,9 @@
     podman = {
       enable = true;
       package = pkgs.unstable.podman;
+      extraRuntimes = with pkgs.unstable; [
+        crun
+      ];
       defaultNetwork.settings.dns_enabled = true;
     };
     docker = {

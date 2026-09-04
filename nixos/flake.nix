@@ -28,13 +28,13 @@
             allowUnfree = true;
             # Waiting on #3224 (in Ventoy) for blobs to be built from scratch, at which point this should be marked as secure again
             permittedInsecurePackages = [
-              "${unstable.legacyPackages.${prev.system}.ventoy.name}"
+              "${unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.ventoy.name}"
             ];
           };
         };
       };
       overlay-stable = final: prev: {
-        stable = nixpkgs.legacyPackages.${prev.system};
+        stable = nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system};
       };
     in
     {

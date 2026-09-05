@@ -7,52 +7,22 @@
 # the fact that non-Bash shells are searched for there before falling back
 # to $SHELL or the PATH, which messes with my Kitty wrappers. Upstream needs
 # to be fixed at some point.
-#
-# Caveats: a constructor in the override unsets LD_PRELOAD once loaded, so
-# devenv's children don't inherit the hack. Side effect: any other preloads
-# the env had are dropped for those children too. Nobody here relies on those.
 let
-  devenv =
-    let
-      orig = pkgs.unstable.devenv;
-      shellOverride = pkgs.runCommandCC "getpwuid-override" { } ''
-        mkdir -p "$out"
-        cc -O2 -Wall -shared -fPIC -o "$out/getpwuid-override.so" ${./getpwuid-override.c} -ldl
-      '';
-    in
-    pkgs.runCommand "devenv-shell-override"
-      {
-        pname = "devenv";
-        inherit (orig) meta;
+  overrideLib = pkgs.runCommandCC "getpwuid-override" { } ''
+    mkdir -p "$out/lib"
+    cc -O2 -Wall -shared -fPIC -o "$out/lib/getpwuid-override.so" ${./getpwuid-override.c} -ldl
+  '';
 
-        dontFixup = true;
-
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-      }
-      ''
-        set -e
-
-        mkdir -p "$out"
-        # Not sure about this, LLM slop
-        for entry in "${orig}"/*; do
-          name="$(basename "$entry")"
-          [ "$name" = bin ] && continue
-          ln -s "$entry" "$out/$name"
-        done
-
-        mkdir -p "$out/bin"
-        for entry in "${orig}"/bin/* "${orig}"/bin/.[!.]*; do
-          name="$(basename "$entry")"
-          [ "$name" = devenv ] && continue
-          ln -s "$entry" "$out/bin/$name"
-        done
-
-        mkdir -p "$out/lib"
-        ln -s "${shellOverride}/getpwuid-override.so" "$out/lib/getpwuid-override.so"
-
-        makeWrapper "${orig}/bin/devenv" "$out/bin/devenv" \
-          --prefix LD_PRELOAD ":" "$out/lib/getpwuid-override.so"
-      '';
+  devenv = pkgs.symlinkJoin {
+    name = "devenv-shell-override";
+    paths = [ pkgs.unstable.devenv ];
+    meta = devenv.meta;
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm "$out/bin/devenv"
+      makeWrapper "${devenv}/bin/devenv" "$out/bin/devenv" --prefix LD_PRELOAD ":" "${overrideLib}/lib/getpwuid-override.so"
+    '';
+  };
 in
 {
   # TODO: Consider sticking this in an overlay

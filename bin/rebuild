@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root"
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Please run as root"
   exit
 fi
 
-pushd /etc/nixos/ >/dev/null || exit
+pushd /etc/nixos/ > /dev/null || exit
 
 # Adapted from https://stackoverflow.com/a/76439371
 # Allows for sending notification as root
@@ -18,6 +18,30 @@ notify-send() {
 }
 
 declare -a flakeInputs=("nixpkgs" "nixos-hardware")
+
+# Run git as the invoking ser  so the user's git config is used.
+# Falls back to root's git when SUDO_USER is unset (already root).
+git_as_invoker() {
+  if [[ -n "${SUDO_USER:-}" ]]; then
+    sudo -H -u "$SUDO_USER" git -C /etc/nixos "$@"
+  else
+    git -C /etc/nixos "$@"
+  fi
+}
+
+# Commit only the worktree contents of flake.lock.
+commit_lockfile_if_changed() {
+  if [[ -z "$(git_as_invoker status --porcelain -- flake.lock)" ]]; then
+    return 0
+  fi
+  if ! git_as_invoker ls-files --error-unmatch -- flake.lock > /dev/null 2>&1; then
+    git_as_invoker add --intent-to-add -- flake.lock || return 1
+  fi
+  git_as_invoker commit --only -m "chore(nixos): update flake.lock" -- flake.lock || {
+    echo "Warning: failed to commit flake.lock" >&2
+    return 1
+  }
+}
 
 # WIP: Get list of flake inputs to update
 # nix flake metadata --json 2>/dev/null | jq '.locks.nodes.root.inputs.[]'
@@ -33,8 +57,8 @@ while [[ $# -gt 0 ]]; do
       exit 1
       ;;
     *)
-      POSITIONAL_ARGS+=("$1") # save positional arg
-      shift # past argument
+      POSITIONAL_ARGS+=("$1")
+      shift
       ;;
   esac
 done
@@ -42,9 +66,11 @@ done
 nix flake update "${flakeInputs[@]}"
 
 if nixos-rebuild switch --impure; then
-  read -r -d '\n' name new_kernel_version < <(nix eval --impure --json .#nixosConfigurations.nixos-laptop.config.boot.kernelPackages.kernel --apply \
-    'kernel: { name = kernel.pname; version = kernel.version; }' 2>/dev/null \
-    | jq -r '.name, .version'
+  commit_lockfile_if_changed || true
+  read -r -d '\n' name new_kernel_version < <(
+    nix eval --impure --json .#nixosConfigurations.nixos-laptop.config.boot.kernelPackages.kernel --apply \
+      'kernel: { name = kernel.pname; version = kernel.version; }' 2> /dev/null \
+      | jq -r '.name, .version'
   )
 
   name=$(sed 's/-/ /g; s/\b\(.\)/\u\1/g' <<< "$name")
@@ -56,7 +82,7 @@ if nixos-rebuild switch --impure; then
   fi
 
   systemctl start prepare-kexec.service
-  action=$(notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' "${flags[@]}" "Rebuild complete."  "$notification_string" 2>/dev/null)
+  action=$(notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' "${flags[@]}" "Rebuild complete." "$notification_string" 2> /dev/null)
   case "$action" in
     0)
       systemctl kexec
@@ -67,6 +93,6 @@ if nixos-rebuild switch --impure; then
 
   exit 0
 else
-  notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild failed!' 2>/dev/null
+  notify-send --icon=nix-snowflake --app-name='NixOS Rebuild' 'Rebuild failed!' 2> /dev/null
   exit 1
 fi

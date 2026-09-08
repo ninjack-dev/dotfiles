@@ -20,12 +20,8 @@ let
       gopls
     ];
 
-    rust = with unstable; [
-      rustc
-      cargo
-      rustfmt
-      clippy
-      rust-analyzer
+    rust = with pkgs.unstable; [
+      (callPackage ../packages/rustup-wrapper.nix { })
       sccache
     ];
 

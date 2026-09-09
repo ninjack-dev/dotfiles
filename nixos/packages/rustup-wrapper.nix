@@ -14,6 +14,8 @@ let
     RUSTUP_NIX_DIGEST="$RUSTUP_HOME/.nix-store-path"
 
     if [[ -d "$RUSTUP_HOME" ]] && [[ "$(cat "$RUSTUP_NIX_DIGEST" 2>/dev/null)" != "@rustupStorePath@" ]]; then
+      printf 'rustup-wrapper: Patching rustup binaries\n' >&2
+
       for f in "$RUSTUP_HOME"/toolchains/*/bin/*; do
         f="$(readlink -f "$f")" || continue
         GOT="$("${patchelf}/bin/patchelf" --print-interpreter "$f" 2>/dev/null)" || continue
@@ -49,6 +51,9 @@ if stdenv.hostPlatform.isLinux then
       [[ -L "$p" ]] || continue
       ln -s $out/bin/rustup "$out/bin/$(basename "$p")"
     done
+
+    # rustup's share/ is completions only so we expose it as-is
+    ln -s ${rustup}/share $out/share
   ''
 else
   rustup

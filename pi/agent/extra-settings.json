@@ -1,3 +1,9 @@
 {
-  "bashDefaultTimeout": 10
+  "bashDefaultTimeout": 10,
+  "read-md": {
+    "maxLines": 50,
+    "searchLimit": 20,
+    "snippetChars": 100,
+    "snippetsPerSection": 3
+  }
 }

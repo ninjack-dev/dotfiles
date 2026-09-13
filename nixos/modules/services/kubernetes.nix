@@ -54,6 +54,8 @@ in
 
   environment.systemPackages = with pkgs; [
     unstable.fluxcd
+    unstable.kustomize
+    unstable.kubernetes-helm
     openiscsi
     k3sCompletions
   ];

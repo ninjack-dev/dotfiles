@@ -76,14 +76,18 @@ loc() {
 }
 
 nix-which() {
-  readlink $('which' $1)
+  readlink $(whereis -b "$1" | awk '{ print $NF }')
+}
+
+find-bin() {
+  print -z "$(tr ':' '\n' <<< $PATH | xargs -I{} find -L '{}' -maxdepth 1 -type f -executable -printf '%f\n' | fzf)"
 }
 
 ## Shell Integrations ##
 source <(zoxide init zsh --cmd cd)
 
 source <(fzf --zsh)
-source <(atuin init zsh)
+source <(atuin init zsh --disable-up-arrow)
 
 # Custom FZF cd widget which uses zoxide
 fzf-cd-widget() {

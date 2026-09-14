@@ -5,7 +5,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
 
 HISTFILE=~/.config/zsh/.histfile
 HISTSIZE=1000
@@ -48,10 +47,17 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle :compinstall filename '/home/jacksonb/.zshrc' # I don't know what this does. It was put here automagically when I set up ZSH so I'll leave it be. 
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
-# https://gist.github.com/ctechols/ca1035271ad134841284#gistcomment-2308206
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit
-compinit -C
+zmodload zsh/datetime zsh/stat
+_zcomp_dump=${ZDOTDIR:-$HOME}/.zcompdump
+if [[ ! -f $_zcomp_dump ]] || (( EPOCHSECONDS - $(zstat +mtime $_zcomp_dump) > 7*24*3600 )); then
+  print -u2 "Rebuilding completion cache; this startup will be slower than usual"
+  compinit -i
+else
+  compinit -C
+fi
+unset _zcomp_dump
 
 complete -C 'aws_completer' aws
 
@@ -171,29 +177,52 @@ fzf-file-widget() {
 }
 
 # pay-respects integration https://github.com/iffse/pay-respects
-# Escaped hexadecimal: `echo -n "a_family_friendly_alias" | od -A n -t x1 | sed 's/ /\\0x/g' | tr -d '\n' | awk "{ printf \"\$(echo -n '\"\$1 \"')\"}" | wl-copy`
 local respects_alias=$(echo '\0x66\0x75\0x63\0x6b')
-for i in {1..10}; do
-  alias $(echo -n '\0x73\0x68'$(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias
-done
-for i in {2..10}; do
-  alias $(echo -n '\0x66'$(for j in $(seq 1 $i); do echo -n '\0x75'; done)'\0x63\0x6b')=$respects_alias
-done
-alias $(echo -n '\0x67\0x6f\0x64\0x66\0x75\0x63\0x6b\0x69\0x6e')=$respects_alias
-alias $(echo -n '\0x63\0x72\0x61\0x70')=$respects_alias
-alias $(echo -n '\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
-alias $(echo -n '\0x67\0x6f\0x64\0x64\0x61\0x6d\0x6d\0x69\0x74')=$respects_alias
-alias $(echo -n '\0x66\0x75\0x63\0x6b\0x69\0x6e\0x68\0x65\0x6c\0x6c')=$respects_alias
+local _alias_gen=$ZDOTDIR/.zsh_aliases_generated
+if [[ ! -f $_alias_gen ]]; then
+  {
+    for i in {1..10}; do
+      print -r "alias $(echo -n '\0x73\0x68'$(for j in $(seq 1 $i); do echo -n '\0x69'; done)'\0x74')=$respects_alias"
+    done
+    for i in {2..10}; do
+      print -r "alias $(echo -n '\0x66'$(for j in $(seq 1 $i); do echo -n '\0x75'; done)'\0x63\0x6b')=$respects_alias"
+    done
+    for name in \
+        '\0x67\0x6f\0x64\0x66\0x75\0x63\0x6b\0x69\0x6e' \
+        '\0x63\0x72\0x61\0x70' \
+        '\0x64\0x61\0x6d\0x6d\0x69\0x74' \
+        '\0x67\0x6f\0x64\0x64\0x61\0x6d\0x6d\0x69\0x74' \
+        '\0x66\0x75\0x63\0x6b\0x69\0x6e\0x68\0x65\0x6c\0x6c'; do
+      print -r "alias $(echo -n $name)=$respects_alias"
+    done
+  } > $_alias_gen
+fi
+source $_alias_gen
+unset _alias_gen
 
 source <(pay-respects zsh --alias "$respects_alias")
 
 source <(direnv hook zsh)
-source <(mise activate zsh)
-source <(devenv hook zsh)
 
 if [[ "$TERM" != "linux" ]]; then
   eval "$(oh-my-posh init zsh)"
 fi
+
+# Deferred startup
+# NOTE: do not defer this through a zle-line-init hook. Adding an
+# add-zle-hook-widget hook for zle-line-init makes kitty's shell integration
+# append its cursor handler (_ksi_zle_line_init) to the same hook chain, behind
+# oh-my-posh's line-init hook, which calls `zle .recursive-edit` and blocks
+# until the line is accepted. zle-line-pre-redraw is not chained by kitty, so kitty 
+# still wraps zle-line-init directly and emits the bar before oh-my-posh blocks.
+autoload -Uz add-zle-hook-widget
+_finish_startup() {
+  add-zle-hook-widget -d zle-line-pre-redraw _finish_startup
+  source <(mise activate zsh)
+  source <(devenv hook zsh)
+  zinit light zsh-users/zsh-autosuggestions
+}
+add-zle-hook-widget zle-line-pre-redraw _finish_startup
 
 ## Neovim ##
 

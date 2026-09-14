@@ -2,3 +2,4 @@
 .zsh_history
 zsh-bench/
 .zcompdump
+.zsh_aliases_generated

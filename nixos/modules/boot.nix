@@ -8,6 +8,9 @@
 {
   boot = {
     kernelPackages = pkgs.linuxKernel.packages.linux_zen;
+    kernel = {
+      sysctl."kernel.sysrq" = 1;
+    };
     loader = {
       efi.canTouchEfiVariables = true;
       grub.enable = true;
@@ -17,5 +20,6 @@
       grub.configurationLimit = 30;
     };
     tmp.cleanOnBoot = true;
+
   };
 }

@@ -17,5 +17,6 @@
       grub.configurationLimit = 30;
     };
     tmp.cleanOnBoot = true;
+    sysctl."kernel.sysrq" = 1;
   };
 }

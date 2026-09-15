@@ -18,11 +18,22 @@ textarea {
 .vc-special-card {
   display: none;
 }
-/* Disable events */
-#app-mount > div.appAsidePanelWrapper_a3002d > div > div.app_a3002d > div > div.layers__960e4.layers__160d8 > div > div > div > div.content_c48ade > div.sidebar_c48ade.theme-dark.theme-darker.images-dark > section > div.mask__0d616 > div {
+
+/* Disable event popups */
+[aria-label="User status and settings"] > [class^="mask"] {
   display: none;
 }
-/* Disable Nitro bar at top of screen */
-.notice__6e2b9 {
+
+/* Disable menu items I don't need */
+[aria-label="Direct Messages"]
+  li:is(
+    [aria-posinset="2"],
+    [aria-posinset="4"],
+    [aria-posinset="5"],
+    [aria-posinset="6"],
+    :has([href="/quest-home"]),
+    :has([href="/shop"]),
+    :has([href="/store"])
+  ) {
   display: none;
 }

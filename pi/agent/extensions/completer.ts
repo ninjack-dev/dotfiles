@@ -7,14 +7,14 @@
  * and the global core.excludesFile. There is no fd flag that separates them,
  * and pi exposes no setting for this. ripgrep, however, has the exact flag we
  * need: `--no-ignore-exclude` disables only the manually-configured excludes
- * (git's `.git/info/exclude`) while `.gitignore` rules stay in effect — the
- * desired completion set in a single pass.
+ * (git's `.git/info/exclude`) while `.gitignore` rules stay in effect: the
+ * desired completion set.
  *
  * Candidate sources (preference order; resolved once per session, like the
  * built-in provider resolves its fd path):
  *
- *   rg    ripgrep --files --no-ignore-exclude   -> exact semantics in one pass
- *   fd    three passes, set-union                -> same semantics via A ∪ (B ∖ C)
+ *   rg    ripgrep --files --no-ignore-exclude   -> exact ignore semantics
+ *   fd    four passes, set-union                -> same semantics via A ∪ (B ∖ C)
  *   node  readdir walk, honours no ignore rules  -> last resort, shows everything
  *
  * The fd fallback passes:
@@ -30,12 +30,10 @@
  *
  *     repo: earendil-works/pi-mono
  *     file: packages/tui/src/autocomplete.ts
- *     tag:  v0.84.2
- *     last verified: 2026-08-16
+ *     tag:  v0.84.2, plus the v0.85.1 ranking and base-listing fixes
  *
- *   (The .ts text bundled into pi 0.84.2's dist source map is identical to the
- *   tag — `diff` was clean.) If you update pi, re-check these functions
- *   against the newer tag before trusting this extension.
+ *   If you update pi, re-check these functions against the newer tag before
+ *   trusting this extension.
  *
  *   - Verbatim (code text identical to upstream; upstream's decorative
  *     function-label comment lines are removed here):
@@ -43,12 +41,13 @@
  *       findUnclosedQuoteStart, isTokenStart, extractQuotedPrefix,
  *       parsePathPrefix, buildCompletionValue.
  *   - Verbatim except documented splices: walkDirectoryWithFd keeps upstream's
- *       arg construction and line parsing, gains a final
- *       `extraArgs: string[] = []` parameter (one `...extraArgs,` line in the
- *       args array; with no extra args the emitted fd command is identical),
- *       and delegates spawn plumbing to the shared collectProcessOutput()
+ *       arg construction and line parsing and gains two upstream-v0.85.1
+ *       additions: `extraArgs: string[] = []` (one `...extraArgs,` line in the
+ *       args array) and `maxDepth?: number` (emits `--max-depth` when set).
+ *       Spawn plumbing is delegated to the shared collectProcessOutput()
  *       helper (extension-owned, extracted from the upstream function's
- *       inline code).
+ *       inline code). With no extra args and no maxDepth the emitted fd
+ *       command matches upstream's.
  *   - Mechanical ports (class methods; the ONLY edits are `private` removed
  *       and, where noted, `this.x` → named parameter):
  *       extractAtPrefix, expandHomePath, scopedPathForDisplay, scoreEntry:
@@ -61,14 +60,14 @@
  *           this.scopedPathForDisplay → scopedPathForDisplay,
  *           options.isQuotedPrefix → isQuotedPrefix.
  *
- * STATE MODEL (borrowed from upstream):
- *   The built-in provider tracks { commands, basePath, fdPath } on its
- *   instance — created fresh on every session rebind — and re-reads every
- *   ignore file on each fd invocation. This extension mirrors that: tracked
- *   per session = { session cwd, selected source, fd binary name, exclude
- *   path (fd source only) }, built on session_start and reused for the
- *   session; everything else (file listings, ignore-file contents, queries,
- *   scoring) is recomputed per keystroke. Nothing lives at module scope.
+ * STATE MODEL:
+ *   The built-in provider resolves its `fd` path once per session, fresh on
+ *   each session rebind, but re-reads ignore files on every invocation. This
+ *   extension mirrors that: tracked per session = { session cwd, selected
+ *   source, fd binary name, exclude path (fd source only) }, built on
+ *   session_start and reused; everything else (file listings, ignore-file
+ *   contents, queries, scoring) is recomputed per keystroke. Nothing lives at
+ *   module scope.
  *
  * Notes / limitations:
  * - Probing (rg → fd/fdfind → node) happens once per session. The fd source
@@ -76,10 +75,11 @@
  *   file mid-session is picked up instantly (rg/fd re-read it on every run),
  *   but creating it from scratch mid-session needs a `/reload`.
  * - rg lists files only, so empty directories are not completable and
- *   directory entries are derived from file ancestry: they are interleaved
- *   at their path-sorted position (`--sort path`), mirroring fd's sorted
- *   output. Query pre-filtering mirrors fd's in-process pattern (basename
- *   match, smart-case, literal substring). rg honours `.ignore`/`.rgignore` where fd honours
+ *   directory entries are derived from file ancestry. A `--max-depth 2`
+ *   shallow pass mirrors upstream's baseDirEntries guarantee for direct
+ *   children (a direct dir appears once any file within it is seen). Query
+ *   pre-filtering mirrors fd's in-process pattern (basename match, smart-case,
+ *   literal substring). rg honours `.ignore`/`.rgignore` where fd honours
  *   `.ignore`/`.fdignore`; `.gitignore` and git's global excludes are handled
  *   equivalently.
  * - fd's `--ignore-file` patterns are evaluated relative to the search base:
@@ -280,6 +280,7 @@ async function walkDirectoryWithFd(
 	maxResults: number,
 	signal: AbortSignal,
 	extraArgs: string[] = [],
+	maxDepth?: number,
 ): Promise<Array<{ path: string; isDirectory: boolean }>> {
 	const args = [
 		"--base-directory",
@@ -300,6 +301,10 @@ async function walkDirectoryWithFd(
 		".git/**",
 		...extraArgs,
 	];
+
+	if (maxDepth !== undefined) {
+		args.push("--max-depth", String(maxDepth));
+	}
 
 	if (toDisplayPath(query).includes("/")) {
 		args.push("--full-path");
@@ -435,7 +440,19 @@ function rankAndFormatFuzzyEntries(
 		}))
 		.filter((entry) => entry.score > 0);
 
-	scoredEntries.sort((a, b) => b.score - a.score);
+	// Score first, then shallowest-first. On an empty query every entry ties
+	// (score 1), so the depth tiebreak is what lists a directory's direct
+	// children instead of deep descendants.
+	scoredEntries.sort((a, b) => {
+		const scoreDiff = b.score - a.score;
+		if (scoreDiff !== 0) return scoreDiff;
+		const aDepth = toDisplayPath(a.path).split("/").filter(Boolean).length;
+		const bDepth = toDisplayPath(b.path).split("/").filter(Boolean).length;
+		if (aDepth !== bDepth) return aDepth - bDepth;
+		const lengthDiff = a.path.length - b.path.length;
+		if (lengthDiff !== 0) return lengthDiff;
+		return a.path.localeCompare(b.path);
+	});
 	const topEntries = scoredEntries.slice(0, 20);
 
 	const suggestions: AutocompleteItem[] = [];
@@ -462,6 +479,22 @@ function rankAndFormatFuzzyEntries(
 	return suggestions;
 }
 
+/** Concatenate candidate lists, dropping later duplicates (first wins). */
+function mergeCandidateLists(...lists: CandidateEntry[][]): CandidateEntry[] {
+	const seen = new Set<string>();
+	const merged: CandidateEntry[] = [];
+	for (const list of lists) {
+		for (const entry of list) {
+			if (seen.has(entry.path)) {
+				continue;
+			}
+			seen.add(entry.path);
+			merged.push(entry);
+		}
+	}
+	return merged;
+}
+
 /**
  * A source of base-relative candidate entries for `@` attachments. Each
  * implementation encapsulates the ignore semantics of its underlying tool;
@@ -486,112 +519,139 @@ interface FileCandidateSource {
 const ENUMERATION_CAP = 20_000;
 
 /**
- * Default source: `--no-ignore-exclude` disables only the manually configured
- * excludes (`.git/info/exclude`) while `.gitignore` rules stay in effect —
- * exactly the A ∪ (B ∖ C) semantics in one pass. rg lists files only, so
- * directories are derived from file paths to keep `@dir/...` drilling working;
- * `--sort path` reproduces fd's path-sorted output order.
+ * Shared rg argv for the `@` file walk. `extraArgs` carries pass-specific
+ * limits; ignore semantics stay fixed: `--no-ignore-exclude` un-ignores git's
+ * `.git/info/exclude` (and other manual excludes) while `.gitignore` rules and
+ * global excludes keep applying.
+ */
+const RG_COMMON_ARGS = [
+	"--files",
+	"--hidden",
+	"-L",
+	"--no-ignore-exclude",
+	"--glob",
+	"!.git",
+	"--glob",
+	"!.git/**",
+];
+
+/**
+ * Run one streaming rg pass in `base` and return the relative paths. No
+ * `--sort path`: rg buffers the tree to sort, and the ranking sort is total,
+ * so streaming keeps ENUMERATION_CAP a real memory bound.
+ */
+async function collectRgPaths(base: string, extraArgs: string[], signal: AbortSignal): Promise<string[]> {
+	let lineCount = 0;
+	const run = await collectProcessOutput("rg", [...RG_COMMON_ARGS, ...extraArgs], signal, {
+		// cwd=base makes output paths base-relative.
+		cwd: base,
+		onChunk: (chunk) => {
+			lineCount += chunk.match(/\n/g)?.length ?? 0;
+			// fd's --max-results equivalent: stop the walk once the cap
+			// is reached instead of buffering a huge tree.
+			return lineCount >= ENUMERATION_CAP;
+		},
+	});
+	if (signal.aborted) {
+		return [];
+	}
+	const lines = run.stdout.split("\n");
+	if (run.truncated && !run.stdout.endsWith("\n")) {
+		lines.pop(); // killed mid-record: drop the partial trailing line
+	}
+	return lines
+		.filter(Boolean)
+		.slice(0, ENUMERATION_CAP)
+		.filter((line) => {
+			const displayLine = toDisplayPath(line);
+			return !(displayLine === ".git" || displayLine.startsWith(".git/") || displayLine.includes("/.git/"));
+		});
+}
+
+/**
+ * Turn rg's file-only output into candidate entries. Mirrors fd's in-process
+ * pattern (basename only, smart-case, literal substring) and surfaces each
+ * matching dir the first time it is crossed as an ancestor. A dir is offered
+ * when its own basename matches the query, so `@loc` still offers `.local/`
+ * like upstream fd would.
+ */
+function buildRgCandidates(files: string[], query: string): CandidateEntry[] {
+	const smartCase = /[A-Z]/.test(query);
+	const needle = query ? (smartCase ? query : query.toLowerCase()) : null;
+	const basenameMatches = (path: string) => {
+		if (needle === null) {
+			return true;
+		}
+		const base = path.slice(path.lastIndexOf("/") + 1);
+		return (smartCase ? base : base.toLowerCase()).includes(needle);
+	};
+	const emittedDirs = new Set<string>();
+	const results: CandidateEntry[] = [];
+	for (const file of files) {
+		const ancestors: string[] = [];
+		let slash = file.lastIndexOf("/");
+		while (slash > 0) {
+			const dir = file.slice(0, slash);
+			if (basenameMatches(dir) && !emittedDirs.has(dir)) {
+				ancestors.push(dir);
+				emittedDirs.add(dir);
+			}
+			slash = dir.lastIndexOf("/");
+		}
+		for (let i = ancestors.length - 1; i >= 0; i -= 1) {
+			results.push({ path: `${ancestors[i]}/`, isDirectory: true });
+		}
+		if (basenameMatches(file)) {
+			results.push({ path: toDisplayPath(file), isDirectory: false });
+		}
+	}
+	return results;
+}
+
+/**
+ * Default source: `--no-ignore-exclude` un-ignores `.git/info/exclude` while
+ * `.gitignore` rules stay in effect, giving the desired semantics directly.
+ * rg lists files only, so directories are derived from file paths to keep
+ * `@dir/...` drilling working. A `--max-depth 2` shallow pass guarantees
+ * direct children (direct files, plus the first path segment of every
+ * directory); the recursive pass fills in the rest.
  */
 const rgSource: FileCandidateSource = {
 	name: "rg",
 	async getCandidates({ base, query, signal }) {
-		let lineCount = 0;
-		const run = await collectProcessOutput(
-			"rg",
-			[
-				"--files",
-				"--hidden",
-				"-L",
-				"--no-ignore-exclude",
-				"--glob",
-				"!.git",
-				"--glob",
-				"!.git/**",
-				"--sort",
-				"path",
-			],
-			signal,
-			{
-				// cwd=base makes output paths base-relative.
-				cwd: base,
-				onChunk: (chunk) => {
-					lineCount += chunk.match(/\n/g)?.length ?? 0;
-					// fd's --max-results equivalent: stop the walk once the cap
-					// is reached instead of buffering a huge tree.
-					return lineCount >= ENUMERATION_CAP;
-				},
-			},
-		);
+		const shallowFiles = await collectRgPaths(base, ["--max-depth", "2"], signal);
 		if (signal.aborted) {
 			return [];
 		}
-		const lines = run.stdout.split("\n");
-		if (run.truncated && !run.stdout.endsWith("\n")) {
-			lines.pop(); // killed mid-record: drop the partial trailing line
+		const recursiveFiles = await collectRgPaths(base, [], signal);
+		if (signal.aborted) {
+			return [];
 		}
-		const files = lines
-			.filter(Boolean)
-			.slice(0, ENUMERATION_CAP)
-			.filter((line) => {
-				const displayLine = toDisplayPath(line);
-				return !(displayLine === ".git" || displayLine.startsWith(".git/") || displayLine.includes("/.git/"));
-			});
-		// Mirror fd's in-process pattern: basename only, smart-case, literal
-		// substring. rg itself takes no pattern here.
-		const smartCase = /[A-Z]/.test(query);
-		const needle = query ? (smartCase ? query : query.toLowerCase()) : null;
-		const basenameMatches = (path: string) => {
-			if (needle === null) {
-				return true;
-			}
-			const base = path.slice(path.lastIndexOf("/") + 1);
-			return (smartCase ? base : base.toLowerCase()).includes(needle);
-		};
-		// Walk paths in sorted order and surface each matching dir the first
-		// time it is crossed as an ancestor: this reproduces fd's interleaving
-		// of directories with their contents (a dir sorts directly before the
-		// first file under it). A dir is offered when its own basename matches
-		// the query, so `@loc` still offers `.local/` like upstream fd would.
-		const emittedDirs = new Set<string>();
-		const results: CandidateEntry[] = [];
-		for (const file of files) {
-			const ancestors: string[] = [];
-			let slash = file.lastIndexOf("/");
-			while (slash > 0) {
-				const dir = file.slice(0, slash);
-				if (basenameMatches(dir) && !emittedDirs.has(dir)) {
-					ancestors.push(dir);
-					emittedDirs.add(dir);
-				}
-				slash = dir.lastIndexOf("/");
-			}
-			for (let i = ancestors.length - 1; i >= 0; i -= 1) {
-				results.push({ path: `${ancestors[i]}/`, isDirectory: true });
-			}
-			if (basenameMatches(file)) {
-				results.push({ path: toDisplayPath(file), isDirectory: false });
-			}
-		}
-		return results;
+		return mergeCandidateLists(
+			buildRgCandidates(shallowFiles, query),
+			buildRgCandidates(recursiveFiles, query),
+		);
 	},
 };
 
 /**
- * fd fallback: pass A (verbatim upstream walk) plus passes B and C to re-add
- * the files git's `info/exclude` hides. Requires the exclude path, resolved
- * once per session; without it (no repo / no rules) it degenerates to pass A,
- * i.e. exactly the built-in behavior.
+ * fd fallback: pass A plus passes B and C to re-add the files git's
+ * `info/exclude` hides. Requires the exclude path, resolved once per session;
+ * without it (no repo / no rules) it degenerates to pass A.
  */
 function createFdSource(bin: string, excludePath: string | null): FileCandidateSource {
 	return {
 		name: "fd",
 		async getCandidates({ base, query, signal }) {
+			// Depth-1 pass (upstream getBaseDirSuggestions): guarantees every
+			// direct child survives the recursive pass's --max-results cap.
+			const baseEntries = await walkDirectoryWithFd(base, bin, query, 100, signal, [], 1);
 			const runA = await walkDirectoryWithFd(base, bin, query, 100, signal);
 			if (signal.aborted) {
 				return [];
 			}
 			if (!excludePath) {
-				return runA;
+				return mergeCandidateLists(baseEntries, runA);
 			}
 			const [runB, runC] = await Promise.all([
 				walkDirectoryWithFd(base, bin, query, 8_000, signal, ["--no-ignore-vcs"]),
@@ -609,7 +669,7 @@ function createFdSource(bin: string, excludePath: string | null): FileCandidateS
 			const setC = new Set(runC.map((entry) => entry.path));
 			const setA = new Set(runA.map((entry) => entry.path));
 			const extras = runB.filter((entry) => !setC.has(entry.path) && !setA.has(entry.path));
-			return [...runA, ...extras];
+			return mergeCandidateLists(baseEntries, runA, extras);
 		},
 	};
 }

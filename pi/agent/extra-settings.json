@@ -1,5 +1,13 @@
 {
   "bashDefaultTimeout": 10,
+  "notify": {
+    "shortcut": "alt+n",
+    "title": "Pi",
+    "body": "Ready for input",
+    "icon": "pi-coding-agent",
+    "indicatorOn": "\uf0f3 ",
+    "indicatorOff": "\uf1f6 "
+  },
   "read-md": {
     "maxLines": 50,
     "searchLimit": 20,

@@ -73,15 +73,15 @@ local servers = {
   nixd = {
     settings = {
       nixd = {
-        nixpkgs = {
-          expr = "import <nixpkgs> { }",
-        },
         formatting = {
           command = { "nixfmt" },
         },
+        nixpkgs = {
+          expr = '(builtins.getFlake "system").nixosConfigurations."nixos-laptop".pkgs',
+        },
         options = {
           nixos = {
-            expr = '(builtins.getFlake "./.").nixosConfigurations."nixos-laptop".options',
+            expr = '(builtins.getFlake "system").nixosConfigurations."nixos-laptop".options',
           },
         },
       },

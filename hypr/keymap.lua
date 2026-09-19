@@ -181,6 +181,9 @@ launch(main_mod("SHIFT + C"), "hyprpicker --autocopy --format=hex", "Open color 
 launch(main_mod("F1"), calculator, "Launch calculator (Qalculate)")
 launch(main_mod("F2"), "launch-named-app Excalidraw", "Launch whiteboard (Excalidraw)")
 
+launch(main_mod("T"), "handy --toggle-transcription", "Toggle transcription")
+launch(main_mod("CTRL + T"), "handy --cancel", "Cancel transcription")
+
 local function get_unique_window(class, program, callback)
 	local w = hl.get_window("class:" .. class)
 	if w then

@@ -32,6 +32,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("netbird-ui")
 	hl.exec_cmd("ags run ~/.config/ags/notifications/ &")
 	hl.exec_cmd("ags run ~/.config/ags/bar/ &")
+	hl.exec_cmd("handy --start-hidden")
 end)
 
 hl.env("GTK_THEME", "Nordic")

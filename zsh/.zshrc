@@ -49,15 +49,27 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit
-zmodload zsh/datetime zsh/stat
-_zcomp_dump=${ZDOTDIR:-$HOME}/.zcompdump
-if [[ ! -f $_zcomp_dump ]] || (( EPOCHSECONDS - $(zstat +mtime $_zcomp_dump) > 7*24*3600 )); then
-  print -u2 "Rebuilding completion cache; this startup will be slower than usual"
-  compinit -i
-else
-  compinit -C
-fi
-unset _zcomp_dump
+
+# Defers a full compinit until after an interactive prompt
+load_completions() {
+  _zcomp_dump=${ZDOTDIR:-$HOME}/.zcompdump
+
+  [[ -f $_zcomp_dump ]] && compinit -C
+
+  _defer_compinit() {
+    local fd=$1
+    zle -F $fd
+    exec {fd}>&-
+    compinit
+    unset _defer_fd
+    unset -f _defer_compinit
+  }
+  zle -N _defer_compinit
+  exec {_defer_fd}</dev/null
+  zle -F $_defer_fd _defer_compinit
+  unset _zcomp_dump
+}
+load_completions && unset -f load_completions
 
 complete -C 'aws_completer' aws
 

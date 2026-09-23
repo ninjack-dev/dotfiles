@@ -36,7 +36,7 @@ let
     ];
 
     javascript = with unstable; [
-      nodejs
+      nodejs_latest
       deno
     ];
 

@@ -190,7 +190,7 @@ local function get_unique_window(class, program, callback)
 		callback(w)
 		return
 	end
-  local sub
+	local sub
 	sub = hl.on("window.open", function(ew)
 		if ew.class == class then
 			sub:remove()
@@ -213,10 +213,10 @@ local function pull_window(class, program)
 end
 
 launch(main_mod("CTRL + O"), function()
-	goto_window("md.Obsidian", "obsidian")
+	goto_window("md.obsidian.Obsidian", "obsidian")
 end, "Focus Obsidian")
 launch(main_mod("CTRL + SHIFT + O"), function()
-	pull_window("md.Obsidian", "obsidian")
+	pull_window("md.obsidian.Obsidian", "obsidian")
 end, "Bring Obsidian to current workspace")
 
 launch(main_mod("D"), function()

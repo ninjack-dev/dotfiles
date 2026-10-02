@@ -1,13 +1,11 @@
 {
-  "lastChangelogVersion": "0.84.3",
+  "lastChangelogVersion": "1.0.0",
   "shellPath": "/run/current-system/sw/bin/bash",
   "defaultProvider": "opencode-go",
-  "defaultModel": "deepseek-v4-flash",
+  "defaultModel": "deepseek-v4.1-flash",
   "defaultThinkingLevel": "high",
   "theme": "dark",
-  "packages": [
-    "npm:pi-mcp-adapter"
-  ],
+  "packages": [],
   "tuiMode": "regular",
   "treeFilterMode": "default",
   "doubleEscapeAction": "tree",

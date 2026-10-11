@@ -5,7 +5,8 @@ agent/auth.json
 agent/trust.json
 agent/models-store.json
 
-# MCP extension
+# MCP
 # TODO: Only reason this is ignored is because it makes authenticated calls to private homelab services. Need template/secret injection pipeline.
 agent/mcp.json
-agent/mcp-cache.json
+agent/mcp-auth.json
+agent/mcp.log*

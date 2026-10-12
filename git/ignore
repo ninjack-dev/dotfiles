@@ -1,1 +1,4 @@
 .jj/
+
+# MacOS
+.DS_Store

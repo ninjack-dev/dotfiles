@@ -8,6 +8,10 @@
       url = "github:NixOS/nixos-hardware/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    darwin = {
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hyprland.url = "github:hyprwm/Hyprland?ref=v0.56.2";
   };
 
@@ -38,45 +42,50 @@
       };
     in
     {
-      nixosConfigurations."nixos-laptop" = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit inputs nixpkgs unstable; };
-        modules = [
-          (
-            { ... }:
-            {
-              nix = {
-                channel.enable = false;
-                registry = {
-                  nixpkgs.flake = nixpkgs;
-                  unstable.flake = unstable;
-                  system.flake = self;
+      nixosConfigurations = {
+        "nixos-laptop" = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs nixpkgs unstable; };
+          modules = [
+            (
+              { ... }:
+              {
+                nix = {
+                  channel.enable = false;
+                  registry = {
+                    nixpkgs.flake = nixpkgs;
+                    unstable.flake = unstable;
+                    system.flake = self;
+                  };
                 };
-              };
 
-              nixpkgs.overlays = [
-                overlay-stable
-                overlay-unstable
-              ];
+                nixpkgs.overlays = [
+                  overlay-stable
+                  overlay-unstable
+                ];
 
-              environment.etc."nix/inputs/nixpkgs".source = nixpkgs.outPath;
-              environment.etc."nix/inputs/unstable".source = unstable.outPath;
+                environment.etc."nix/inputs/nixpkgs".source = nixpkgs.outPath;
+                environment.etc."nix/inputs/unstable".source = unstable.outPath;
 
-              nix.nixPath = [
-                "nixpkgs=/etc/nix/inputs/nixpkgs"
-                "unstable=/etc/nix/inputs/unstable"
-              ];
+                nix.nixPath = [
+                  "nixpkgs=/etc/nix/inputs/nixpkgs"
+                  "unstable=/etc/nix/inputs/unstable"
+                ];
 
-              nix.settings = {
-                substituters = [ "https://hyprland.cachix.org" ];
-                trusted-substituters = [ "https://hyprland.cachix.org" ];
-                trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
-              };
-            }
-          )
-          ./modules/configuration.nix
-          nixos-hardware.nixosModules.lenovo-thinkpad-e14-intel-gen6
-        ];
+                nix.settings = {
+                  substituters = [ "https://hyprland.cachix.org" ];
+                  trusted-substituters = [ "https://hyprland.cachix.org" ];
+                  trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+                };
+              }
+            )
+            ./modules/configuration.nix
+            nixos-hardware.nixosModules.lenovo-thinkpad-e14-intel-gen6
+          ];
+        };
+      };
+      darwinConfigurations."Jacksons-MacBook-Pro" = nix-darwin.lib.darwinSystem {
+        modules = [ ./darwin/configuration.nix ];
       };
     };
 }

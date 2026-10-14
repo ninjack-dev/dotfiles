@@ -36,6 +36,10 @@ update-branches = {
   doc = "Rebase branches off of the trunk onto the last commit",
   definition = ["rebase", "--source", "roots(trunk()..) ~ trunk()::", "--onto", "trunk()", "--skip-emptied"],
   }
+purge = {
+  doc = "Remove path(s) from every visible revision in one undoable operation (rewrites immutable history)",
+  definition = ["run", "-r", "..", "--ignore-immutable", "--root", "--", "rm", "-f", "--"],
+  }
 
 [revset-aliases]
 "branch_roots()" = "roots(trunk()..) ~ trunk()::"

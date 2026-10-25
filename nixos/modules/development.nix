@@ -127,7 +127,6 @@ in
       bpftrace
 
       unstable.forgejo-cli
-      (callPackage ../packages/forgejo-cli-completions.nix { forgejo-cli = unstable.forgejo-cli; })
 
       libnotify
       gum

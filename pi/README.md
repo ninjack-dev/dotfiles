@@ -8,7 +8,7 @@ ln -s "$XDG_CONFIG_HOME/pi" "$HOME/.pi"
 # Temporary; some extensions are using packages from Pi's dependency tree. 
 # This was the easiest (and stupidest) way to hoist them without deduping
 ln -s \
-    "$(npm list -g @earendil-works/pi-coding-agent --parseable)" \
+    "$(npm list -g @earendil-works/pi-coding-agent --parseable)/node_modules" \
     "$HOME/.pi/agent/extensions/node_modules"
 ```
 

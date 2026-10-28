@@ -1,0 +1,521 @@
+#!/bin/sh
+# git-export - export a file or directory from a git forge URL, like `svn export`.
+# Works with GitHub, GitLab, Gitea/Forgejo/Codeberg, Bitbucket, SourceHut, and
+# plain git remotes. Usable as a git extension via `git export`.
+
+set -eu
+
+prog=${0##*/}
+force=0
+fast=0
+filter=blob:none
+forced_ref=''
+
+# Repositories up to this size (KiB) use the faster, less selective path.
+fast_limit_kb=${GIT_EXPORT_FAST_LIMIT_KB:-5120}
+archive_limit_kb=${GIT_EXPORT_ARCHIVE_LIMIT_KB:-$fast_limit_kb}
+lazy_file_limit=${GIT_EXPORT_LAZY_FILE_LIMIT:-20}
+case $fast_limit_kb in '' | *[!0-9]*) fast_limit_kb=5120 ;; esac
+case $archive_limit_kb in '' | *[!0-9]*) archive_limit_kb=$fast_limit_kb ;; esac
+case $lazy_file_limit in '' | *[!0-9]*) lazy_file_limit=20 ;; esac
+
+usage() {
+	printf '%s\n' \
+		"Usage: $prog [-f] [-r REF] URL [DEST]" \
+		"" \
+		"Export a file or directory from a git repository without a full clone." \
+		"URL may be a forge web URL (tree/blob/src/raw) or a plain git remote." \
+		"" \
+		"Options:" \
+		"  -f       overwrite an existing destination" \
+		"  -r REF   force REF when the ref/path split is ambiguous" \
+		"  -h       show this help" \
+		"" \
+		"Examples:" \
+		"  $prog https://github.com/owner/repo/tree/main/path/to/dir" \
+		"  $prog https://github.com/owner/repo/blob/main/path/to/file.md" \
+		"  $prog https://gitlab.com/group/repo/-/tree/main/dir" \
+		"  $prog https://codeberg.org/owner/repo/src/branch/main/dir" \
+		"  git export https://github.com/owner/repo/tree/main/dir"
+}
+
+die() {
+	printf '%s: %s\n' "$prog" "$*" >&2
+	exit 1
+}
+
+while getopts 'fr:h' opt; do
+	case $opt in
+	f) force=1 ;;
+	r) forced_ref=$OPTARG ;;
+	h)
+		usage
+		exit 0
+		;;
+	*)
+		usage >&2
+		exit 2
+		;;
+	esac
+done
+shift $((OPTIND - 1))
+
+[ $# -ge 1 ] && [ $# -le 2 ] || {
+	usage >&2
+	exit 2
+}
+
+url=$1
+dest=${2:-.}
+
+# Strip fragment and query (GitHub appends ?plain=1, #L10, etc.).
+url=${url%%#*}
+url=${url%%\?*}
+url=${url%/}
+
+repo_url=''
+spec=''
+name=''
+forge=''
+kind=''
+project=''
+owner=''
+repo=''
+
+case $url in
+*://*)
+	scheme=${url%%://*}
+	rest=${url#*://}
+	host=${rest%%/*}
+	[ "$host" != "$rest" ] || die "no repository path in URL: $url"
+	webpath=${rest#*/}
+
+	# GitLab (including self-hosted) uses /-/ as the UI boundary.
+	case $webpath in
+	*"/-/"*)
+		prefix=${webpath%%/-/*}
+		tail=${webpath#*/-/}
+		kind=${tail%%/*}
+		spec=
+		[ "$kind" = "$tail" ] || spec=${tail#*/}
+		repo_url="$scheme://$host/$prefix"
+		name=${prefix##*/}
+		forge=gitlab
+		project=$prefix
+		;;
+	*)
+		seg1=${webpath%%/*}
+		after=
+		[ "$seg1" = "$webpath" ] || after=${webpath#*/}
+		seg2=${after%%/*}
+		repo_url="$scheme://$host/$seg1"
+		[ -z "$seg2" ] || repo_url=$repo_url/$seg2
+		name=${seg2:-$seg1}
+
+		case $host in
+		raw.githubusercontent.com)
+			# owner/repo/REF/path...
+			spec=${after#*/}
+			[ "$spec" != "$after" ] || spec=
+			repo_url="https://github.com/$seg1/$seg2"
+			forge=github
+			owner=$seg1
+			repo=$seg2
+			kind=raw
+			;;
+		*)
+			owner=$seg1
+			repo=$seg2
+			case $host in
+			github.com) forge=github ;;
+			codeberg.org) forge=codeberg ;;
+			gitea.com) forge=gitea ;;
+			bitbucket.org) forge=bitbucket ;;
+			git.sr.ht) forge=sourcehut ;;
+			esac
+
+			if [ -n "$after" ] && [ "$seg2" != "$after" ]; then
+				tail=${after#*/}
+				kind=${tail%%/*}
+				[ "$kind" = "$tail" ] || tail=${tail#*/}
+			fi
+
+			case $kind in
+			'') ;;
+			tree | blob | src | raw)
+				case $host in
+				*sr.ht)
+					# SourceHut: tree/REF/item/PATH
+					case $tail in *"/item/"*) spec=${tail%%/item/*}/${tail#*/item/} ;; *) spec=$tail ;; esac
+					;;
+				*)
+					# Gitea/Forgejo add a type segment: src/branch/REF/PATH.
+					case $tail in branch/* | tag/* | commit/* | raw/*) tail=${tail#*/} ;; esac
+					spec=$tail
+					;;
+				esac
+				;;
+			*)
+				case $host in
+				*gitlab*)
+					# GitLab repo roots may have subgroup segments and no /-/ marker.
+					repo_url="$scheme://$host/$webpath"
+					name=${webpath##*/}
+					forge=gitlab
+					project=$webpath
+					;;
+				*) die "cannot parse URL (expected tree, blob, src, or raw): $url" ;;
+				esac
+				;;
+			esac
+			;;
+		esac
+		;;
+	esac
+	;;
+*:*)
+	repo_url=$url
+	name=${url##*:}
+	name=${name##*/}
+	;;
+*)
+	die "not a URL: $url"
+	;;
+esac
+
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/git-export.XXXXXX") || die "cannot create temporary directory"
+trap 'rm -rf "$tmp"' 0
+trap 'rm -rf "$tmp"; exit 1' HUP INT TERM
+
+prepare_target() {
+	case $1 in '' | . | ..) die "refusing unsafe destination name: $1" ;; esac
+	mkdir -p "$dest" || die "cannot create destination: $dest"
+	case $dest in */) target=$dest ;; *) target=$dest/ ;; esac
+	if [ -e "$target$1" ]; then
+		[ "$force" -eq 1 ] || die "destination exists: $target$1 (use -f to overwrite)"
+		rm -rf "$target$1" || die "cannot remove $target$1"
+	fi
+}
+
+http_token=''
+http_user=''
+http_pass=''
+token_loaded=0
+repo_size_kb=''
+size_probed=0
+fastpath_available=0
+if command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
+	fastpath_available=1
+fi
+
+load_token() {
+	[ "$token_loaded" -eq 1 ] && return 0
+	token_loaded=1
+	case $forge in
+	github)
+		http_token=${GITHUB_TOKEN:-${GH_TOKEN:-}}
+		if [ -z "$http_token" ] && command -v gh >/dev/null 2>&1; then
+			http_token=$(gh auth token 2>/dev/null || true)
+		fi
+		;;
+	gitlab) http_token=${GITLAB_TOKEN:-} ;;
+	codeberg | gitea) http_token=${GITEA_TOKEN:-${CODEBERG_TOKEN:-}} ;;
+	bitbucket) http_token=${BITBUCKET_TOKEN:-} ;;
+	sourcehut) http_token=${SRHT_TOKEN:-} ;;
+	esac
+
+	if [ -z "$http_token" ] && [ -n "$forge" ] && [ "$forge" != github ] && [ -n "$host" ]; then
+		creds=$(printf 'protocol=https\nhost=%s\n\n' "$host" |
+			GIT_TERMINAL_PROMPT=0 git credential fill 2>/dev/null || true)
+		http_user=$(printf '%s\n' "$creds" | sed -n 's/^username=//p')
+		http_pass=$(printf '%s\n' "$creds" | sed -n 's/^password=//p')
+		[ -n "$http_pass" ] && http_token=$http_pass
+	fi
+}
+
+http_get() {
+	http_url=$1
+	http_out=$2
+	set --
+	[ -n "$http_token" ] && case $forge in
+	github | bitbucket | sourcehut) set -- -H "Authorization: Bearer $http_token" ;;
+	gitlab) set -- -H "PRIVATE-TOKEN: $http_token" ;;
+	codeberg | gitea) set -- -H "Authorization: token $http_token" ;;
+	esac
+	if [ "$forge" = bitbucket ] && [ -n "$http_user" ] && [ -n "$http_pass" ]; then
+		set -- -u "$http_user:$http_pass"
+	fi
+	curl -sS -L -o "$http_out" -w '%{http_code}' "$@" "$http_url" 2>/dev/null || :
+}
+
+probe_repo_size() {
+	[ "$size_probed" -eq 1 ] && return 0
+	size_probed=1
+	[ "$fastpath_available" -eq 1 ] && [ -n "$forge" ] || return 0
+	[ -n "$owner" ] && [ -n "$repo" ] || return 0
+
+	size_divisor=1
+	case $forge in
+	github) size_url="https://api.github.com/repos/$owner/$repo" ;;
+	codeberg | gitea) size_url="https://$host/api/v1/repos/$owner/$repo" ;;
+	bitbucket)
+		size_url="https://api.bitbucket.org/2.0/repositories/$owner/$repo"
+		size_divisor=1024
+		;;
+	*) return 0 ;;
+	esac
+
+	load_token
+	size_code=$(http_get "$size_url" "$tmp/size.json")
+	[ "$size_code" = 200 ] || return 0
+	size=$(tr ',' '\n' <"$tmp/size.json" |
+		sed -n 's/.*"size":[[:space:]]*\([0-9][0-9]*\).*/\1/p' |
+		head -n 1)
+	[ -n "$size" ] || return 0
+	repo_size_kb=$((size / size_divisor))
+}
+
+extract_archive() {
+	mkdir -p "$2" && tar -xzf "$1" -C "$2" 2>/dev/null || return 1
+	set -- "$2"/*
+	[ "$#" -eq 1 ] && [ -e "$1" ] || return 1
+	printf '%s\n' "$1"
+}
+
+split_spec() {
+	if [ -n "$forced_ref" ]; then
+		case $spec in
+		"$forced_ref") path= ;;
+		"$forced_ref"/*) path=${spec#"$forced_ref"/} ;;
+		*) return 1 ;;
+		esac
+		ref=$forced_ref
+	elif [ -n "$spec" ]; then
+		ref=${spec%%/*}
+		path=${spec#*/}
+		[ "$path" != "$spec" ] || path=
+	else
+		return 1
+	fi
+}
+
+ref=''
+path=''
+resolved=0
+
+try_forge_fast() {
+	[ "$fastpath_available" -eq 1 ] || return 1
+	case $forge in
+	github | gitlab | codeberg | gitea | bitbucket | sourcehut) ;;
+	*) return 1 ;;
+	esac
+	case $kind in
+	tree | blob | src | raw) ;;
+	*) return 1 ;;
+	esac
+	split_spec || return 1
+	[ -n "$ref" ] || return 1
+
+	if [ -n "$path" ]; then
+		case "/$path/" in
+		*'/../'* | *'/./'* | *'//'*) return 1 ;;
+		esac
+	fi
+
+	load_token
+
+	case $kind:$forge in
+	blob:* | raw:* | src:* | tree:sourcehut)
+		case $forge in
+		github) fast_url="https://raw.githubusercontent.com/$owner/$repo/$ref/$path" ;;
+		gitlab) fast_url="https://$host/$project/-/raw/$ref/$path" ;;
+		codeberg | gitea) fast_url="https://$host/$owner/$repo/raw/$ref/$path" ;;
+		bitbucket) fast_url="https://bitbucket.org/$owner/$repo/raw/$ref/$path" ;;
+		sourcehut) fast_url="https://$host/$owner/$repo/blob/$ref/$path" ;;
+		esac
+		fast_code=$(http_get "$fast_url" "$tmp/fast-file")
+		if [ "$fast_code" = 200 ]; then
+			name=${path##*/}
+			[ -n "$name" ] || return 1
+			prepare_target "$name"
+			cp "$tmp/fast-file" "$target$name" || die "copy failed"
+			return 0
+		fi
+		# src/ and SourceHut tree/ may still be directories; fall through to
+		# the archive path below.
+		case $kind in blob | raw) return 1 ;; esac
+		;;
+	esac
+
+	# Directory or whole ref: archives are only cheap for small repositories.
+	probe_repo_size
+	[ -n "$repo_size_kb" ] || return 1
+	[ "$repo_size_kb" -le "$archive_limit_kb" ] || return 1
+
+	case $forge in
+	github) fast_url="https://codeload.github.com/$owner/$repo/tar.gz/$ref" ;;
+	codeberg | gitea) fast_url="https://$host/$owner/$repo/archive/$ref.tar.gz" ;;
+	bitbucket) fast_url="https://bitbucket.org/$owner/$repo/get/$ref.tar.gz" ;;
+	*) return 1 ;;
+	esac
+	fast_code=$(http_get "$fast_url" "$tmp/fast-archive.tar.gz")
+	[ "$fast_code" = 200 ] || return 1
+	top=$(extract_archive "$tmp/fast-archive.tar.gz" "$tmp/fast-tree") || return 1
+	if [ -n "$path" ]; then
+		src=$top/$path
+		[ -e "$src" ] || return 1
+		name=${path##*/}
+	else
+		src=$top
+		name=$repo
+	fi
+	[ -n "$name" ] || return 1
+	prepare_target "$name"
+	cp -R "$src" "$target$name" || die "copy failed"
+	return 0
+}
+
+if try_forge_fast; then
+	printf '%s\n' "$target$name"
+	exit 0
+fi
+
+# If the forge reported a small repository, use the faster git path even when
+# no archive fast path applies.
+if [ "$fast" -eq 0 ]; then
+	probe_repo_size
+	if [ -n "$repo_size_kb" ] && [ "$repo_size_kb" -le "$fast_limit_kb" ]; then
+		fast=1
+		filter=blob:limit=1m
+	fi
+fi
+
+resolve_lsremote() {
+	# A ref may contain slashes, so ask the remote for the available refs and
+	# pick the longest one that prefixes the URL's ref/path portion.
+	if ! git ls-remote --refs --heads --tags "$repo_url" >"$tmp/refs" 2>"$tmp/refs.err"; then
+		cat "$tmp/refs.err" >&2
+		die "cannot read refs from $repo_url"
+	fi
+
+	best=''
+	while IFS= read -r line; do
+		[ -n "$line" ] || continue
+		refname=${line#*	}
+		case $refname in
+		refs/heads/*) refname=${refname#refs/heads/} ;;
+		refs/tags/*) refname=${refname#refs/tags/} ;;
+		*) continue ;;
+		esac
+		case $spec in
+		"$refname" | "$refname"/*) ;;
+		*) continue ;;
+		esac
+		if [ "${#refname}" -gt "${#best}" ]; then
+			best=$refname
+		fi
+	done <"$tmp/refs"
+
+	if [ -n "$best" ]; then
+		ref=$best
+		path=${spec#"$best"}
+		path=${path#/}
+	else
+		# Fall back to the first segment: works for raw SHAs and unusual refs.
+		ref=${spec%%/*}
+		path=${spec#*/}
+		[ "$path" != "$spec" ] || path=
+	fi
+	resolved=1
+}
+
+if [ -n "$forced_ref" ]; then
+	split_spec || die "URL does not contain ref '$forced_ref': $spec"
+	resolved=1
+elif [ -z "$spec" ]; then
+	ref=HEAD
+	path=''
+	resolved=1
+elif [ "$fast" -eq 1 ]; then
+	split_spec
+else
+	case $spec in
+	*/*) resolve_lsremote ;;
+	*)
+		ref=$spec
+		path=''
+		resolved=1
+		;;
+	esac
+fi
+
+[ -n "$ref" ] || die "could not determine a ref from URL: $url"
+
+git -C "$tmp" init -q || die "git init failed"
+git -C "$tmp" remote add origin "$repo_url"
+
+fetch_ref() {
+	git -C "$tmp" fetch -q --depth 1 --filter="$filter" origin "$1" 2>"$tmp/fetch.err"
+}
+
+retry_resolution() {
+	[ "$fast" -eq 1 ] && [ "$resolved" -eq 0 ] && [ -n "$spec" ] || return 1
+	resolve_lsremote
+}
+
+fetch_or_die() {
+	if fetch_ref "$ref" || { retry_resolution && fetch_ref "$ref"; }; then
+		return 0
+	fi
+	cat "$tmp/fetch.err" >&2
+	die "could not fetch '$ref' from $repo_url"
+}
+
+fetch_or_die
+
+commit=$(git -C "$tmp" rev-parse 'FETCH_HEAD^{commit}')
+
+prefetch_path() {
+	[ "$filter" = blob:none ] || return 0
+	if [ -z "$path" ]; then
+		path_count=$(git -C "$tmp" ls-tree -r --name-only "$commit" 2>/dev/null | wc -l | tr -d '[:space:]')
+	else
+		path_count=$(git -C "$tmp" ls-tree -r --name-only "$commit" -- ":(literal)$path" 2>/dev/null | wc -l | tr -d '[:space:]')
+	fi
+	case $path_count in '' | *[!0-9]*) return 0 ;; esac
+	[ "$path_count" -gt "$lazy_file_limit" ] || return 0
+	# Lazy promisor fetches can go one object at a time on some forges. Pull
+	# small blobs in one batch instead, then check out from local objects.
+	git -C "$tmp" fetch -q --refetch --filter=blob:limit=1m --depth 1 origin "$ref" 2>/dev/null || :
+}
+
+do_export() {
+	prefetch_path
+	if [ -n "$path" ]; then
+		git -C "$tmp" checkout -q "$commit" -- ":(literal)$path" 2>"$tmp/checkout.err" || return 1
+		src=$tmp/$path
+		[ -e "$src" ] || return 1
+		name=${path##*/}
+		prepare_target "$name"
+		cp -R "$src" "$target" || die "copy failed"
+		return 0
+	fi
+	name=${name%.git}
+	[ -n "$name" ] || name=repo
+	prepare_target "$name"
+	mkdir "$target$name" || die "cannot create $target$name"
+	git -C "$tmp" archive --output="$tmp/export.tar" "$commit" || die "archive failed"
+	tar -x -f "$tmp/export.tar" -C "$target$name" || die "extract failed"
+}
+
+if ! do_export; then
+	if retry_resolution; then
+		fetch_or_die
+		commit=$(git -C "$tmp" rev-parse 'FETCH_HEAD^{commit}')
+		do_export || die "path not found at '$ref': $path"
+	else
+		die "path not found at '$ref': $path"
+	fi
+fi
+
+printf '%s\n' "$target$name"

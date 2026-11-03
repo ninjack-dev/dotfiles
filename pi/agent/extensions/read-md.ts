@@ -44,7 +44,7 @@ import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, resolve as resolvePath } from "node:path";
 import { marked } from "marked";
-import { Type, type Static } from "typebox";
+import { num, obj, opt, str, type Static } from "@earendil-works/pi-schema";
 
 const TOOL_NAME = "read";
 const MARKDOWN_EXTENSION = /\.(md|markdown|mdx)$/i;
@@ -71,23 +71,26 @@ interface HeadingNode {
 	endLine: number;
 }
 
-const schema = Type.Object({
-	path: Type.String({ description: "Path to the file to read (relative or absolute)" }),
-	offset: Type.Optional(Type.Number({ description: "Line number to start reading from (1-indexed)" })),
-	limit: Type.Optional(Type.Number({ description: "Maximum number of lines to read" })),
-	section: Type.Optional(
-		Type.String({
-			description:
-				'Markdown only: dotted section ID from the table of contents (e.g. "1.2.3"), or an exact heading title. Returns that section verbatim.',
-		}),
-	),
-	search: Type.Optional(
-		Type.String({
-			description:
-				"Markdown only: case-insensitive search term. Returns truncated matches grouped by section so the matching section can then be read in full.",
-		}),
-	),
-});
+const schema = obj(
+	{
+		path: str({ description: "Path to the file to read (relative or absolute)" }),
+		offset: opt(num({ description: "Line number to start reading from (1-indexed)" })),
+		limit: opt(num({ description: "Maximum number of lines to read" })),
+		section: opt(
+			str({
+				description:
+					'Markdown only: dotted section ID from the table of contents (e.g. "1.2.3"), or an exact heading title. Returns that section verbatim.',
+			}),
+		),
+		search: opt(
+			str({
+				description:
+					"Markdown only: case-insensitive search term. Returns truncated matches grouped by section so the matching section can then be read in full.",
+			}),
+		),
+	},
+	{ open: true },
+);
 
 type ReadParams = Static<typeof schema>;
 

@@ -27,6 +27,8 @@ map("t", "<C-Esc>", "<C-\\><C-N>", { desc = "Exit terminal mode" })
 
 map("n", "<C-n>", MiniFiles.open, { desc = "Open file picker" })
 
+map({ "n", "x" }, "<leader>gb", require("utils.git_blame").toggle, { desc = "Toggle git blame overlay" })
+
 map({ "n", "t" }, "<A-i>", require("utils.floating_terminal").floating_terminal, { desc = "Toggle floating terminal" })
 
 map("n", "<leader>n", function()

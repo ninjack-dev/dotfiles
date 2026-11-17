@@ -1,2 +1,3 @@
 --no-ignore-exclude
 --hidden
+--glob=!.git

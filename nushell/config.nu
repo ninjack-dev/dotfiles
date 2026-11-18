@@ -7,8 +7,8 @@ $env.config.show_banner = false
 # - rebuild the the completion paths from scratch so that we can use --no-config (~40ms)
 let fish_path = whereis -b fish | split row ' ' | last
 let fish_completion_profile = open $"($env.XDG_CONFIG_HOME)/nushell/completion-profile.fish"
-let fish_completer = {|spans|
-  ^$fish_path --no-config $"--init-command=($fish_completion_profile)" --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+let fish_completer = {|place|
+  ^$fish_path --no-config $"--init-command=($fish_completion_profile)" --command $"complete '--do-complete=($place.command | str replace --all "'" "\\'" | str join ' ')'"
   | from tsv --flexible --noheaders --no-infer
   | rename value description
   | update value {|row|

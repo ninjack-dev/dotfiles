@@ -4,6 +4,8 @@ if vim.g.neovide then
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_floating_shadow = true
 
+  vim.g.neovide_input_macos_option_key_is_meta = 'only_left'
+
   local change_scale_factor = function(delta)
     vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
   end

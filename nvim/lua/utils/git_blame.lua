@@ -2,6 +2,9 @@ local M = {}
 
 local function set_highlights()
   vim.api.nvim_set_hl(0, "GitBlame", { link = "DiagnosticVirtualTextInfo", default = true })
+  vim.api.nvim_set_hl(0, "GitBlameHash", { link = "Directory", default = true })
+  vim.api.nvim_set_hl(0, "GitBlameAuthor", { link = "MoreMsg", default = true })
+  vim.api.nvim_set_hl(0, "GitBlameDate", { link = "Comment", default = true })
 end
 set_highlights()
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_highlights })
@@ -53,19 +56,18 @@ local function parse(text)
   return entries
 end
 
+-- Returns virt_text chunks so each field can carry its own highlight.
 local function format(entry)
   -- Lines from `--contents -` have an all-zero object ID.
-  if entry.sha:match("^0+$") then return "Not Committed Yet" end
+  if entry.sha:match("^0+$") then return { { " Not Committed Yet", "GitBlame" } } end
 
   local date = entry.time and os.date("%Y-%m-%d", tonumber(entry.time)) or "?"
-  return ("%s %s %s %s"):format(entry.sha:sub(1, 7), entry.author or "?", date, entry.summary or "")
-end
-
-local function annotate(buf, lnum, text)
-  vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, 0, {
-    virt_text = { { " " .. text, "GitBlame" } },
-    virt_text_pos = "eol",
-  })
+  return {
+    { " " .. entry.sha:sub(1, 7), "GitBlameHash" },
+    { " " .. (entry.author or "?"), "GitBlameAuthor" },
+    { " " .. date, "GitBlameDate" },
+    { " " .. (entry.summary or ""), "GitBlame" },
+  }
 end
 
 local function render(buf, entries)
@@ -81,20 +83,24 @@ local function render(buf, entries)
       while entries[last + 1] and entries[last + 1].sha == entry.sha do
         last = last + 1
       end
-
-      local text = format(entry)
-      list[#list + 1] = { first = lnum, last = last, text = text }
-      annotate(buf, lnum, text)
-
+      local chunks = format(entry)
+      local text = table.concat(vim.tbl_map(function(chunk) return chunk[1] end, chunks))
+      list[#list + 1] = { first = lnum, last = last, text = text, chunks = chunks }
+      vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, 0, {
+        virt_text = chunks,
+        virt_text_pos = "eol",
+        hl_mode = "combine",
+        priority = 100,
+      })
       lnum = last + 1
     end
   end
-
   blocks[buf] = list
 end
 
-local function show_pin(win, buf, lnum, text)
-  text = " " .. text
+-- Float, not virt_text: no visible line to anchor to, and floats ignore Neovide's scroll animation.
+local function show_pin(win, buf, lnum, block)
+  local text = block.text
   local win_width = vim.api.nvim_win_get_width(win)
   local width = math.max(1, math.min(vim.fn.strdisplaywidth(text), win_width))
 
@@ -105,10 +111,14 @@ local function show_pin(win, buf, lnum, text)
 
   vim.api.nvim_buf_set_lines(pin_text_buf, 0, -1, false, { text })
   vim.api.nvim_buf_clear_namespace(pin_text_buf, pin_ns, 0, -1)
-  vim.api.nvim_buf_set_extmark(pin_text_buf, pin_ns, 0, 0, {
-    end_col = #text,
-    hl_group = "GitBlame",
-  })
+  local start = 0
+  for _, chunk in ipairs(block.chunks) do
+    vim.api.nvim_buf_set_extmark(pin_text_buf, pin_ns, 0, start, {
+      end_col = start + #chunk[1],
+      hl_group = chunk[2],
+    })
+    start = start + #chunk[1]
+  end
 
   local opts = {
     relative = "win",
@@ -117,12 +127,10 @@ local function show_pin(win, buf, lnum, text)
     col = col,
     width = width,
     height = 1,
-    anchor = "NW",
     border = "none",
     focusable = false,
     style = "minimal",
     noautocmd = true,
-    zindex = 50,
   }
 
   if pin_win and vim.api.nvim_win_is_valid(pin_win) then
@@ -148,7 +156,7 @@ local function update_pin()
   for _, block in ipairs(list) do
     if top <= block.last then
       if block.first < top then
-        show_pin(win, buf, top, block.text)
+        show_pin(win, buf, top, block)
       else
         close_pin()
       end

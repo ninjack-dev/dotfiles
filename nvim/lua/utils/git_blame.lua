@@ -1,8 +1,13 @@
 local M = {}
 
-vim.api.nvim_set_hl(0, "GitBlame", { link = "DiagnosticVirtualTextInfo", default = true })
+local function set_highlights()
+  vim.api.nvim_set_hl(0, "GitBlame", { link = "DiagnosticVirtualTextInfo", default = true })
+end
+set_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = set_highlights })
 
 local ns = vim.api.nvim_create_namespace("git_blame")
+local pin_ns = vim.api.nvim_create_namespace("git_blame_pin")
 local enabled = {}
 local blocks = {}
 local pin_win
@@ -99,6 +104,12 @@ local function show_pin(win, buf, lnum, text)
   col = math.max(0, math.min(col, win_width - width))
 
   vim.api.nvim_buf_set_lines(pin_text_buf, 0, -1, false, { text })
+  vim.api.nvim_buf_clear_namespace(pin_text_buf, pin_ns, 0, -1)
+  vim.api.nvim_buf_set_extmark(pin_text_buf, pin_ns, 0, 0, {
+    end_col = #text,
+    hl_group = "GitBlame",
+  })
+
   local opts = {
     relative = "win",
     win = win,
@@ -119,7 +130,6 @@ local function show_pin(win, buf, lnum, text)
   else
     pin_win = vim.api.nvim_open_win(pin_text_buf, false, opts)
     vim.wo[pin_win].winblend = 100
-    vim.wo[pin_win].winhl = "Normal:GitBlame"
     vim.wo[pin_win].wrap = false
   end
   pin_src = buf

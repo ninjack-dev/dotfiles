@@ -1,0 +1,14 @@
+(defcfg
+  process-unmapped-keys no
+  macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
+)
+
+(defsrc
+  caps fn lctrl
+)
+
+(deflayermap (escctrl)
+  caps (tap-hold-press 150 150 esc lctrl)
+  fn lctrl
+  lctrl fn
+)
